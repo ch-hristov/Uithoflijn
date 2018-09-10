@@ -18,15 +18,16 @@ namespace Uithoflijn
             var backwards = new List<int>() { 110, 78, 82, 60, 100, 59, 243, 135 };
             var id = 0;
 
-            for (int x = 0; x < 2; x++)
+            //For both directions
+            for (var x = 0; x < 2; x++)
             {
                 var vertices = new List<Station>();
 
+                //reverse to make it into the correct order
                 if (x == 1)
-                {
                     names.Reverse();
-                }
 
+                // add vertices temporarily (not in the graph yet)
                 names.ForEach(name =>
                 {
                     vertices.Add(new Station()
@@ -38,26 +39,31 @@ namespace Uithoflijn
                     id++;
                 });
 
+                // add the to the graph
                 foreach (var item in vertices)
                     AddVertex(item);
 
-                for (int j = 0; j < names.Count - 1; j++)
+                // Add the edge weights
+                for (var j = 0; j < names.Count - 1; j++)
                 {
-                    int weight = -1;
+                    var weight = -1;
+
                     if (x == 0)
-                    {
                         weight = forward[j];
-                    }
                     else
-                    {
                         weight = backwards[j];
-                    }
-                    var edge = new UEdge(vertices[j], vertices[j + 1]);
+
+                    var edge = new UEdge(vertices[j], vertices[j + 1])
+                    {
+                        Weight = weight
+                    };
+
                     AddEdge(edge);
                 }
             }
 
-            Console.WriteLine();
+            foreach (var item in Edges)
+                Console.WriteLine(item.Weight);
         }
     }
 }
