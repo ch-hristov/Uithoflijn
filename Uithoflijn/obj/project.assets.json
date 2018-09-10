@@ -207,6 +207,21 @@
         "build": {
           "build/netstandard2.0/NETStandard.Library.targets": {}
         }
+      },
+      "QuickGraph/3.6.61119.7": {
+        "type": "package",
+        "compile": {
+          "lib/net4/QuickGraph.Data.dll": {},
+          "lib/net4/QuickGraph.Graphviz.dll": {},
+          "lib/net4/QuickGraph.Serialization.dll": {},
+          "lib/net4/QuickGraph.dll": {}
+        },
+        "runtime": {
+          "lib/net4/QuickGraph.Data.dll": {},
+          "lib/net4/QuickGraph.Graphviz.dll": {},
+          "lib/net4/QuickGraph.Serialization.dll": {},
+          "lib/net4/QuickGraph.dll": {}
+        }
       }
     }
   },
@@ -673,11 +688,33 @@
         "netstandard.library.2.0.3.nupkg.sha512",
         "netstandard.library.nuspec"
       ]
+    },
+    "QuickGraph/3.6.61119.7": {
+      "sha512": "crtYNiFcYFtYbmbEfdYsdGw5M3923OO5ZZD25K+WeLPgTp/q4oq3U/FVrbaOK5+Jg8UJDmoZ6sqAVion4RgXCA==",
+      "type": "package",
+      "path": "quickgraph/3.6.61119.7",
+      "files": [
+        "lib/net4/CodeContracts/QuickGraph.Contracts.dll",
+        "lib/net4/CodeContracts/QuickGraph.Data.Contracts.dll",
+        "lib/net4/CodeContracts/QuickGraph.Graphviz.Contracts.dll",
+        "lib/net4/CodeContracts/QuickGraph.Serialization.Contracts.dll",
+        "lib/net4/QuickGraph.Data.XML",
+        "lib/net4/QuickGraph.Data.dll",
+        "lib/net4/QuickGraph.Graphviz.XML",
+        "lib/net4/QuickGraph.Graphviz.dll",
+        "lib/net4/QuickGraph.Serialization.XML",
+        "lib/net4/QuickGraph.Serialization.dll",
+        "lib/net4/QuickGraph.XML",
+        "lib/net4/QuickGraph.dll",
+        "quickgraph.3.6.61119.7.nupkg.sha512",
+        "quickgraph.nuspec"
+      ]
     }
   },
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v2.1": [
-      "Microsoft.NETCore.App >= 2.1.0"
+      "Microsoft.NETCore.App >= 2.1.0",
+      "QuickGraph >= 3.6.61119.7"
     ]
   },
   "packageFolders": {
@@ -687,11 +724,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "c:\\users\\hrist\\source\\repos\\Uithoflijn\\Uithoflijn\\Uithoflijn.csproj",
+      "projectUniqueName": "C:\\Users\\hrist\\source\\repos\\Uithoflijn\\Uithoflijn\\Uithoflijn.csproj",
       "projectName": "Uithoflijn",
-      "projectPath": "c:\\users\\hrist\\source\\repos\\Uithoflijn\\Uithoflijn\\Uithoflijn.csproj",
+      "projectPath": "C:\\Users\\hrist\\source\\repos\\Uithoflijn\\Uithoflijn\\Uithoflijn.csproj",
       "packagesPath": "C:\\Users\\hrist\\.nuget\\packages\\",
-      "outputPath": "c:\\users\\hrist\\source\\repos\\Uithoflijn\\Uithoflijn\\obj\\",
+      "outputPath": "C:\\Users\\hrist\\source\\repos\\Uithoflijn\\Uithoflijn\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -725,6 +762,10 @@
             "target": "Package",
             "version": "[2.1.0, )",
             "autoReferenced": true
+          },
+          "QuickGraph": {
+            "target": "Package",
+            "version": "[3.6.61119.7, )"
           }
         },
         "imports": [
@@ -734,5 +775,17 @@
         "warn": true
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Package 'QuickGraph 3.6.61119.7' was restored using '.NETFramework,Version=v4.6.1' instead of the project target framework '.NETCoreApp,Version=v2.1'. This package may not be fully compatible with your project.",
+      "libraryId": "QuickGraph",
+      "targetGraphs": [
+        ".NETCoreApp,Version=v2.1"
+      ]
+    }
+  ]
 }
