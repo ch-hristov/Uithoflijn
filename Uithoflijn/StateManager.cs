@@ -10,7 +10,7 @@ namespace Uithoflijn
         public int InitialTrams { get; set; }
         public event EventHandler<TransportArgs> TramArrived = delegate { };
         public event EventHandler<TransportArgs> TramDeparture = delegate { };
-        public Queue
+        public Queue<TransportArgs> EventQueue = new Queue<TransportArgs>();
 
         public void Start()
         {
@@ -21,7 +21,6 @@ namespace Uithoflijn
 
             var T = 0;
             var track = new Terrain();
-            var eventQueue = new Queue<TransportArgs>();
             var trams = new List<Tram>();
 
             // initialize trams
@@ -32,7 +31,7 @@ namespace Uithoflijn
             {
                 Console.WriteLine($"Time step : {T}");
 
-                var events = new Queue<TransportArgs>(eventQueue.Where(x => x.TriggerTime == T).OrderByDescending(x => x.Priority));
+                var events = new Queue<TransportArgs>(EventQueue.Where(x => x.TriggerTime == T).OrderByDescending(x => x.Priority));
 
                 while (events.Any())
                 {
