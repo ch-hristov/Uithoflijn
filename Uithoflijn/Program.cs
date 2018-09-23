@@ -6,7 +6,7 @@ namespace Uithoflijn
     {
         public static void Main(string[] args)
         {
-            Trip x = new Trip();
+            Terrain x = new Terrain();
         }
     }
 }

@@ -7,12 +7,16 @@ using System.Text;
 
 namespace Uithoflijn
 {
-    public class Trip : AdjacencyGraph<Station, UEdge>
+    public class Terrain : AdjacencyGraph<Station, UEdge>
     {
-        public Trip()
+        private const string T1 = "Centraal Station";
+        private const string T2 = "P+R De Uithof";
+
+        public Terrain()
         {
-            var names = new List<string>() {  "Centraal Station", "Vaartsche Rijn", "Galgenwaard", "Kromme Rijn","Padualaan",
-                                                       "Heidelberglaan",  "UMC", "WKZ" ,"P+R De Uithof"};
+            var names = new List<string>() {  T1, "Vaartsche Rijn", "Galgenwaard", "Kromme Rijn","Padualaan",
+                                                       "Heidelberglaan",  "UMC", "WKZ" , T2};
+
 
             var forward = new List<int>() { 134, 243, 59, 101, 60, 86, 78, 113 };
             var backwards = new List<int>() { 110, 78, 82, 60, 100, 59, 243, 135 };
@@ -33,7 +37,7 @@ namespace Uithoflijn
                     vertices.Add(new Station()
                     {
                         Name = name,
-                        IsTerminal = name == "Centraal Station" || name == "P+R De Uithof",
+                        IsTerminal = name == T1 || name == T2,
                         Id = id
                     });
                     id++;
@@ -64,6 +68,13 @@ namespace Uithoflijn
 
             foreach (var item in Edges)
                 Console.WriteLine(item.Weight);
+        }
+
+        public Station GetStationTerminal(int v)
+        {
+            if (v == 0) return Vertices.FirstOrDefault(x => x.Name == T1);
+            if (v == 1) return Vertices.FirstOrDefault(x => x.Name == T2);
+            throw new Exception($"Use 0 for {T1} or 1 for {T2}");
         }
     }
 }
