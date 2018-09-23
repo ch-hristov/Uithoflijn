@@ -6,7 +6,8 @@ namespace Uithoflijn
     {
         public static void Main(string[] args)
         {
-            Terrain x = new Terrain();
+            StateManager sm = new StateManager();
+            sm.Start();
         }
     }
 }

@@ -13,5 +13,11 @@ namespace Uithoflijn
         {
 
         }
+
+        public override string ToString()
+        {
+            return $"{Source.Name} -> {Target.Name}";
+        }
+
     }
 }

@@ -1,9 +1,7 @@
 ﻿using QuickGraph;
-using QuickGraph.Serialization.DirectedGraphML;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Uithoflijn
 {
@@ -14,12 +12,13 @@ namespace Uithoflijn
 
         public Terrain()
         {
+
             var names = new List<string>() {  T1, "Vaartsche Rijn", "Galgenwaard", "Kromme Rijn","Padualaan",
                                                        "Heidelberglaan",  "UMC", "WKZ" , T2};
 
-
             var forward = new List<int>() { 134, 243, 59, 101, 60, 86, 78, 113 };
             var backwards = new List<int>() { 110, 78, 82, 60, 100, 59, 243, 135 };
+
             var id = 0;
 
             //For both directions
@@ -29,7 +28,9 @@ namespace Uithoflijn
 
                 //reverse to make it into the correct order
                 if (x == 1)
+                {
                     names.Reverse();
+                }
 
                 // add vertices temporarily (not in the graph yet)
                 names.ForEach(name =>
@@ -57,17 +58,25 @@ namespace Uithoflijn
                     else
                         weight = backwards[j];
 
-                    var edge = new UEdge(vertices[j], vertices[j + 1])
-                    {
-                        Weight = weight
-                    };
-
+                    var edge = new UEdge(vertices[j], vertices[j + 1]) { Weight = weight };
                     AddEdge(edge);
                 }
             }
 
-            foreach (var item in Edges)
-                Console.WriteLine(item.Weight);
+            var t = Vertices.Where(x => x.Name == T1).OrderBy(x => x.Id).ToList();
+            var t2 = Vertices.Where(x => x.Name == T2).OrderBy(x => x.Id).ToList();
+
+            AddEdge(new UEdge(t2[0], t2[1]) { Weight = 300 });
+            AddEdge(new UEdge(t[1], t[0]) { Weight = 300 });
+        }
+
+
+        public Station NextStation(Station toStation)
+        {
+            var vertex = Vertices.FirstOrDefault(x => x.Id == toStation.Id);
+
+            var neighbours = Edges.Where(v => v.Source.Id == toStation.Id).FirstOrDefault();
+            return neighbours.Target;
         }
 
         public Station GetStationTerminal(int v)

@@ -11,5 +11,17 @@ namespace Uithoflijn
         public string Name { get; set; }
 
         public bool IsTerminal { get; set; }
+
+
+        public override string ToString()
+        {
+            return $"[{Id}]{Name}";
+        }
+
+        public override bool Equals(object obj)
+        {
+            var c = obj as Station;
+            return Id == c.Id;
+        }
     }
 }
