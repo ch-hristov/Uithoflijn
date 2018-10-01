@@ -10,8 +10,8 @@ namespace Uithoflijn
 
         public string Name { get; set; }
 
-        public bool IsTerminal { get; set; }
-
+        public bool IsTerminalEntry { get; internal set; }
+        public bool IsTerminalExit { get; internal set; }
 
         public override string ToString()
         {
