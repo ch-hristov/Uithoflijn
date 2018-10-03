@@ -11,5 +11,11 @@ namespace Uithoflijn
         public int CurrentPassengers { get; set; }
 
         public int ServedPassengers { get; set; }
+        public double PassengersNextOut { get; internal set; }
+
+        public int GetDisembarkingPassengers(Tram tram)
+        {
+
+        }
     }
 }

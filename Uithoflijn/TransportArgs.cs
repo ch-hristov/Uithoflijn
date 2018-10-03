@@ -22,6 +22,7 @@ namespace Uithoflijn
     public enum TransportArgsType
     {
         Arrival,
-        Departure
+        Departure,
+        Idle
     }
 }

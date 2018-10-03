@@ -2,6 +2,15 @@
   "version": 3,
   "targets": {
     ".NETCoreApp,Version=v2.1": {
+      "MathNet.Numerics/4.5.1": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/MathNet.Numerics.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/MathNet.Numerics.dll": {}
+        }
+      },
       "Microsoft.NETCore.App/2.1.0": {
         "type": "package",
         "dependencies": {
@@ -226,6 +235,24 @@
     }
   },
   "libraries": {
+    "MathNet.Numerics/4.5.1": {
+      "sha512": "GOjrYhkAbzrObW8SG5X42ET0nbAAsJmJ3edBLk58dbHbiXeA0hZReqVYfRZTsqB/yYZhK8lgDliZjGKnk/gGhg==",
+      "type": "package",
+      "path": "mathnet.numerics/4.5.1",
+      "files": [
+        ".signature.p7s",
+        "lib/net40/MathNet.Numerics.dll",
+        "lib/net40/MathNet.Numerics.xml",
+        "lib/net461/MathNet.Numerics.dll",
+        "lib/net461/MathNet.Numerics.xml",
+        "lib/netstandard1.3/MathNet.Numerics.dll",
+        "lib/netstandard1.3/MathNet.Numerics.xml",
+        "lib/netstandard2.0/MathNet.Numerics.dll",
+        "lib/netstandard2.0/MathNet.Numerics.xml",
+        "mathnet.numerics.4.5.1.nupkg.sha512",
+        "mathnet.numerics.nuspec"
+      ]
+    },
     "Microsoft.NETCore.App/2.1.0": {
       "sha512": "AvT774nTFgU8cYcGO9j1EMwuayKslxqYTurg32HGpWa2hEYNuW2+XgYVVNcZe6Ndbr84QX6fwaOZfd5n+1m2OA==",
       "type": "package",
@@ -713,6 +740,7 @@
   },
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v2.1": [
+      "MathNet.Numerics >= 4.5.1",
       "Microsoft.NETCore.App >= 2.1.0",
       "QuickGraph >= 3.6.61119.7"
     ]
@@ -758,6 +786,10 @@
     "frameworks": {
       "netcoreapp2.1": {
         "dependencies": {
+          "MathNet.Numerics": {
+            "target": "Package",
+            "version": "[4.5.1, )"
+          },
           "Microsoft.NETCore.App": {
             "target": "Package",
             "version": "[2.1.0, )",

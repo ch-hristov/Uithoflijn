@@ -6,12 +6,14 @@ namespace Uithoflijn
     {
         public static void Main(string[] args)
         {
-           
-
-            StateManager sm = new StateManager();
+            var sm = new StateManager();
+            Console.CancelKeyPress += (a, b) => sm.WriteState();
             sm.Start();
 
+            //Write the state on cancel
+        
 
+            sm.WriteState();
         }
 
         public void ComputeCycleLength()

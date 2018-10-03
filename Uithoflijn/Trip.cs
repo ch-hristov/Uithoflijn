@@ -98,7 +98,10 @@ namespace Uithoflijn
             t2s[1].IsTerminalExit = true;
 
 
-            AddEdge(new UEdge(Vertices.Single(x => x.Id == -1), Vertices.SingleOrDefault(x => x.Name == T1 && x.IsTerminalEntry)));
+            AddEdge(new UEdge(Vertices.Single(x => x.Id == -1), Vertices.SingleOrDefault(x => x.Name == T1 && x.IsTerminalEntry))
+            {
+                Weight = 1
+            });
 
         }
 

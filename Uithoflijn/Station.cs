@@ -12,6 +12,7 @@ namespace Uithoflijn
 
         public bool IsTerminalEntry { get; internal set; }
         public bool IsTerminalExit { get; internal set; }
+        public double WaitingPeople { get; internal set; }
 
         public override string ToString()
         {
@@ -22,6 +23,16 @@ namespace Uithoflijn
         {
             var c = obj as Station;
             return Id == c.Id;
+        }
+
+        internal int GetEmbarkingPassengers()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal int GetEmbarkingPassengers(Tram tram)
+        {
+            throw new NotImplementedException();
         }
     }
 }
