@@ -1,17 +1,26 @@
 {
   "runtimeTarget": {
     "name": ".NETCoreApp,Version=v2.1",
-    "signature": "6ea115a4722b4cc49797b9b7f263b351916d5469"
+    "signature": "36e421c3adab80fc2fff67f7b4f1d519a12e4e2a"
   },
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v2.1": {
       "Uithoflijn/1.0.0": {
         "dependencies": {
+          "MathNet.Numerics": "4.5.1",
           "QuickGraph": "3.6.61119.7"
         },
         "runtime": {
           "Uithoflijn.dll": {}
+        }
+      },
+      "MathNet.Numerics/4.5.1": {
+        "runtime": {
+          "lib/netstandard2.0/MathNet.Numerics.dll": {
+            "assemblyVersion": "4.5.1.0",
+            "fileVersion": "4.5.1.0"
+          }
         }
       },
       "QuickGraph/3.6.61119.7": {
@@ -41,6 +50,13 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
+    },
+    "MathNet.Numerics/4.5.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-GOjrYhkAbzrObW8SG5X42ET0nbAAsJmJ3edBLk58dbHbiXeA0hZReqVYfRZTsqB/yYZhK8lgDliZjGKnk/gGhg==",
+      "path": "mathnet.numerics/4.5.1",
+      "hashPath": "mathnet.numerics.4.5.1.nupkg.sha512"
     },
     "QuickGraph/3.6.61119.7": {
       "type": "package",

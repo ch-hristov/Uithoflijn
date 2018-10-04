@@ -11,7 +11,9 @@ namespace Uithoflijn
         public string Name { get; set; }
 
         public bool IsTerminalEntry { get; internal set; }
+
         public bool IsTerminalExit { get; internal set; }
+
         public double WaitingPeople { get; internal set; }
 
         public override string ToString()
@@ -25,14 +27,10 @@ namespace Uithoflijn
             return Id == c.Id;
         }
 
-        internal int GetEmbarkingPassengers()
+        public int GetEmbarkingPassengers(Tram tram, int time)
         {
-            throw new NotImplementedException();
-        }
-
-        internal int GetEmbarkingPassengers(Tram tram)
-        {
-            throw new NotImplementedException();
+            //TODO:
+            return 10;
         }
     }
 }

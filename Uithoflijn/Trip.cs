@@ -91,35 +91,35 @@ namespace Uithoflijn
             t1s[1].IsTerminalExit = true;
             t1s[1].IsTerminalEntry = false;
 
-            t2s[0].IsTerminalEntry = true;
-            t2s[0].IsTerminalExit = false;
+            t2s[0].IsTerminalEntry = false;
+            t2s[0].IsTerminalExit = true;
 
-            t2s[1].IsTerminalEntry = false;
-            t2s[1].IsTerminalExit = true;
+            t2s[1].IsTerminalEntry = true;
+            t2s[1].IsTerminalExit = false;
 
 
-            AddEdge(new UEdge(Vertices.Single(x => x.Id == -1), Vertices.SingleOrDefault(x => x.Name == T1 && x.IsTerminalEntry))
+            AddEdge(new UEdge(Vertices.Single(x => x.Id == -1), Vertices.SingleOrDefault(x => x.Name == T1 && x.IsTerminalExit))
             {
                 Weight = 1
             });
 
         }
 
-        public Station GetUithofDepot()
+        public Station GetCSDepot()
         {
             return Vertices.FirstOrDefault(x => x.Name == "Depot");
         }
 
         public Station NextStation(Station forStation)
         {
-            if (!(GetUithofDepot() == forStation))
+            if (!(GetCSDepot() == forStation))
             {
                 var vertex = Vertices.FirstOrDefault(x => x.Id == forStation.Id);
                 var neighbours = Edges.Where(v => v.Source.Id == forStation.Id).FirstOrDefault();
                 return neighbours.Target;
             }
             //The only station to move from the depot is T1
-            return Vertices.Single(x => x.Name == T1 && x.IsTerminalEntry);
+            return Vertices.Single(x => x.Name == T1 && x.IsTerminalExit);
         }
 
         public Station GetStationTerminal(int v)
