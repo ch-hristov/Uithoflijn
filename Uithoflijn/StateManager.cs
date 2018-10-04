@@ -14,9 +14,10 @@ namespace Uithoflijn
 
     public class StateManager
     {
-        private const int Frequency = 300;
+        private const int Frequency = 40;
         private const int TotalTime = 54000;
         private const int MinimumDistanceBetweenTrains = 40;
+
         private const string opt = "optimal.txt";
 
         public int InitialTrams { get; set; }
@@ -28,10 +29,9 @@ namespace Uithoflijn
 
         public Queue<TransportArgs> EventQueue = new Queue<TransportArgs>();
         public ICollection<Tram> Trams = new List<Tram>();
+
         public Terrain Track { get; set; }
-
         private List<bool> _state = new List<bool>(54000);
-
 
         public void GenerateTimeTable()
         {
@@ -85,6 +85,9 @@ namespace Uithoflijn
             {
                 var events = new Queue<TransportArgs>(EventQueue.Where(x => x.TriggerTime == T)
                                                                 .OrderByDescending(x => x.Priority));
+
+                Track.PassengersArrive(T);
+
                 while (events.Any())
                 {
                     var next = events.Dequeue();
@@ -105,7 +108,6 @@ namespace Uithoflijn
 
             Console.WriteLine("Simulation finished...");
         }
-
 
         public void WriteState()
         {
@@ -140,6 +142,7 @@ namespace Uithoflijn
                 TriggerTime = e.TriggerTime + 1,
                 Type = TransportArgsType.Idle,
             });
+
         }
 
         private void HandleDeparture(object sender, TransportArgs e)
@@ -162,10 +165,24 @@ namespace Uithoflijn
             Console.WriteLine($"{e.Tram.Id} arrived at station {e.ToStation.ToString()} at time {e.TriggerTime}");
 
             // handle boarding ? how many people can board?
-            var toDisembark = e.Tram.GetDisembarkingPassengers(e.Tram, e.TriggerTime);
+            var toDisembark = e.Tram.GetDisembarkingPassengers(e.ToStation, e.TriggerTime);
             var toEmbark = e.ToStation.GetEmbarkingPassengers(e.Tram, e.TriggerTime);
 
             e.Tram.CurrentStation = e.ToStation;
+
+            // people exit train
+            e.Tram.CurrentPassengers -= toDisembark;
+
+            // This many people can enter
+            var canEnter = Math.Max(0, 420 - e.Tram.CurrentPassengers);
+            var totalEntering = Math.Min(canEnter, e.ToStation.WaitingPeople);
+
+            // Passengers board
+            var integerPersons = (int)Math.Ceiling(totalEntering);
+            e.Tram.CurrentPassengers += integerPersons;
+
+            //people enter train through station
+            e.ToStation.WaitingPeople -= totalEntering;
 
             //Don't immediately schedule departure if the trams just arrived at the depot,
             //This is done by the idle event
@@ -184,29 +201,17 @@ namespace Uithoflijn
         }
 
         /// <summary>
-        /// TODO:
-        /// </summary>
-        /// <param name="tram"></param>
-        /// <param name="triggerTime"></param>
-        /// <param name="toStation"></param>
-        /// <returns></returns>
-        private int GetDisembarkingPassengers(Tram tram, int triggerTime, Station toStation)
-        {
-            return 1;
-        }
-
-        /// <summary>
         /// Returns the amount of time to be waited at the station
         /// </summary>
         /// <param name="atStation">The station for which we're computing the waiting time</param>
         /// <param name="triggerTime">The time when the arrival happens</param>
         /// <returns>The time we're gonna wait at that station</returns>
-        private double GetStationTime(Station atStation, Tram tram, int triggerTime)
+        public double GetStationTime(Station atStation, Tram tram, int triggerTime)
         {
-            return Math.Max(60, 12.5 * 0.27 * atStation.WaitingPeople + 0.13 * tram.PassengersNextOut);
+            return Math.Max(60, 12.5 * 0.27 * atStation.WaitingPeople + 0.13 * tram.GetDisembarkingPassengers(atStation, triggerTime));
         }
 
-        private int GetTravelTime(Station fromStation, Station toStation)
+        public int GetTravelTime(Station fromStation, Station toStation)
         {
             if (Track.TryGetEdges(fromStation, toStation, out IEnumerable<UEdge> e))
             {

@@ -44,7 +44,9 @@ namespace Uithoflijn
 
                 // add the to the graph
                 foreach (var item in vertices)
+                {
                     AddVertex(item);
+                }
 
                 // Add the edge weights
                 for (var j = 0; j < names.Count - 1; j++)
@@ -52,9 +54,13 @@ namespace Uithoflijn
                     var weight = -1;
 
                     if (x == 0)
+                    {
                         weight = forward[j];
+                    }
                     else
+                    {
                         weight = backwards[j];
+                    }
 
                     var edge = new UEdge(vertices[j], vertices[j + 1])
                     {
@@ -103,6 +109,14 @@ namespace Uithoflijn
                 Weight = 1
             });
 
+        }
+
+        public void PassengersArrive(int t)
+        {
+            foreach (var station in Vertices)
+            {
+                station.WaitingPeople += 0.05;
+            }
         }
 
         public Station GetCSDepot()
