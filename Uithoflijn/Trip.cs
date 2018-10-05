@@ -51,7 +51,9 @@ namespace Uithoflijn
 
                 // add the to the graph
                 foreach (var item in vertices)
+                {
                     AddVertex(item);
+                }
 
                 // Add the edge weights
                 for (var j = 0; j < vertices.Count - 1; j++)
@@ -65,30 +67,23 @@ namespace Uithoflijn
                 }
             }
 
+
+
+            //add edges to final stations
+            AddEdge(new UEdge(Vertices.FirstOrDefault(x => x.Id == 8), Vertices.FirstOrDefault(x => x.Id == 9)));
+            AddEdge(new UEdge(Vertices.FirstOrDefault(x => x.Id == 15), Vertices.FirstOrDefault(x => x.Id == 0)));
+
+            foreach (var vertex in Vertices)
+            {
+                vertex.OutEdges = Edges.Where(x => x.Source == vertex).ToList();
+                vertex.InEdges = Edges.Where(x => x.Target == vertex).ToList();
+            }
+
             AddVertex(new Station()
             {
                 Name = "Depot",
                 Id = -1,
             });
-
-            var t = Vertices.Where(x => x.Name == T1).OrderBy(x => x.Id).ToList();
-            var t2 = Vertices.Where(x => x.Name == T2).OrderBy(x => x.Id).ToList();
-
-            AddEdge(new UEdge(t2[0], t2[1])
-            {
-                Weight = 300
-            });
-
-            AddEdge(new UEdge(t[1], t[0])
-            {
-                Weight = 300
-            });
-
-            //Set the terminal exits and add depot edge
-            var t1s = Vertices.Where(x => x.Name == T1).OrderByDescending(x => x.Id).ToList();
-            var t2s = Vertices.Where(x => x.Name == T2).OrderByDescending(x => x.Id).ToList();
-
-            Debug.Assert(t1s.Count == t2s.Count && t1s.Count == 2);
 
             //Set path from depot to station 1
             AddEdge(new UEdge(Vertices.Single(x => x.Id == -1), Vertices.SingleOrDefault(x => x.Name == T1))
