@@ -10,9 +10,7 @@ namespace Uithoflijn
 
         public string Name { get; set; }
 
-        public bool IsTerminalEntry { get; internal set; }
-
-        public bool IsTerminalExit { get; internal set; }
+        public bool IsTerminal { get; internal set; }
 
         public double WaitingPeople { get; internal set; }
 

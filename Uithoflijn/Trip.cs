@@ -32,11 +32,18 @@ namespace Uithoflijn
                 // add vertices temporarily (not in the graph yet)
                 names.ForEach(name =>
                 {
+                    var isTerminal = name == T1 || name == T2;
+
+                    if (isTerminal)
+                    {
+                        //Note upper case!!
+                        if (Vertices.Any(vertex => vertex.Name == name)) return;
+                    }
+
                     vertices.Add(new Station()
                     {
                         Name = name,
-                        IsTerminalEntry = name == T1 || name == T2,
-                        IsTerminalExit = name == T1 || name == T2,
+                        IsTerminal = name == T1 || name == T2,
                         Id = id
                     });
                     id++;
@@ -44,29 +51,16 @@ namespace Uithoflijn
 
                 // add the to the graph
                 foreach (var item in vertices)
-                {
                     AddVertex(item);
-                }
 
                 // Add the edge weights
-                for (var j = 0; j < names.Count - 1; j++)
+                for (var j = 0; j < vertices.Count - 1; j++)
                 {
                     var weight = -1;
 
-                    if (x == 0)
-                    {
-                        weight = forward[j];
-                    }
-                    else
-                    {
-                        weight = backwards[j];
-                    }
-
-                    var edge = new UEdge(vertices[j], vertices[j + 1])
-                    {
-                        Weight = weight
-                    };
-
+                    if (x == 0) { weight = forward[j]; }
+                    else { weight = backwards[j]; }
+                    var edge = new UEdge(vertices[j], vertices[j + 1]) { Weight = weight };
                     AddEdge(edge);
                 }
             }
@@ -80,8 +74,15 @@ namespace Uithoflijn
             var t = Vertices.Where(x => x.Name == T1).OrderBy(x => x.Id).ToList();
             var t2 = Vertices.Where(x => x.Name == T2).OrderBy(x => x.Id).ToList();
 
-            AddEdge(new UEdge(t2[0], t2[1]) { Weight = 300 });
-            AddEdge(new UEdge(t[1], t[0]) { Weight = 300 });
+            AddEdge(new UEdge(t2[0], t2[1])
+            {
+                Weight = 300
+            });
+
+            AddEdge(new UEdge(t[1], t[0])
+            {
+                Weight = 300
+            });
 
             //Set the terminal exits and add depot edge
             var t1s = Vertices.Where(x => x.Name == T1).OrderByDescending(x => x.Id).ToList();
@@ -89,34 +90,22 @@ namespace Uithoflijn
 
             Debug.Assert(t1s.Count == t2s.Count && t1s.Count == 2);
 
-            //Set terminal entries and exits
-
-            t1s[0].IsTerminalEntry = true;
-            t1s[0].IsTerminalExit = false;
-
-            t1s[1].IsTerminalExit = true;
-            t1s[1].IsTerminalEntry = false;
-
-            t2s[0].IsTerminalEntry = false;
-            t2s[0].IsTerminalExit = true;
-
-            t2s[1].IsTerminalEntry = true;
-            t2s[1].IsTerminalExit = false;
-
-
-            AddEdge(new UEdge(Vertices.Single(x => x.Id == -1), Vertices.SingleOrDefault(x => x.Name == T1 && x.IsTerminalExit))
+            //Set path from depot to station 1
+            AddEdge(new UEdge(Vertices.Single(x => x.Id == -1), Vertices.SingleOrDefault(x => x.Name == T1))
             {
                 Weight = 1
             });
 
         }
 
+        /// <summary>
+        /// TODO: Determine the arriving passengers for time T
+        /// </summary>
+        /// <param name="t"></param>
         public void PassengersArrive(int t)
         {
             foreach (var station in Vertices)
-            {
                 station.WaitingPeople += 0.05;
-            }
         }
 
         public Station GetCSDepot()
@@ -133,7 +122,7 @@ namespace Uithoflijn
                 return neighbours.Target;
             }
             //The only station to move from the depot is T1
-            return Vertices.Single(x => x.Name == T1 && x.IsTerminalExit);
+            return Vertices.Single(x => x.Name == T1);
         }
 
         public Station GetStationTerminal(int v)

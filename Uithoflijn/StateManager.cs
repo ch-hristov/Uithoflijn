@@ -17,6 +17,7 @@ namespace Uithoflijn
         private const int Frequency = 40;
         private const int TotalTime = 54000;
         private const int MinimumDistanceBetweenTrains = 40;
+        private const int MAX_PASSENGERS_IN_TRAIN = 420;
 
         private const string opt = "optimal.txt";
 
@@ -33,6 +34,10 @@ namespace Uithoflijn
         public Terrain Track { get; set; }
         private List<bool> _state = new List<bool>(54000);
 
+        /// <summary>
+        /// Generate a timetable for each second
+        /// The way to generate the time table must be determined
+        /// </summary>
         public void GenerateTimeTable()
         {
             if (File.Exists(opt))
@@ -76,16 +81,12 @@ namespace Uithoflijn
 
             var T = 0;
 
-            Idle(this, new TransportArgs()
-            {
-                TriggerTime = -1
-            });
+            Idle(this, new TransportArgs() { TriggerTime = -1 });
 
             while (T <= TotalTime)
             {
                 var events = new Queue<TransportArgs>(EventQueue.Where(x => x.TriggerTime == T)
                                                                 .OrderByDescending(x => x.Priority));
-
                 Track.PassengersArrive(T);
 
                 while (events.Any())
@@ -166,6 +167,8 @@ namespace Uithoflijn
 
             // handle boarding ? how many people can board?
             var toDisembark = e.Tram.GetDisembarkingPassengers(e.ToStation, e.TriggerTime);
+
+            //TODO: Write the function inside the station to retrieve embarking passengers
             var toEmbark = e.ToStation.GetEmbarkingPassengers(e.Tram, e.TriggerTime);
 
             e.Tram.CurrentStation = e.ToStation;
@@ -174,7 +177,9 @@ namespace Uithoflijn
             e.Tram.CurrentPassengers -= toDisembark;
 
             // This many people can enter
-            var canEnter = Math.Max(0, 420 - e.Tram.CurrentPassengers);
+            var canEnter = Math.Max(0, MAX_PASSENGERS_IN_TRAIN - e.Tram.CurrentPassengers);
+
+            // compute net entering
             var totalEntering = Math.Min(canEnter, e.ToStation.WaitingPeople);
 
             // Passengers board
@@ -216,9 +221,7 @@ namespace Uithoflijn
             if (Track.TryGetEdges(fromStation, toStation, out IEnumerable<UEdge> e))
             {
                 Debug.Assert(e.Count() == 1);
-
                 var edge = e.FirstOrDefault();
-
                 return int.Parse(Math.Round(TimeSpan.FromSeconds(edge.Weight).TotalSeconds, 1).ToString());
             }
             throw new Exception($"Unable to find connection between {fromStation.Name} and {toStation.Name}");
