@@ -66,7 +66,15 @@ namespace Uithoflijn
                 {
                     //otherwise
                     Console.WriteLine("Normal CS -> PR");
-                    p = _disembarkmentGeneralProbPRCS[atStation.Id];
+                    if (atStation.Id == -1)
+                    {
+                        //Everyone has to get off at the depot
+                        p = 1;
+                    }
+                    else
+                    {
+                        p = _disembarkmentGeneralProbPRCS[atStation.Id];
+                    }
                 }
             }
             else
@@ -75,27 +83,37 @@ namespace Uithoflijn
                 if (time >= Utils.TimeToSeconds(Utils.GetForMinuteHour(7,0)) && time <= Utils.TimeToSeconds(Utils.GetForMinuteHour(9,0)))
                 {
                     Console.Write("Morning peak! PR -> CS");
-                    p = peak_morningCSPR[atStation.Id];
+                    p = peak_morningPRCS[atStation.Id - 8];
                 }
                 else if (time >= Utils.TimeToSeconds(Utils.GetForMinuteHour(16,0)) && time <= Utils.TimeToSeconds(Utils.GetForMinuteHour(18,0)))
                 {
                     // afternoon peak 16-18
                     Console.Write("Afternoon peak! PR -> CS\n");
-                    p = peak_eveningCSPR[atStation.Id];
+                    p = peak_eveningPRCS[atStation.Id - 8];
                 }
                 else
                 {
                     //otherwise
                     Console.WriteLine("Normal PR -> CS");
-                    p = _disembarkmentGeneralProbCSPR[atStation.Id];
+                    //Everyone has to get off at the depot or end station
+                    if (atStation.Id == -1)
+                    {
+                        p = 1;
+                    }
+                    else
+                    {
+                        p = _disembarkmentGeneralProbPRCS[atStation.Id - 8];
+                    }
                 }
             }
 
             // Now that we have the probability, compute the number of passengers that come off. 
             Binomial binomialDistribution = new Binomial(p, this.CurrentPassengers);
 
+            int toDisembark = binomialDistribution.Sample();
+            Console.WriteLine("Disembarking " + toDisembark);
             // Return the number of successes from the binomial given the number of passengers and the probability of exiting the station.
-            return binomialDistribution.Sample();
+            return toDisembark;
         }
 
     }
