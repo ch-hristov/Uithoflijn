@@ -58,7 +58,7 @@ namespace Uithoflijn
         public void Start()
         {
             //Issue lots of trams(iliketrains)
-            InitialTrams = 50;
+            InitialTrams = 1;
             Track = new Terrain();
 
             TramArrived += HandleArrival;
@@ -82,7 +82,7 @@ namespace Uithoflijn
             var T = 0;
             Idle(this, new TransportArgs() { TriggerTime = -1 });
 
-            while (T <= TotalTime)
+            while (T <= TotalTime || EventQueue.Any())
             {
                 var events = new Queue<TransportArgs>(EventQueue.Where(x => x.TriggerTime == T)
                                                                 .OrderByDescending(x => x.Priority));
@@ -98,7 +98,7 @@ namespace Uithoflijn
                     if (next.Type == TransportArgsType.Departure)
                         TramDeparture(this, next);
 
-                    if (next.Type == TransportArgsType.Idle)
+                    if (T <= TotalTime && next.Type == TransportArgsType.Idle)
                         Idle(this, next);
                 }
 
@@ -191,15 +191,23 @@ namespace Uithoflijn
             //This is done by the idle event
             if (e.ToStation != Track.GetCSDepot())
             {
-                // upon arrival schedule a departure
-                EventQueue.Enqueue(new TransportArgs()
+                if (TotalTime <= e.TriggerTime && e.ToStation == Track.GetCS())
                 {
-                    FromStation = e.ToStation,
-                    ToStation = Track.NextStation(e.ToStation),
-                    TriggerTime = e.TriggerTime + (int)Math.Ceiling(GetStationTime(e.ToStation, e.Tram, e.TriggerTime)),
-                    Tram = e.Tram,
-                    Type = TransportArgsType.Departure
-                });
+                    // Do not issue more trains from CS
+                    return;
+                }
+                else
+                {
+                    // upon arrival schedule a departure
+                    EventQueue.Enqueue(new TransportArgs()
+                    {
+                        FromStation = e.ToStation,
+                        ToStation = Track.NextStation(e.ToStation),
+                        TriggerTime = e.TriggerTime + (int)Math.Ceiling(GetStationTime(e.ToStation, e.Tram, e.TriggerTime)),
+                        Tram = e.Tram,
+                        Type = TransportArgsType.Departure
+                    });
+                }
             }
         }
 
@@ -211,8 +219,9 @@ namespace Uithoflijn
         /// <returns>The time we're gonna wait at that station</returns>
         public double GetStationTime(Station atStation, Tram tram, int triggerTime)
         {
-            var stationTime = Math.Max(60, 
+            var stationTime = Math.Max(60,
                 12.5 * 0.27 * atStation.WaitingPeople + 0.13 * tram.GetDisembarkingPassengers(atStation, triggerTime));
+
             return Math.Min(stationTime, 300);
         }
 

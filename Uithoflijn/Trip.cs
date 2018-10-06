@@ -101,12 +101,12 @@ namespace Uithoflijn
             }
         }
 
-        private Station GetCS()
+        public Station GetCS()
         {
             return Vertices.Single(x => x.Name == T1);
         }
 
-        private Station GetPR()
+        public Station GetPR()
         {
             return Vertices.Single(x => x.Name == T2);
         }
