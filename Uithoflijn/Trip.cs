@@ -18,7 +18,6 @@ namespace Uithoflijn
 
             var forward = new List<int>() { 134, 243, 59, 101, 60, 86, 78, 113 };
             var backwards = new List<int>() { 110, 78, 82, 60, 100, 59, 243, 135 };
-
             var id = 0;
 
             //For both directions
@@ -37,9 +36,11 @@ namespace Uithoflijn
                     if (isTerminal)
                     {
                         //Note upper case!!
-                        if (Vertices.Any(vertex => vertex.Name == name)) return;
+                        if (Vertices.Any(vertex => vertex.Name == name))
+                        {
+                            return;
+                        }
                     }
-
                     vertices.Add(new Station()
                     {
                         Name = name,
@@ -51,9 +52,7 @@ namespace Uithoflijn
 
                 // add the to the graph
                 foreach (var item in vertices)
-                {
                     AddVertex(item);
-                }
 
                 // Add the edge weights
                 for (var j = 0; j < vertices.Count - 1; j++)
@@ -61,23 +60,27 @@ namespace Uithoflijn
                     var weight = -1;
 
                     if (x == 0) { weight = forward[j]; }
+
                     else { weight = backwards[j]; }
                     var edge = new UEdge(vertices[j], vertices[j + 1]) { Weight = weight };
                     AddEdge(edge);
                 }
             }
 
-
+            var pr = GetPR();
+            var prN = Vertices.FirstOrDefault(x => x.Id == 9);
 
             //add edges to final stations
-            AddEdge(new UEdge(Vertices.FirstOrDefault(x => x.Id == 8), Vertices.FirstOrDefault(x => x.Id == 9)));
-            AddEdge(new UEdge(Vertices.FirstOrDefault(x => x.Id == 15), Vertices.FirstOrDefault(x => x.Id == 0)));
-
-            foreach (var vertex in Vertices)
+            AddEdge(new UEdge(pr, prN)
             {
-                vertex.OutEdges = Edges.Where(x => x.Source == vertex).ToList();
-                vertex.InEdges = Edges.Where(x => x.Target == vertex).ToList();
-            }
+                Weight = backwards[0]
+            });
+
+            AddEdge(new UEdge(Vertices.FirstOrDefault(x => x.Id == 15), GetCS())
+            {
+                //TODO: check this
+                Weight = backwards[backwards.Count - 1]
+            });
 
             AddVertex(new Station()
             {
@@ -91,6 +94,21 @@ namespace Uithoflijn
                 Weight = 1
             });
 
+            foreach (var vertex in Vertices)
+            {
+                vertex.OutEdges = Edges.Where(x => x.Source == vertex).ToList();
+                vertex.InEdges = Edges.Where(x => x.Target == vertex).ToList();
+            }
+        }
+
+        private Station GetCS()
+        {
+            return Vertices.Single(x => x.Name == T1);
+        }
+
+        private Station GetPR()
+        {
+            return Vertices.Single(x => x.Name == T2);
         }
 
         /// <summary>
@@ -100,7 +118,9 @@ namespace Uithoflijn
         public void PassengersArrive(int t)
         {
             foreach (var station in Vertices)
+            {
                 station.WaitingPeople += 0.05;
+            }
         }
 
         public Station GetCSDepot()

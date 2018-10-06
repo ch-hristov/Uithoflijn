@@ -15,5 +15,10 @@ namespace Uithoflijn
         {
             return TimeFrame.General;
         }
+
+        public static int TimeToSeconds(DateTime time)
+        {
+            return (int)(time - new DateTime(time.Year, time.Day, time.Day, 6, 30, 0)).TotalSeconds;
+        }
     }
 }

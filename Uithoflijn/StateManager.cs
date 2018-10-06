@@ -80,7 +80,6 @@ namespace Uithoflijn
             }
 
             var T = 0;
-
             Idle(this, new TransportArgs() { TriggerTime = -1 });
 
             while (T <= TotalTime)
@@ -143,7 +142,6 @@ namespace Uithoflijn
                 TriggerTime = e.TriggerTime + 1,
                 Type = TransportArgsType.Idle,
             });
-
         }
 
         private void HandleDeparture(object sender, TransportArgs e)
@@ -213,7 +211,9 @@ namespace Uithoflijn
         /// <returns>The time we're gonna wait at that station</returns>
         public double GetStationTime(Station atStation, Tram tram, int triggerTime)
         {
-            return Math.Max(60, 12.5 * 0.27 * atStation.WaitingPeople + 0.13 * tram.GetDisembarkingPassengers(atStation, triggerTime));
+            var stationTime = Math.Max(60, 
+                12.5 * 0.27 * atStation.WaitingPeople + 0.13 * tram.GetDisembarkingPassengers(atStation, triggerTime));
+            return Math.Min(stationTime, 300);
         }
 
         public int GetTravelTime(Station fromStation, Station toStation)

@@ -13,7 +13,9 @@ namespace Uithoflijn
         public bool IsTerminal { get; internal set; }
 
         public double WaitingPeople { get; internal set; }
+
         public IEnumerable<UEdge> OutEdges { get; internal set; }
+
         public IEnumerable<UEdge> InEdges { get; internal set; }
 
         public override string ToString()
@@ -30,7 +32,7 @@ namespace Uithoflijn
         public int GetEmbarkingPassengers(Tram tram, int time)
         {
             //TODO:
-            return 10;
+            return (int)(WaitingPeople * 0.1);
         }
     }
 }

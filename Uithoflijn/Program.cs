@@ -7,6 +7,7 @@ namespace Uithoflijn
         public static void Main(string[] args)
         {
             var sm = new StateManager();
+            Console.WriteLine("Cycle length " + ComputeCycleLength());
             Console.CancelKeyPress += (a, b) => sm.WriteState();
             sm.Start();
 
@@ -14,18 +15,23 @@ namespace Uithoflijn
             sm.WriteState();
         }
 
-        public void ComputeCycleLength()
+        public static double ComputeCycleLength()
         {
-            DateTime dt = new DateTime(2000, 1, 1, 6, 30, 0);
-            DateTime dt2 = new DateTime(2000, 1, 1, 21, 30, 0);
-            Console.WriteLine((dt2 - dt).TotalSeconds);
+            var dt = new DateTime(2000, 1, 1, 6, 30, 0);
+            var dt2 = new DateTime(2000, 1, 1, 21, 30, 0);
+            Console.WriteLine((dt2 - dt).TotalMinutes);
+            return 0;
         }
 
         public void ComputeIntervalsInDay()
         {
             //TODO>>
             var dt1 = new DateTime(2000, 1, 1, 1, 1, 1);
+        }
 
+        public int TimeToSeconds(DateTime time)
+        {
+            return (int)(time - new DateTime(time.Year, time.Day, time.Day, 6, 30, 0)).TotalSeconds;
         }
     }
 }

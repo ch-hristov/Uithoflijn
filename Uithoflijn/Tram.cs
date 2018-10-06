@@ -46,7 +46,7 @@ namespace Uithoflijn
 
         public int GetDisembarkingPassengers(Station atStation, int time)
         {
-            return 0;
+            return (int)(CurrentPassengers * 0.1);
         }
 
     }
