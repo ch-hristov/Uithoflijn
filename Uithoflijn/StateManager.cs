@@ -85,7 +85,7 @@ namespace Uithoflijn
             while (T <= TotalTime || EventQueue.Any())
             {
                 var events = new Queue<TransportArgs>(EventQueue.Where(x => x.TriggerTime == T)
-                                                                .OrderByDescending(x => x.Priority));
+                                                                .OrderByDescending(x => x.ToStation.Id));
                 Track.PassengersArrive(T);
 
                 while (events.Any())
@@ -148,6 +148,9 @@ namespace Uithoflijn
         {
             Console.WriteLine($"{e.Tram.Id} departure to station {e.ToStation.ToString()}");
 
+            // remove tram from station
+            e.FromStation.CurrentTram = null;
+
             // upon departure schedule an arrival
             EventQueue.Enqueue(new TransportArgs()
             {
@@ -168,6 +171,8 @@ namespace Uithoflijn
 
             //TODO: Write the function inside the station to retrieve embarking passengers
             var toEmbark = e.ToStation.GetEmbarkingPassengers(e.Tram, e.TriggerTime);
+
+            e.ToStation.CurrentTram = e.Tram;
 
             e.Tram.CurrentStation = e.ToStation;
 

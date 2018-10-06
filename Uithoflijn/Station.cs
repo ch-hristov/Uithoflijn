@@ -17,6 +17,7 @@ namespace Uithoflijn
         public IEnumerable<UEdge> OutEdges { get; internal set; }
 
         public IEnumerable<UEdge> InEdges { get; internal set; }
+        public Tram CurrentTram { get; internal set; }
 
         public override string ToString()
         {
