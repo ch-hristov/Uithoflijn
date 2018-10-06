@@ -20,5 +20,10 @@ namespace Uithoflijn
         {
             return (int)(time - new DateTime(time.Year, time.Day, time.Day, 6, 30, 0)).TotalSeconds;
         }
+
+        public static DateTime GetForMinuteHour(int hour, int minute)
+        {
+            return new DateTime(2000, 1, 1, hour, minute, 0);
+        }
     }
 }

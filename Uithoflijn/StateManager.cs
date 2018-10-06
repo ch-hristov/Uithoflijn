@@ -58,7 +58,7 @@ namespace Uithoflijn
         public void Start()
         {
             //Issue lots of trams(iliketrains)
-            InitialTrams = 5;
+            InitialTrams = 50;
             Track = new Terrain();
 
             TramArrived += HandleArrival;

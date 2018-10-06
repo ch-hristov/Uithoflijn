@@ -29,9 +29,6 @@ namespace Uithoflijn
             var dt1 = new DateTime(2000, 1, 1, 1, 1, 1);
         }
 
-        public int TimeToSeconds(DateTime time)
-        {
-            return (int)(time - new DateTime(time.Year, time.Day, time.Day, 6, 30, 0)).TotalSeconds;
-        }
+
     }
 }
