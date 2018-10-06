@@ -85,7 +85,7 @@ namespace Uithoflijn
             while (T <= TotalTime || EventQueue.Any())
             {
                 var events = new Queue<TransportArgs>(EventQueue.Where(x => x.TriggerTime == T)
-                                                                .OrderByDescending(x => x.ToStation.Id));
+                                                                .OrderByDescending(x => x.ToStation != null ? x.ToStation.Id : int.MinValue));
                 Track.PassengersArrive(T);
 
                 while (events.Any())
@@ -171,9 +171,7 @@ namespace Uithoflijn
 
             //TODO: Write the function inside the station to retrieve embarking passengers
             var toEmbark = e.ToStation.GetEmbarkingPassengers(e.Tram, e.TriggerTime);
-
             e.ToStation.CurrentTram = e.Tram;
-
             e.Tram.CurrentStation = e.ToStation;
 
             // people exit train
@@ -203,17 +201,30 @@ namespace Uithoflijn
                 }
                 else
                 {
-                    // upon arrival schedule a departure
-                    EventQueue.Enqueue(new TransportArgs()
+                    if (CanScheduleDeparture(e.Tram, Track.NextStation(e.ToStation)))
                     {
-                        FromStation = e.ToStation,
-                        ToStation = Track.NextStation(e.ToStation),
-                        TriggerTime = e.TriggerTime + (int)Math.Ceiling(GetStationTime(e.ToStation, e.Tram, e.TriggerTime)),
-                        Tram = e.Tram,
-                        Type = TransportArgsType.Departure
-                    });
+                        // upon arrival schedule a departure
+                        EventQueue.Enqueue(new TransportArgs()
+                        {
+                            FromStation = e.ToStation,
+                            ToStation = Track.NextStation(e.ToStation),
+                            TriggerTime = e.TriggerTime + (int)Math.Ceiling(GetStationTime(e.ToStation, e.Tram, e.TriggerTime)),
+                            Tram = e.Tram,
+                            Type = TransportArgsType.Departure
+                        });
+                    }
+                    else
+                    {
+
+                    }
                 }
             }
+        }
+
+        private bool CanScheduleDeparture(Tram tram, Station station)
+        {
+            // return whether a delay should be issued for the departure of this train
+            return true;
         }
 
         /// <summary>
