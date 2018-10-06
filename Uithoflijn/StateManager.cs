@@ -166,29 +166,33 @@ namespace Uithoflijn
         {
             Console.WriteLine($"{e.Tram.Id} arrived at station {e.ToStation.ToString()} at time {e.TriggerTime}");
 
-            // handle boarding ? how many people can board?
-            var toDisembark = e.Tram.GetDisembarkingPassengers(e.ToStation, e.TriggerTime);
+            //Disembark passengers if neccessary
+            if (e.ToStation != e.Tram.CurrentStation)
+            {
+                // handle boarding ? how many people can board?
+                var toDisembark = e.Tram.GetDisembarkingPassengers(e.ToStation, e.TriggerTime);
 
-            //TODO: Write the function inside the station to retrieve embarking passengers
-            var toEmbark = e.ToStation.GetEmbarkingPassengers(e.Tram, e.TriggerTime);
-            e.ToStation.CurrentTram = e.Tram;
-            e.Tram.CurrentStation = e.ToStation;
+                //TODO: Write the function inside the station to retrieve embarking passengers
+                var toEmbark = e.ToStation.GetEmbarkingPassengers(e.Tram, e.TriggerTime);
+                e.ToStation.CurrentTram = e.Tram;
+                e.Tram.CurrentStation = e.ToStation;
 
-            // people exit train
-            e.Tram.CurrentPassengers -= toDisembark;
+                // people exit train
+                e.Tram.CurrentPassengers -= toDisembark;
 
-            // This many people can enter
-            var canEnter = Math.Max(0, MAX_PASSENGERS_IN_TRAIN - e.Tram.CurrentPassengers);
+                // This many people can enter
+                var canEnter = Math.Max(0, MAX_PASSENGERS_IN_TRAIN - e.Tram.CurrentPassengers);
 
-            // compute net entering
-            var totalEntering = Math.Min(canEnter, e.ToStation.WaitingPeople);
+                // compute net entering
+                var totalEntering = Math.Min(canEnter, e.ToStation.WaitingPeople);
 
-            // Passengers board
-            var integerPersons = (int)Math.Ceiling(totalEntering);
-            e.Tram.CurrentPassengers += integerPersons;
+                // Passengers board
+                var integerPersons = (int)Math.Ceiling(totalEntering);
+                e.Tram.CurrentPassengers += integerPersons;
 
-            //people enter train through station
-            e.ToStation.WaitingPeople -= totalEntering;
+                //people enter train through station
+                e.ToStation.WaitingPeople -= totalEntering;
+            }
 
             //Don't immediately schedule departure if the trams just arrived at the depot,
             //This is done by the idle event
@@ -201,7 +205,7 @@ namespace Uithoflijn
                 }
                 else
                 {
-                    if (CanScheduleDeparture(e.Tram, Track.NextStation(e.ToStation)))
+                    if (CanScheduleDeparture(e.Tram, Track.NextStation(e.Tram.CurrentStation)))
                     {
                         // upon arrival schedule a departure
                         EventQueue.Enqueue(new TransportArgs()
@@ -215,7 +219,15 @@ namespace Uithoflijn
                     }
                     else
                     {
-
+                        TramArrived(this, new TransportArgs()
+                        {
+                            FromStation = e.FromStation,
+                            ToStation = e.ToStation,
+                            TriggerTime = e.TriggerTime + 10,
+                            Type = e.Type,
+                            Priority = 0,
+                            Tram = e.Tram
+                        });
                     }
                 }
             }
