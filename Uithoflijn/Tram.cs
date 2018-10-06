@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using MathNet.Numerics.Distributions;
+using Utils;
 
 namespace Uithoflijn
 {
@@ -46,7 +48,55 @@ namespace Uithoflijn
 
         public int GetDisembarkingPassengers(Station atStation, int time)
         {
-            return (int)(CurrentPassengers * 0.1);
+            double p = 0;
+            if (atStation.Id >= 0 && atStation.Id <= 8)
+            {
+                //morning peak 7-9
+                if (time >= Utils.TimeToSeconds(Utils.GetForMinuteHour(7,0)) && time <= Utils.TimeToSeconds(Utils.GetForMinuteHour(9,0)))
+                {
+                    Console.Write("Morning peak! CS -> PR");
+                    p = peak_morningPRCS[atStation.Id];
+                }
+                else if (time >= Utils.TimeToSeconds(Utils.GetForMinuteHour(16,0)) && time <= Utils.TimeToSeconds(Utils.GetForMinuteHour(18,0)))
+                {
+                    // afternoon peak 16-18
+                    Console.Write("Afternoon peak! CS -> PR\n");
+                    p = peak_eveningPRCS[atStation.Id];
+                }
+                else
+                {
+                    //otherwise
+                    Console.WriteLine("Normal CS -> PR");
+                    p = _disembarkmentGeneralProbPRCS[atStation.Id];
+                }
+            }
+            else
+            {
+                //morning peak 7-9
+                if (time >= Utils.TimeToSeconds(Utils.GetForMinuteHour(7,0)) && time <= Utils.TimeToSeconds(Utils.GetForMinuteHour(9,0)))
+                {
+                    Console.Write("Morning peak! PR -> CS");
+                    p = peak_morningCSPR[atStation.Id];
+                }
+                else if (time >= Utils.TimeToSeconds(Utils.GetForMinuteHour(16,0)) && time <= Utils.TimeToSeconds(Utils.GetForMinuteHour(18,0)))
+                {
+                    // afternoon peak 16-18
+                    Console.Write("Afternoon peak! PR -> CS\n");
+                    p = peak_eveningCSPR[atStation.Id];
+                }
+                else
+                {
+                    //otherwise
+                    Console.WriteLine("Normal PR -> CS");
+                    p = _disembarkmentGeneralProbCSPR[atStation.Id];
+                }
+            }
+
+            // Now that we have the probability, compute the number of passengers that come off. 
+            Binomial binomialDistribution = new Binomial(p, this.CurrentPassengers);
+
+            // Return the number of successes from the binomial given the number of passengers and the probability of exiting the station.
+            return binomialDistribution.Sample();
         }
 
     }
