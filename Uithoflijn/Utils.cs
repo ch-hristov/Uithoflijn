@@ -7,13 +7,17 @@ namespace Uithoflijn
     public static class Utils
     {
         /// <summary>
-        /// TODO: Retrieve current time of day.
+        /// Retrieve current time of day.
         /// </summary>
         /// <param name="currTime"></param>
-        /// <returns></returns>
-        public static TimeFrame GetTimeFrameFromSeconds(int currTime)
+        /// <returns>Returns 1/1/01 and the time of the day 6:00 AM, etc...</returns>
+        public static DateTime SecondsToDateTime(int currTime)
         {
-            return TimeFrame.General;
+            TimeSpan mytime = TimeSpan.FromSeconds(6 * 60 * 60 + currTime);
+            DateTime dt = new DateTime();
+            DateTime secondsToDateTime = dt.Add(mytime);
+
+            return secondsToDateTime;
         }
 
         public static int TimeToSeconds(DateTime time)
@@ -23,7 +27,7 @@ namespace Uithoflijn
 
         public static DateTime GetForMinuteHour(int hour, int minute)
         {
-            return new DateTime(2000, 1, 1, hour, minute, 0);
+            return new DateTime(01, 1, 1, hour, minute, 0);
         }
 
         public static DateTime RoundUp(DateTime dt, TimeSpan d)

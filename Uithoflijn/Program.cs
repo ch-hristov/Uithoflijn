@@ -17,8 +17,8 @@ namespace Uithoflijn
 
         public static double ComputeCycleLength()
         {
-            var dt = new DateTime(2000, 1, 1, 6, 30, 0);
-            var dt2 = new DateTime(2000, 1, 1, 21, 30, 0);
+            var dt = new DateTime(01, 1, 1, 6, 30, 0);
+            var dt2 = new DateTime(01, 1, 1, 21, 30, 0);
             Console.WriteLine((dt2 - dt).TotalMinutes);
             return 0;
         }
@@ -26,7 +26,7 @@ namespace Uithoflijn
         public void ComputeIntervalsInDay()
         {
             //TODO>>
-            var dt1 = new DateTime(2000, 1, 1, 1, 1, 1);
+            var dt1 = new DateTime(01, 1, 1, 1, 1, 1);
         }
 
     }
