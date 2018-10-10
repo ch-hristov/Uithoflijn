@@ -14,7 +14,7 @@ namespace Uithoflijn
 
     public class StateManager
     {
-        private const int Frequency = 40;
+        private const int Frequency = 2;
         private const int TotalTime = 54000;
         private const int MinimumDistanceBetweenTrains = 40;
         private const int MAX_PASSENGERS_IN_TRAIN = 420;
@@ -33,6 +33,8 @@ namespace Uithoflijn
 
         public Terrain Track { get; set; }
         private List<bool> _state = new List<bool>(54000);
+        private const int _DELAY = 10;
+        public int TotalDelay { get; set; }
 
         /// <summary>
         /// Generate a timetable for each second
@@ -146,10 +148,10 @@ namespace Uithoflijn
 
         private void HandleDeparture(object sender, TransportArgs e)
         {
-            Console.WriteLine($"{e.Tram.Id} departure to station {e.ToStation.ToString()}");
 
             // remove tram from station
             e.FromStation.CurrentTram = null;
+            e.LastTramTime = e.TriggerTime;
 
             // upon departure schedule an arrival
             EventQueue.Enqueue(new TransportArgs()
@@ -164,8 +166,6 @@ namespace Uithoflijn
 
         private void HandleArrival(object sender, TransportArgs e)
         {
-            Console.WriteLine($"{e.Tram.Id} arrived at station {e.ToStation.ToString()} at time {e.TriggerTime}");
-
             //Disembark passengers if neccessary
             if (e.ToStation != e.Tram.CurrentStation)
             {
@@ -205,7 +205,9 @@ namespace Uithoflijn
                 }
                 else
                 {
-                    if (CanScheduleDeparture(e.Tram, Track.NextStation(e.Tram.CurrentStation)))
+                    var delay = CanScheduleDeparture(e.Tram, Track.NextStation(e.Tram.CurrentStation));
+
+                    if (delay == 0)
                     {
                         // upon arrival schedule a departure
                         EventQueue.Enqueue(new TransportArgs()
@@ -223,20 +225,25 @@ namespace Uithoflijn
                         {
                             FromStation = e.FromStation,
                             ToStation = e.ToStation,
-                            TriggerTime = e.TriggerTime + 10,
+                            TriggerTime = e.TriggerTime + _DELAY,
                             Type = e.Type,
                             Priority = 0,
                             Tram = e.Tram
                         });
+
+                        TotalDelay += _DELAY;
                     }
                 }
             }
         }
 
-        private bool CanScheduleDeparture(Tram tram, Station station)
+        private int CanScheduleDeparture(Tram tram, Station station)
         {
             // return whether a delay should be issued for the departure of this train
-            return true;
+            if (station.CurrentTram != null)
+                return _DELAY;
+
+            return 0;
         }
 
         /// <summary>

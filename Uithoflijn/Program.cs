@@ -13,6 +13,7 @@ namespace Uithoflijn
 
             //Write the state on cancel
             sm.WriteState();
+            Console.WriteLine(sm.TotalDelay);
         }
 
         public static double ComputeCycleLength()

@@ -53,19 +53,16 @@ namespace Uithoflijn
                 //morning peak 7-9
                 if (time >= Utils.TimeToSeconds(Utils.GetForMinuteHour(7, 0)) && time <= Utils.TimeToSeconds(Utils.GetForMinuteHour(9, 0)))
                 {
-                    Console.Write("Morning peak! CS -> PR");
                     p = peak_morningPRCS[atStation.Id];
                 }
                 else if (time >= Utils.TimeToSeconds(Utils.GetForMinuteHour(16, 0)) && time <= Utils.TimeToSeconds(Utils.GetForMinuteHour(18, 0)))
                 {
                     // afternoon peak 16-18
-                    Console.Write("Afternoon peak! CS -> PR\n");
                     p = peak_eveningPRCS[atStation.Id];
                 }
                 else
                 {
                     //otherwise
-                    Console.WriteLine("Normal CS -> PR");
                     if (atStation.Id == -1)
                     {
                         //Everyone has to get off at the depot
@@ -82,19 +79,16 @@ namespace Uithoflijn
                 //morning peak 7-9
                 if (time >= Utils.TimeToSeconds(Utils.GetForMinuteHour(7, 0)) && time <= Utils.TimeToSeconds(Utils.GetForMinuteHour(9, 0)))
                 {
-                    Console.Write("Morning peak! PR -> CS");
                     p = peak_morningPRCS[atStation.Id - 8];
                 }
                 else if (time >= Utils.TimeToSeconds(Utils.GetForMinuteHour(16, 0)) && time <= Utils.TimeToSeconds(Utils.GetForMinuteHour(18, 0)))
                 {
                     // afternoon peak 16-18
-                    Console.Write("Afternoon peak! PR -> CS\n");
                     p = peak_eveningPRCS[atStation.Id - 8];
                 }
                 else
                 {
                     //otherwise
-                    Console.WriteLine("Normal PR -> CS");
                     //Everyone has to get off at the depot or end station
                     if (atStation.Id == -1)
                     {
@@ -111,7 +105,6 @@ namespace Uithoflijn
             Binomial binomialDistribution = new Binomial(p, CurrentPassengers);
 
             int toDisembark = binomialDistribution.Sample();
-            Console.WriteLine("Disembarking " + toDisembark);
             // Return the number of successes from the binomial given the number of passengers and the probability of exiting the station.
             return toDisembark;
         }

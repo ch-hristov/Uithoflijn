@@ -11,7 +11,7 @@ namespace Uithoflijn
         public Station FromStation { get; set; }
         public Station ToStation { get; set; }
         public TransportArgsType Type { get; set; }
-
+        public int LastTramTime { get; internal set; }
 
         public override string ToString()
         {
