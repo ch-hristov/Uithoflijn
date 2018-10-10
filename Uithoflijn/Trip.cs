@@ -117,10 +117,7 @@ namespace Uithoflijn
         /// <param name="t"></param>
         public void PassengersArrive(int t)
         {
-            foreach (var station in Vertices)
-            {
-                station.WaitingPeople += 0.05;
-            }
+
         }
 
         public Station GetCSDepot()

@@ -166,11 +166,13 @@ namespace Uithoflijn
 
         private void HandleArrival(object sender, TransportArgs e)
         {
+            int TotalEmbarkingPassengers = 0;
+            int TotalDisembarkingPassengers = 0;
             //Disembark passengers if neccessary
             if (e.ToStation != e.Tram.CurrentStation)
             {
                 // handle boarding ? how many people can board?
-                var toDisembark = e.Tram.GetDisembarkingPassengers(e.ToStation, e.TriggerTime);
+                TotalDisembarkingPassengers = e.Tram.GetDisembarkingPassengers(e.ToStation, e.TriggerTime);
 
                 // get the number of people that have been here before
                 int leftOverPeople = e.ToStation.LeftBehind;
@@ -184,10 +186,10 @@ namespace Uithoflijn
                 e.Tram.CurrentStation = e.ToStation;
 
                 // people exit train
-                e.Tram.CurrentPassengers -= toDisembark;
+                e.Tram.CurrentPassengers -= TotalDisembarkingPassengers;
 
                 // Increment the number of passengers serviced by the Tram
-                e.Tram.ServedPassengers += toDisembark;
+                e.Tram.ServedPassengers += TotalDisembarkingPassengers;
 
                 // This many people can enter
                 var canEnter = Math.Max(0, MAX_PASSENGERS_IN_TRAIN - e.Tram.CurrentPassengers);
@@ -196,12 +198,14 @@ namespace Uithoflijn
                 if (leftOverPeople <= canEnter)
                 {
                     e.Tram.CurrentPassengers += leftOverPeople;
+                    TotalEmbarkingPassengers += leftOverPeople;
                     e.ToStation.LeftBehind -= leftOverPeople;
                 }
                 else 
                 {
                     // Some get in, but some people will be left behind (again).
                     e.Tram.CurrentPassengers += canEnter;
+                    TotalEmbarkingPassengers += canEnter;
 
                     // Now, count the people that are left behind.
                     e.ToStation.LeftBehind = leftOverPeople - canEnter;
@@ -215,11 +219,13 @@ namespace Uithoflijn
                 if (toEmbark <= canEnter)
                 {
                     e.Tram.CurrentPassengers += toEmbark;
+                    TotalEmbarkingPassengers += toEmbark;
                 }
                 else
                 {
                     // Some get in, but some people will be left behind.
                     e.Tram.CurrentPassengers += canEnter;
+                    TotalEmbarkingPassengers += canEnter;
 
                     // Now, the toEmbark, become LeftBehind. 
                     int leftBehind = toEmbark - canEnter;
@@ -249,7 +255,7 @@ namespace Uithoflijn
                         {
                             FromStation = e.ToStation,
                             ToStation = Track.NextStation(e.ToStation),
-                            TriggerTime = e.TriggerTime + (int)Math.Ceiling(GetStationTime(e.ToStation, e.Tram, e.TriggerTime)),
+                            TriggerTime = e.TriggerTime + (int)Math.Ceiling(GetStationTime(TotalDisembarkingPassengers, TotalDisembarkingPassengers)),
                             Tram = e.Tram,
                             Type = TransportArgsType.Departure
                         });
@@ -287,10 +293,10 @@ namespace Uithoflijn
         /// <param name="atStation">The station for which we're computing the waiting time</param>
         /// <param name="triggerTime">The time when the arrival happens</param>
         /// <returns>The time we're gonna wait at that station</returns>
-        public double GetStationTime(Station atStation, Tram tram, int triggerTime)
+        public double GetStationTime(int embarkingPassengers, int disembarkingPassengers)
         {
             var stationTime = Math.Max(60,
-                12.5 * 0.27 * atStation.WaitingPeople + 0.13 * tram.GetDisembarkingPassengers(atStation, triggerTime));
+                12.5 * 0.27 * embarkingPassengers + 0.13 * disembarkingPassengers);
 
             return Math.Min(stationTime, 300);
         }
