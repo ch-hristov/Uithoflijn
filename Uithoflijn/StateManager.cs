@@ -198,6 +198,15 @@ namespace Uithoflijn
                     e.Tram.CurrentPassengers += leftOverPeople;
                     e.ToStation.LeftBehind -= leftOverPeople;
                 }
+                else 
+                {
+                    // Some get in, but some people will be left behind (again).
+                    e.Tram.CurrentPassengers += canEnter;
+
+                    // Now, count the people that are left behind.
+                    e.ToStation.LeftBehind = leftOverPeople - canEnter;
+                }
+
 
                 // Re-compute the number of people entering
                 canEnter = Math.Max(0, MAX_PASSENGERS_IN_TRAIN - e.Tram.CurrentPassengers);
@@ -215,20 +224,9 @@ namespace Uithoflijn
                     // Now, the toEmbark, become LeftBehind. 
                     int leftBehind = toEmbark - canEnter;
 
-                    e.ToStation.LeftBehind 
+                    e.ToStation.LeftBehind += leftBehind;
                 }
-                // compute net entering
-                // var totalEntering = Math.Min(canEnter, e.ToStation.WaitingPeople);
 
-                // Passengers board
-                // var integerPersons = (int)Math.Ceiling(totalEntering);
-                // e.Tram.CurrentPassengers += integerPersons;
-
-                // People enter train through station
-                // e.ToStation.WaitingPeople -= totalEntering;
-
-                // Increment the number of total people serviced by the station.
-                // e.ToStation.TotalPassengersServiced += (int)totalEntering;
             }
 
             //Don't immediately schedule departure if the trams just arrived at the depot,
