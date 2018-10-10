@@ -151,7 +151,7 @@ namespace Uithoflijn
 
             // remove tram from station
             e.FromStation.CurrentTram = null;
-            e.LastTramTime = e.TriggerTime;
+            e.FromStation.TimeFromLastTram = e.TriggerTime;
 
             // upon departure schedule an arrival
             EventQueue.Enqueue(new TransportArgs()
