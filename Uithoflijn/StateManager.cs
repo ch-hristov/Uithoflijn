@@ -172,26 +172,63 @@ namespace Uithoflijn
                 // handle boarding ? how many people can board?
                 var toDisembark = e.Tram.GetDisembarkingPassengers(e.ToStation, e.TriggerTime);
 
-                //TODO: Write the function inside the station to retrieve embarking passengers
-                var toEmbark = e.ToStation.GetEmbarkingPassengers(e.Tram, e.TriggerTime);
+                // get the number of people that have been here before
+                int leftOverPeople = e.ToStation.LeftBehind;
+
+                // increment the waiting time of these people it will be the number of the people * the time the platform has been empty. 
+                e.ToStation.IncrementLeftBehindAverageWaiting(e.TriggerTime - e.ToStation.TimeFromLastTram);
+
+                // get the number of new passengers that arrived at the platform while it had no tram.
+                int toEmbark = e.ToStation.GetEmbarkingPassengers(e.Tram, e.TriggerTime);
                 e.ToStation.CurrentTram = e.Tram;
                 e.Tram.CurrentStation = e.ToStation;
 
                 // people exit train
                 e.Tram.CurrentPassengers -= toDisembark;
 
+                // Increment the number of passengers serviced by the Tram
+                e.Tram.ServedPassengers += toDisembark;
+
                 // This many people can enter
                 var canEnter = Math.Max(0, MAX_PASSENGERS_IN_TRAIN - e.Tram.CurrentPassengers);
 
+                // First we have to board the left behind people because they put the waiting times through the roof.
+                if (leftOverPeople <= canEnter)
+                {
+                    e.Tram.CurrentPassengers += leftOverPeople;
+                    e.ToStation.LeftBehind -= leftOverPeople;
+                }
+
+                // Re-compute the number of people entering
+                canEnter = Math.Max(0, MAX_PASSENGERS_IN_TRAIN - e.Tram.CurrentPassengers);
+
+                // Easy case, the people that have been waiting, can board. All of them
+                if (toEmbark <= canEnter)
+                {
+                    e.Tram.CurrentPassengers += toEmbark;
+                }
+                else
+                {
+                    // Some get in, but some people will be left behind.
+                    e.Tram.CurrentPassengers += canEnter;
+
+                    // Now, the toEmbark, become LeftBehind. 
+                    int leftBehind = toEmbark - canEnter;
+
+                    e.ToStation.LeftBehind 
+                }
                 // compute net entering
-                var totalEntering = Math.Min(canEnter, e.ToStation.WaitingPeople);
+                // var totalEntering = Math.Min(canEnter, e.ToStation.WaitingPeople);
 
                 // Passengers board
-                var integerPersons = (int)Math.Ceiling(totalEntering);
-                e.Tram.CurrentPassengers += integerPersons;
+                // var integerPersons = (int)Math.Ceiling(totalEntering);
+                // e.Tram.CurrentPassengers += integerPersons;
 
-                //people enter train through station
-                e.ToStation.WaitingPeople -= totalEntering;
+                // People enter train through station
+                // e.ToStation.WaitingPeople -= totalEntering;
+
+                // Increment the number of total people serviced by the station.
+                // e.ToStation.TotalPassengersServiced += (int)totalEntering;
             }
 
             //Don't immediately schedule departure if the trams just arrived at the depot,
