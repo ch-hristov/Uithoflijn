@@ -12,24 +12,26 @@ namespace Uithoflijn
         /// <summary>
         /// Enable this to track the results
         /// </summary>
-        public const bool DEBUG = false;
+        public static bool DEBUG = false;
+        public const int TOTAL_TESTED_FREQUENCIES = 30;
+        public const int TOTAL_TRAMSCOUNT_TO_TEST = 9;
 
         public static void Main(string[] args)
         {
+            //The values of the frequencies we're testing, issue at least every 40 seconds
+            var tramFrequencies = Enumerable.Range(300, TOTAL_TESTED_FREQUENCIES);
 
-            //The values of the frequencies we're testing
-            var tramFrequencies = Enumerable.Range(40, 3);
+            //check if debugger is attached to guarantee nice debugging
+            if (System.Diagnostics.Debugger.IsAttached)
+                DEBUG = true;
 
             //The values for the tram counts we're testing
-            var tramNumbers = Enumerable.Range(1, 6);
-
+            var tramNumbers = Enumerable.Range(1, TOTAL_TRAMSCOUNT_TO_TEST);
             var output = new ConcurrentBag<string>();
 
             var optimalFrequency = 40;
             var optimalTramCount = 0;
             var optimalPassCount = 0;
-
-
 
             var testValues = new List<Tuple<int, int>>();
 
@@ -37,7 +39,10 @@ namespace Uithoflijn
                 foreach (var tramCount in tramNumbers)
                     testValues.Add(new Tuple<int, int>(tramFrequency, tramCount));
 
-            Parallel.ForEach(testValues, new ParallelOptions() { MaxDegreeOfParallelism = DEBUG ? 1 : 8 }, tuple =>
+            Parallel.ForEach(testValues, new ParallelOptions()
+            {
+                MaxDegreeOfParallelism = DEBUG ? 1 : 8
+            }, tuple =>
               {
                   var tramFrequency = tuple.Item1;
                   var tramCount = tuple.Item2;
@@ -74,7 +79,6 @@ namespace Uithoflijn
 
         public void ComputeIntervalsInDay()
         {
-            //TODO>>
             var dt1 = new DateTime(01, 1, 1, 1, 1, 1);
         }
 
