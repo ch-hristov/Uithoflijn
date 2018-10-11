@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Collections;
 using MathNet.Numerics.Distributions;
 
 namespace Uithoflijn
@@ -13,7 +14,11 @@ namespace Uithoflijn
 
         public bool IsTerminal { get; internal set; }
 
-        public double WaitingPeople { get; internal set; }
+        public int LeftBehind { get; set; }
+
+        public int TotalPassengersServiced { get; set; }
+
+        public int TotalWaitingTime { get; set; }
 
         public IEnumerable<UEdge> OutEdges { get; internal set; }
 
@@ -83,9 +88,11 @@ namespace Uithoflijn
             {new DateTime(01, 1, 1, 20, 0, 0), 56},
             {new DateTime(01, 1, 1, 20, 15, 0), 57},
             {new DateTime(01, 1, 1, 20, 30, 0), 58},
-            {new DateTime(01, 1, 1, 20, 45, 0), 59}
+            {new DateTime(01, 1, 1, 20, 45, 0), 59},
+            {new DateTime(01, 1, 1, 21, 0, 0), 60},
+            {new DateTime(01, 1, 1, 21, 15, 0), 61},
+            {new DateTime(01, 1, 1, 21, 30, 0), 62}
         };
-
 
         double[,] RouteCStoPR = new double[,] {
             {0.05,0.75,0.3,0.1,0.15,0.475,0.05,1.45,0},
@@ -242,52 +249,97 @@ namespace Uithoflijn
         {
             // First, round to the closest 15min interval. 
             // if time is 9:13, it will be rounded to 9:15, if it's 9:04 to 9:00, etc...
+            // When we have a better input analysis, this will code will be reduced. 
             DateTime nearest = Utils.RoundToNearest(dt, TimeSpan.FromMinutes(15));
 
-            return IndexFinderDict[nearest];
+            if (IndexFinderDict.ContainsKey(nearest))
+                return IndexFinderDict[nearest];
+            else
+            {
+                DateTime rd = Utils.RoundDown(dt, TimeSpan.FromMinutes(15));
+                DateTime ru = Utils.RoundUp(dt, TimeSpan.FromMinutes(15));
+                if (IndexFinderDict.ContainsKey(rd))
+                {
+                    return IndexFinderDict[rd];
+                }
+                else if (IndexFinderDict.ContainsKey(ru))
+                {
+                    return IndexFinderDict[ru];
+                }
+                else
+                {
+                    return 60;
+                }
+            }
+
         }
 
         public int GetEmbarkingPassengers(Tram tram, int time)
         {
-            return 10;
             // Find the index in the array of lambdas for the poisson process.
-            var currDT = Utils.SecondsToDateTime(time);
-
-            var index = FindAppropriateInterval(currDT);
+            DateTime currDT = Utils.SecondsToDateTime(time);
+            int index = FindAppropriateInterval(currDT);
 
             double lambda = 0;
             // CS -> P+R
-            if (Id >= 0 && Id <= 8)
+            if (this.Id >= 0 && this.Id <= 8)
             {
-                lambda = RouteCStoPR[index, Id];
+                // If for any reason we are delayed, we have to go back to the data that we know.
+                if (index > RouteCStoPR.GetLength(0) - 1)
+                    index = RouteCStoPR.GetLength(0) - 1;
+                lambda = RouteCStoPR[index, this.Id];
             }
             else
             {
-                lambda = RouteCStoPR[index, Id - 8];
+                if (this.Id == -1)
+                {
+                    return 0;
+                }
+                else
+                {
+                    // If for any reason we are delayed, we have to go back to the data that we know.
+                    if (index > RoutePRtoCS.GetLength(0) - 1)
+                        index = RoutePRtoCS.GetLength(0) - 1;
+                    lambda = RoutePRtoCS[index, this.Id - 8];
+                }
+            }
+
+            if (lambda == 0.0)
+            {
+                lambda = 0.01;
             }
 
             // Generate the number of new arrival events *n* that will occur.
-            var pd = new Poisson(lambda);
-            var n = pd.Sample();
+            Poisson pd = new Poisson(lambda);
+            int n = pd.Sample();
 
             // Initialize an array to store the arrival times t_i, i = {1,2,..., n}.
-            var arrivals = new int[n];
-
-            // TODO: need to get the time the last tram arrived. if first tram, then 0. So I can get the interval
-            var T = time - TimeFromLastTram;
+            int[] arrivals = new int[n];
 
             // We will get the arrival times from the uniform distribution. U[0,T]
-            var ud = new DiscreteUniform(0, T);
+            DiscreteUniform ud = new DiscreteUniform(this.TimeFromLastTram, time);
 
             for (int i = 0; i < n; ++i)
             {
                 arrivals[i] = ud.Sample();
             }
 
-            // TODO: Compute the waiting times given the array arrivals. we also need to keep track of the people already waiting.
-            return (int)(WaitingPeople * 0.1);
+            // Compute the total waiting time for the new passengers given the array arrivals. we also need to keep track of the people already waiting.
+            int total_waiting_time = 0;
+            for (int i = 0; i < n; ++i)
+            {
+                total_waiting_time += time - arrivals[i];
+            }
+
+            this.TotalWaitingTime += total_waiting_time;
+
+            return n;
         }
 
+        public void IncrementLeftBehindAverageWaiting(int time)
+        {
+            this.TotalWaitingTime += this.LeftBehind * time;
+        }
 
     }
 }
