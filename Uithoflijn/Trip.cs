@@ -111,18 +111,6 @@ namespace Uithoflijn
             return Vertices.Single(x => x.Name == T2);
         }
 
-        /// <summary>
-        /// TODO: Determine the arriving passengers for time T
-        /// </summary>
-        /// <param name="t"></param>
-        public void PassengersArrive(int t)
-        {
-            foreach (var station in Vertices)
-            {
-                station.WaitingPeople += 0.05;
-            }
-        }
-
         public Station GetCSDepot()
         {
             return Vertices.FirstOrDefault(x => x.Name == "Depot");

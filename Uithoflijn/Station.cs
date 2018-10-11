@@ -249,34 +249,35 @@ namespace Uithoflijn
 
         public int GetEmbarkingPassengers(Tram tram, int time)
         {
+            return 10;
             // Find the index in the array of lambdas for the poisson process.
-            DateTime currDT = Utils.SecondsToDateTime(time);
-            int index = FindAppropriateInterval(currDT);
+            var currDT = Utils.SecondsToDateTime(time);
+
+            var index = FindAppropriateInterval(currDT);
 
             double lambda = 0;
             // CS -> P+R
-            if (this.Id >= 0 && this.Id <= 8)
+            if (Id >= 0 && Id <= 8)
             {
-                lambda = RouteCStoPR[index, this.Id];
+                lambda = RouteCStoPR[index, Id];
             }
             else
             {
-                lambda = RouteCStoPR[index, this.Id - 8];
+                lambda = RouteCStoPR[index, Id - 8];
             }
 
-
             // Generate the number of new arrival events *n* that will occur.
-            Poisson pd = new Poisson(lambda);
-            int n = pd.Sample();
+            var pd = new Poisson(lambda);
+            var n = pd.Sample();
 
             // Initialize an array to store the arrival times t_i, i = {1,2,..., n}.
-            int[] arrivals = new int[n];
+            var arrivals = new int[n];
 
             // TODO: need to get the time the last tram arrived. if first tram, then 0. So I can get the interval
-            int T = time - this.TimeFromLastTram;
+            var T = time - TimeFromLastTram;
 
             // We will get the arrival times from the uniform distribution. U[0,T]
-            DiscreteUniform ud = new DiscreteUniform(0, T);
+            var ud = new DiscreteUniform(0, T);
 
             for (int i = 0; i < n; ++i)
             {

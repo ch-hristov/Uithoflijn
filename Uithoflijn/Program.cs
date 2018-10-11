@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace Uithoflijn
 {
@@ -6,21 +9,48 @@ namespace Uithoflijn
     {
         public static void Main(string[] args)
         {
-            var sm = new StateManager();
-            Console.WriteLine("Cycle length " + ComputeCycleLength());
-            Console.CancelKeyPress += (a, b) => sm.WriteState();
-            sm.Start();
 
-            //Write the state on cancel
-            sm.WriteState();
-            Console.WriteLine(sm.TotalDelay);
+            //The values of the frequencies we're testing
+            var tramFrequencies = Enumerable.Range(40, 1500);
+
+            //The values for the tram counts we're testing
+            var tramNumbers = Enumerable.Range(1, 6);
+
+            var output = new List<string>();
+
+            var optimalFrequency = 40;
+            var optimalTramCount = 0;
+            var optimalPassCount = 0;
+
+            foreach (var tramFrequency in tramFrequencies)
+            {
+                foreach (var tramCount in tramNumbers)
+                {
+                    var sm = new StateManager();
+
+                    Console.WriteLine($"Executing freq: {tramFrequency}; tram count: {tramCount}");
+                    var statistics = sm.Start(tramFrequency, tramCount);
+
+                    output.Add(statistics.ToString());
+                    Console.WriteLine(statistics.ToString());
+
+                    if (statistics.TotalPassengersServiced > optimalPassCount)
+                    {
+                        optimalPassCount = statistics.TotalPassengersServiced;
+                        optimalFrequency = tramFrequency;
+                        optimalTramCount = tramCount;
+                    }
+                }
+            }
+
+            File.WriteAllLines("output.csv", output);
+            Console.WriteLine(output.Aggregate((a, b) => a + Environment.NewLine + b));
         }
 
         public static double ComputeCycleLength()
         {
             var dt = new DateTime(01, 1, 1, 6, 30, 0);
             var dt2 = new DateTime(01, 1, 1, 21, 30, 0);
-            Console.WriteLine((dt2 - dt).TotalMinutes);
             return 0;
         }
 

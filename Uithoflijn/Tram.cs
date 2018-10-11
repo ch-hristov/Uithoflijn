@@ -36,6 +36,7 @@ namespace Uithoflijn
             0,0.00305499,0.000179395,9.48E-06,0.000681801,0.000750849,0.009020428,0.030002259,1
         };
 
+        private Station _currentStation;
 
         public int Id { get; set; }
 
@@ -43,7 +44,20 @@ namespace Uithoflijn
 
         public int ServedPassengers { get; set; }
 
-        public Station CurrentStation { get; internal set; }
+        public Station CurrentStation { get => _currentStation; set => SetValue(value); }
+
+        private void SetValue(Station val)
+        {
+            //Remember last active station
+            if (CurrentStation != null && CurrentStation != null)
+                LastActiveStation = CurrentStation;
+
+            _currentStation = val;
+        }
+
+        public Station LastActiveStation { get; private set; }
+
+        public int Lateness { get; internal set; }
 
         public int GetDisembarkingPassengers(Station atStation, int time)
         {
@@ -108,6 +122,5 @@ namespace Uithoflijn
             // Return the number of successes from the binomial given the number of passengers and the probability of exiting the station.
             return toDisembark;
         }
-
     }
 }
