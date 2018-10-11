@@ -51,18 +51,7 @@ namespace Uithoflijn
         }
 
 
-        public class TramStatistics
-        {
-            public int TotalDelay { get; set; }
-            public int Punctuality { get; set; }
-            public int TotalPassengersServiced { get; set; }
 
-
-            public override string ToString()
-            {
-                return $"{TotalDelay};{Punctuality};{TotalPassengersServiced}";
-            }
-        }
 
         public TramStatistics Start(int frequency, int numberOfTrams)
         {
@@ -99,7 +88,7 @@ namespace Uithoflijn
                 //process events from the end station to the first station to compute
                 //the delays correctly
                 var events = new Queue<TransportArgs>(EventQueue.Where(x => x.TriggerTime == T)
-                                                                .OrderByDescending(x => 
+                                                                .OrderByDescending(x =>
                                                                                         x.ToStation != null ? x.ToStation.Id : int.MinValue));
                 while (events.Any())
                 {
@@ -115,7 +104,7 @@ namespace Uithoflijn
                         Idle(this, next);
                 }
 
-                EventQueue = new Queue<TransportArgs>(EventQueue.Where(x => x.TriggerTime >= T));
+                EventQueue = new Queue<TransportArgs>(EventQueue.Where(x => x.TriggerTime > T));
                 T++;
             }
 
@@ -141,7 +130,8 @@ namespace Uithoflijn
 
         private void HandleIdle(object sender, TransportArgs e)
         {
-            if (e.TriggerTime % CurrentFrequency == 0)
+            //check if we should issue a tram
+            if (e.TriggerTime % CurrentFrequency == 0 && Track.GetCS().CurrentTram == null)
             {
                 foreach (var tram in Trams)
                 {
@@ -292,7 +282,7 @@ namespace Uithoflijn
                         {
                             if (tram.LastActiveStation.Id < e.ToStation.Id)
                             {
-                                Console.WriteLine();
+
                             }
                         }
 
@@ -314,14 +304,20 @@ namespace Uithoflijn
 
         private int GetDelaymentTime(Tram tram, Station nextStation)
         {
+
             //there's no tram at next station so it's safe to go
             if (nextStation.CurrentTram == null) return 0;
 
             //there's a tram in the next station, but will it leave after we travel?
             var nextStationTram = nextStation.CurrentTram;
 
+            if (nextStationTram != null)
+            {
+                Console.WriteLine();
+            }
+
             // is the next tram late, and by how much?
-            var delay = 0;
+            var delay = new Random().Next(0, 1);
 
             return delay;
         }
