@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,35 +9,35 @@ namespace Uithoflijn
 {
     public class Program
     {
+        /// <summary>
+        /// Enable this to track the results
+        /// </summary>
+        public const bool DEBUG = false;
+
         public static void Main(string[] args)
         {
-            bool debug = false;
+
             //The values of the frequencies we're testing
-            var tramFrequencies = Enumerable.Range(40, 90);
+            var tramFrequencies = Enumerable.Range(40, 3);
 
             //The values for the tram counts we're testing
             var tramNumbers = Enumerable.Range(1, 6);
 
-            var output = new List<string>();
+            var output = new ConcurrentBag<string>();
 
             var optimalFrequency = 40;
             var optimalTramCount = 0;
             var optimalPassCount = 0;
 
-            output.Add("freq;tramcnt;delay;punctuality;serviced");
 
-            List<Tuple<int, int>> testValues = new List<Tuple<int, int>>();
+
+            var testValues = new List<Tuple<int, int>>();
 
             foreach (var tramFrequency in tramFrequencies)
-            {
                 foreach (var tramCount in tramNumbers)
-                {
                     testValues.Add(new Tuple<int, int>(tramFrequency, tramCount));
-                }
-            }
 
-
-            Parallel.ForEach(testValues, new ParallelOptions() { MaxDegreeOfParallelism = debug ? 1 : 8 }, tuple =>
+            Parallel.ForEach(testValues, new ParallelOptions() { MaxDegreeOfParallelism = DEBUG ? 1 : 8 }, tuple =>
               {
                   var tramFrequency = tuple.Item1;
                   var tramCount = tuple.Item2;
@@ -57,9 +58,11 @@ namespace Uithoflijn
                   }
               });
 
+            var final = new List<string>(output);
+            final.Insert(0, "freq;tramcnt;delay;punctuality;serviced");
 
-            File.WriteAllLines("output.csv", output);
-            Console.WriteLine(output.Aggregate((a, b) => a + Environment.NewLine + b));
+            File.WriteAllLines("output.csv", final);
+            Console.WriteLine(final.Aggregate((a, b) => a + Environment.NewLine + b));
         }
 
         public static double ComputeCycleLength()
