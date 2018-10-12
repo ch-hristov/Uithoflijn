@@ -8,6 +8,15 @@ namespace Uithoflijn
 {
     public class Station
     {
+        public void SetTimetable(Timetable t)
+        {
+            if (Timetable != null || !IsTerminal)
+                throw new Exception("Cant set timetable for this station");
+            Timetable = t;
+        }
+
+        public Timetable Timetable { get; private set; }
+
         public int Id { get; set; }
 
         public string Name { get; set; }
@@ -24,8 +33,19 @@ namespace Uithoflijn
 
         public IEnumerable<UEdge> InEdges { get; internal set; }
 
-        public int TimeFromLastTram { get; set; }
-        public Tram CurrentTram { get; internal set; }
+        public int TimeOfLastTram { get; set; }
+
+        public Queue<Tram> Trams { get; private set; }
+
+        public Tram CurrentTram
+        {
+            get
+            {
+                if (Trams.Count > 0)
+                    return Trams.Peek();
+                return null;
+            }
+        }
 
         Dictionary<DateTime, int> IndexFinderDict = new Dictionary<DateTime, int>()
         {
@@ -222,7 +242,6 @@ namespace Uithoflijn
             {0,0,0.048,0.048,0.29,0.19,0.095,0.48,9.5}
         };
 
-
         public override string ToString()
         {
             return $"[{Id}]{Name}";
@@ -317,7 +336,7 @@ namespace Uithoflijn
             int[] arrivals = new int[n];
 
             // We will get the arrival times from the uniform distribution. U[0,T]
-            DiscreteUniform ud = new DiscreteUniform(this.TimeFromLastTram, time);
+            DiscreteUniform ud = new DiscreteUniform(this.TimeOfLastTram, time);
 
             for (int i = 0; i < n; ++i)
             {

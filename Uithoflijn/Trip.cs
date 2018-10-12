@@ -11,7 +11,7 @@ namespace Uithoflijn
         private const string T1 = "Centraal Station";
         private const string T2 = "P+R De Uithof";
 
-        public Terrain()
+        public Terrain(int frequency, int turnaroundTime = 300)
         {
             var names = new List<string>() { T1, "Vaartsche Rijn", "Galgenwaard", "Kromme Rijn","Padualaan",
                                                        "Heidelberglaan",  "UMC", "WKZ" , T2};
@@ -37,9 +37,7 @@ namespace Uithoflijn
                     {
                         //Note upper case!!
                         if (Vertices.Any(vertex => vertex.Name == name))
-                        {
                             return;
-                        }
                     }
                     vertices.Add(new Station()
                     {
@@ -68,10 +66,10 @@ namespace Uithoflijn
             }
 
             var pr = GetPR();
-            var prN = Vertices.FirstOrDefault(x => x.Id == 9);
+            var afterPR = Vertices.FirstOrDefault(x => x.Id == 9);
 
             //add edges to final stations
-            AddEdge(new UEdge(pr, prN)
+            AddEdge(new UEdge(pr, afterPR)
             {
                 Weight = backwards[0]
             });
@@ -89,7 +87,7 @@ namespace Uithoflijn
             });
 
             //Set path from depot to station 1
-            AddEdge(new UEdge(Vertices.Single(x => x.Id == -1), Vertices.SingleOrDefault(x => x.Name == T1))
+            AddEdge(new UEdge(Vertices.Single(x => x.Id == -1), Vertices.SingleOrDefault(x => x.Name == T2))
             {
                 Weight = 1
             });
@@ -99,6 +97,10 @@ namespace Uithoflijn
                 vertex.OutEdges = Edges.Where(x => x.Source == vertex).ToList();
                 vertex.InEdges = Edges.Where(x => x.Target == vertex).ToList();
             }
+
+
+            Vertices.FirstOrDefault(x => x.Name == T2).SetTimetable(new Timetable(frequency, 0));
+            Vertices.FirstOrDefault(x => x.Name == T1).SetTimetable(new Timetable(frequency, 17 * 60 + turnaroundTime));
         }
 
         public Station GetCS()
@@ -111,27 +113,27 @@ namespace Uithoflijn
             return Vertices.Single(x => x.Name == T2);
         }
 
-        public Station GetCSDepot()
+        public Station GetPRDepot()
         {
             return Vertices.FirstOrDefault(x => x.Name == "Depot");
         }
 
         public Station NextStation(Station forStation)
         {
-            if (!(GetCSDepot() == forStation))
+            if (!(GetPRDepot() == forStation))
             {
                 var vertex = Vertices.FirstOrDefault(x => x.Id == forStation.Id);
                 var neighbours = Edges.Where(v => v.Source.Id == forStation.Id).FirstOrDefault();
                 return neighbours.Target;
             }
-            //The only station to move from the depot is T1
-            return Vertices.Single(x => x.Name == T1);
+            //The only station to move from the depot is T2
+            return Vertices.Single(x => x.Name == T2);
         }
 
-        public Station GetStationTerminal(int v)
+        public Station GetStationTerminal(int id)
         {
-            if (v == 0) return Vertices.FirstOrDefault(x => x.Name == T1);
-            if (v == 1) return Vertices.FirstOrDefault(x => x.Name == T2);
+            if (id == 0) return Vertices.FirstOrDefault(x => x.Name == T1);
+            if (id == 1) return Vertices.FirstOrDefault(x => x.Name == T2);
             throw new Exception($"Use 0 for {T1} or 1 for {T2}");
         }
     }

@@ -23,6 +23,8 @@ namespace Uithoflijn
     {
         Arrival,
         Departure,
-        Idle
+        Idle,
+        ExpectedArrival,
+        ExpectedDeparture
     }
 }
