@@ -42,15 +42,7 @@ namespace Uithoflijn
 
         public Queue<Tram> Trams { get; private set; }
 
-        public Tram CurrentTram
-        {
-            get
-            {
-                if (Trams.Count > 0)
-                    return Trams.Peek();
-                return null;
-            }
-        }
+        public Tram CurrentTram { get; set; }
 
         Dictionary<DateTime, int> IndexFinderDict = new Dictionary<DateTime, int>()
         {

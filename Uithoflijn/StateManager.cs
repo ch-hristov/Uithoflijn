@@ -52,21 +52,23 @@ namespace Uithoflijn
 
             // initialize trams
             for (var i = 0; i < InitialTrams; i++)
-                Trams.Add(new Tram() { Id = i });
+                Trams.Add(new Tram() { Id = i, CurrentStation = Track.GetPRDepot() });
 
             //all go to depot
             foreach (var tram in Trams)
             {
-                TramArrived(this, new TransportArgs()
+                HandleExpectedArrival(this, new TransportArgs()
                 {
                     FromStation = null,
                     ToStation = Track.GetPRDepot(),
-                    Tram = tram
+                    Tram = tram,
+                    Type = TransportArgsType.ExpectedArrival,
+                    TriggerTime = 0
                 });
             }
 
             var T = 0;
-            Idle(this, new TransportArgs() { TriggerTime = -1 });
+            Idle(this, new TransportArgs() { TriggerTime = 0 });
 
             while (T <= TotalTime || EventQueue.Any())
             {
@@ -79,6 +81,9 @@ namespace Uithoflijn
                 while (events.Any())
                 {
                     var next = events.Dequeue();
+
+                    if (next.ToString() != "")
+                        Console.WriteLine(next.ToString());
 
                     if (next.Type == TransportArgsType.ExpectedArrival)
                         TramExpectedArrival(this, next);
@@ -123,7 +128,8 @@ namespace Uithoflijn
                     FromStation = e.FromStation,
                     Tram = e.Tram,
                     ToStation = e.ToStation,
-                    TriggerTime = e.TriggerTime + (40 - diff)
+                    TriggerTime = e.TriggerTime + (40 - diff),
+                    Type = TransportArgsType.ExpectedDeparture
                 });
             }
             else
@@ -133,13 +139,22 @@ namespace Uithoflijn
                     FromStation = e.FromStation,
                     Tram = e.Tram,
                     ToStation = e.ToStation,
-                    TriggerTime = e.TriggerTime
+                    TriggerTime = e.TriggerTime,
+                    Type = TransportArgsType.Departure
                 });
             }
         }
 
         public void HandleExpectedArrival(object sender, TransportArgs e)
         {
+            var expectedAtTime = e.ExpectedTime;
+            var currentTime = e.TriggerTime;
+
+            if (!e.ToStation.Trams.Contains(e.Tram))
+            {
+                e.ToStation.Trams.Enqueue(e.Tram);
+            }
+
             if (e.ToStation.CurrentTram == null)
             {
                 EventQueue.Enqueue(new TransportArgs()
@@ -154,6 +169,7 @@ namespace Uithoflijn
             }
             else
             {
+
                 EventQueue.Enqueue(new TransportArgs()
                 {
                     Tram = e.Tram,
@@ -195,7 +211,7 @@ namespace Uithoflijn
                                 FromStation = tram.CurrentStation,
                                 ToStation = Track.NextStation(tram.CurrentStation),
                                 Tram = tram,
-                                Type = TransportArgsType.Departure,
+                                Type = TransportArgsType.Arrival,
                                 TriggerTime = e.TriggerTime
                                                 + GetTravelTime(tram.CurrentStation, Track.NextStation(tram.CurrentStation))
                             });
@@ -228,12 +244,38 @@ namespace Uithoflijn
 
         private void HandleArrival(object sender, TransportArgs e)
         {
+            //Don't immediately schedule departure if the trams just arrived at the depot(happens initially)
+            if (TotalTime <= e.TriggerTime && e.ToStation == Track.GetPR())
+                return;
+
+            e.ToStation.CurrentTram = e.Tram;
+            e.Tram.CurrentStation = e.ToStation;
+
             //train has arrived at station and is ready to serve passengers
             var totalEmbarkingPassengers = 0;
             var totalDisembarkingPassengers = 0;
 
             //Disembark passengers if neccessary
-            if (e.ToStation != e.Tram.CurrentStation)
+            EmbarkDisembarkPassengers(e, ref totalEmbarkingPassengers, ref totalDisembarkingPassengers);
+
+            int stationTime = (int)Math.Ceiling(GetStationTime(totalDisembarkingPassengers, totalDisembarkingPassengers));
+            if (e.ToStation == Track.GetPRDepot()) stationTime = 1;
+
+            // upon arrival schedule an departure
+            EventQueue.Enqueue(new TransportArgs()
+            {
+                FromStation = e.ToStation,
+                ToStation = Track.NextStation(e.ToStation),
+                TriggerTime = e.TriggerTime + stationTime,
+                Tram = e.Tram,
+                Type = TransportArgsType.ExpectedDeparture
+            });
+
+        }
+
+        private void EmbarkDisembarkPassengers(TransportArgs e, ref int totalEmbarkingPassengers, ref int totalDisembarkingPassengers)
+        {
+            if (e.ToStation != e.Tram.CurrentStation && e.ToStation != Track.GetPRDepot())
             {
                 // handle boarding ? how many people can board?
                 totalDisembarkingPassengers = e.Tram.GetDisembarkingPassengers(e.ToStation, e.TriggerTime);
@@ -301,41 +343,6 @@ namespace Uithoflijn
                     e.ToStation.LeftBehind += leftBehind;
                 }
             }
-
-            //Don't immediately schedule departure if the trams just arrived at the depot(happens initially)
-            if (e.ToStation == Track.GetPRDepot()) return;
-
-            if (TotalTime <= e.TriggerTime && e.ToStation == Track.GetPR())
-                return;
-
-            // upon arrival schedule an departure
-            EventQueue.Enqueue(new TransportArgs()
-            {
-                FromStation = e.ToStation,
-                ToStation = Track.NextStation(e.ToStation),
-                TriggerTime = e.TriggerTime + (int)Math.Ceiling(GetStationTime(totalDisembarkingPassengers, totalDisembarkingPassengers)),
-                Tram = e.Tram,
-                Type = TransportArgsType.ExpectedDeparture
-            });
-        }
-
-        private int GetDelaymentTime(Tram tram, Station nextStation)
-        {
-
-            //there's no tram at next station so it's safe to go
-            if (nextStation.CurrentTram == null) return 0;
-
-            //there's a tram in the next station, but will it leave after we travel?
-            var nextStationTram = nextStation.CurrentTram;
-
-            if (nextStationTram != null)
-            {
-            }
-
-            // is the next tram late, and by how much?
-            var delay = new Random().Next(0, 1);
-
-            return delay;
         }
 
         /// <summary>

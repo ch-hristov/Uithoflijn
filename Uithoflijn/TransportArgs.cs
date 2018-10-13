@@ -18,7 +18,19 @@ namespace Uithoflijn
 
         public override string ToString()
         {
-            return $"[{Type.ToString("G")}]{Tram.Id} from {FromStation.Name}[{FromStation.Id}] -> {ToStation.Name}[{ToStation.Id}] / T = {TriggerTime}";
+            if (Type != TransportArgsType.Idle)
+            {
+                string fs = "NONE";
+                var id = "";
+
+                if (FromStation != null)
+                {
+                    fs = FromStation.Name;
+                    id = "NONE";
+                }
+                return $"[{Type.ToString("G")}]{Tram.Id} from {fs}[{id}] -> {ToStation.Name}[{ToStation.Id}] / T = {TriggerTime}";
+            }
+            return "";
         }
     }
 

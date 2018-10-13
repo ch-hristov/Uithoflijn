@@ -12,7 +12,7 @@ namespace Uithoflijn
         /// <summary>
         /// Enable this to track the results
         /// </summary>
-        public static bool DEBUG = false;
+        public static bool DEBUG = true;
 
         public const int TOTAL_TESTED_FREQUENCIES = 30;
         public const int TOTAL_TRAMSCOUNT_TO_TEST = 9;

@@ -6,6 +6,11 @@ namespace Uithoflijn
 {
     public class Tram
     {
+        public override string ToString()
+        {
+            return $"{Id}@{CurrentStation.Name}";
+        }
+
         public List<double> _disembarkmentGeneralProbCSPR = new List<double>()
         {
             0,0.086763924,0.062557774,0.052848369,0.517963103,0.642401152,0.797902237,0.977346689,1
@@ -49,7 +54,7 @@ namespace Uithoflijn
         private void SetValue(Station val)
         {
             //Remember last active station
-            if (CurrentStation != null && CurrentStation != null)
+            if (CurrentStation != null)
                 LastActiveStation = CurrentStation;
 
             _currentStation = val;
