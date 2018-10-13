@@ -14,8 +14,8 @@ namespace Uithoflijn
         /// </summary>
         public static bool DEBUG = false;
 
-        public const int TOTAL_TESTED_FREQUENCIES = 30;
-        public const int TOTAL_TRAMSCOUNT_TO_TEST = 9;
+        public const int TOTAL_TESTED_FREQUENCIES = 5;
+        public const int TOTAL_TRAMSCOUNT_TO_TEST = 2;
         public const int AT_LEAST_COUNT_TRAMS = 6;
 
         public static void Main(string[] args)

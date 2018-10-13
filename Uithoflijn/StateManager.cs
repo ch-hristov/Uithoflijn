@@ -68,7 +68,11 @@ namespace Uithoflijn
             }
 
             var T = 0;
-            Idle(this, new TransportArgs() { TriggerTime = 0 });
+
+            Idle(this, new TransportArgs()
+            {
+                TriggerTime = 0
+            });
 
             while (T <= TotalTime || EventQueue.Any())
             {
@@ -76,29 +80,34 @@ namespace Uithoflijn
                 //process events from the end station to the first station to compute
                 //the delays correctly
 
-                var events = new Queue<TransportArgs>(EventQueue.Where(x => x.TriggerTime == T)
-                                                                .OrderByDescending(x => x.ToStation != null ? x.ToStation.Id : int.MinValue));
-                while (events.Any())
+                while (EventQueue.Any(x => x.TriggerTime == T))
                 {
-                    var next = events.Dequeue();
+                    var set = new Queue<TransportArgs>(EventQueue.Where(x => x.TriggerTime == T));
+                    EventQueue = new Queue<TransportArgs>(EventQueue.Except(set));
 
-                    //if (next.ToString() != "")
-                    //    Console.WriteLine(next.ToString());
+                    while (set.Any())
+                    {
+                        var next = set.Dequeue();
 
-                    if (next.Type == TransportArgsType.ExpectedArrival)
-                        TramExpectedArrival(this, next);
+                        if (next.ToString() != "")
+                            Console.WriteLine(next.ToString());
 
-                    if (next.Type == TransportArgsType.ExpectedDeparture)
-                        TramExpectedDeparture(this, next);
+                        if (next.Type == TransportArgsType.ExpectedArrival)
+                            TramExpectedArrival(this, next);
 
-                    if (next.Type == TransportArgsType.Arrival)
-                        TramArrived(this, next);
+                        if (next.Type == TransportArgsType.ExpectedDeparture)
+                            TramExpectedDeparture(this, next);
 
-                    if (next.Type == TransportArgsType.Departure)
-                        TramDeparture(this, next);
+                        if (next.Type == TransportArgsType.Arrival)
+                            TramArrived(this, next);
 
-                    if (T <= TotalTime && next.Type == TransportArgsType.Idle)
-                        Idle(this, next);
+                        if (next.Type == TransportArgsType.Departure)
+                            TramDeparture(this, next);
+
+                        if (T <= TotalTime && next.Type == TransportArgsType.Idle)
+                            Idle(this, next);
+                    }
+
                 }
 
                 EventQueue = new Queue<TransportArgs>(EventQueue.Where(x => x.TriggerTime > T));
@@ -119,9 +128,12 @@ namespace Uithoflijn
 
         public void HandleExpectedDeparture(object sender, TransportArgs e)
         {
-            var diff = Math.Abs(e.TriggerTime - e.ToStation.TimeOfLastTram);
+            int diff = -1;
 
-            if (diff < 40)
+            if (e.ToStation.TimeOfLastTram != null)
+                diff = Math.Abs(e.TriggerTime - e.ToStation.TimeOfLastTram.Value);
+
+            if (diff < 40 && diff != -1)
             {
                 EventQueue.Enqueue(new TransportArgs()
                 {
@@ -135,7 +147,7 @@ namespace Uithoflijn
             }
             else
             {
-                TramDeparture(this, new TransportArgs()
+                EventQueue.Enqueue(new TransportArgs()
                 {
                     FromStation = e.FromStation,
                     Tram = e.Tram,
@@ -152,9 +164,7 @@ namespace Uithoflijn
             var currentTime = e.TriggerTime;
 
             if (!e.ToStation.Trams.Contains(e.Tram))
-            {
                 e.ToStation.Trams.Enqueue(e.Tram);
-            }
 
             if (e.ToStation.CurrentTram == null)
             {
@@ -170,7 +180,6 @@ namespace Uithoflijn
             }
             else
             {
-
                 EventQueue.Enqueue(new TransportArgs()
                 {
                     Tram = e.Tram,
@@ -233,6 +242,7 @@ namespace Uithoflijn
             }
 
             e.FromStation.CurrentTram = null;
+            e.Tram.CurrentStation = null;
 
             // upon departure schedule an arrival
             EventQueue.Enqueue(new TransportArgs()
@@ -261,7 +271,7 @@ namespace Uithoflijn
             //Disembark passengers if neccessary
             EmbarkDisembarkPassengers(e, ref totalEmbarkingPassengers, ref totalDisembarkingPassengers);
 
-            int stationTime = (int)Math.Ceiling(GetStationTime(totalDisembarkingPassengers, totalDisembarkingPassengers));
+            var stationTime = (int)Math.Ceiling(GetStationTime(totalDisembarkingPassengers, totalDisembarkingPassengers));
             if (e.ToStation == Track.GetPRDepot()) stationTime = 1;
 
             // upon arrival schedule an departure
@@ -286,12 +296,10 @@ namespace Uithoflijn
                 var leftOverPeople = e.ToStation.LeftBehind;
 
                 // increment the waiting time of these people it will be the number of the people * the time the platform has been empty. 
-                e.ToStation.IncrementLeftBehindAverageWaiting(e.TriggerTime - e.ToStation.TimeOfLastTram);
+                e.ToStation.IncrementLeftBehindAverageWaiting(e.TriggerTime - e.ToStation.TimeOfLastTram.Value);
 
                 // get the number of new passengers that arrived at the platform while it had no tram.
                 var toEmbark = e.ToStation.GetEmbarkingPassengers(e.Tram, e.TriggerTime);
-
-                e.Tram.CurrentStation = e.ToStation;
 
                 // people exit train
                 e.Tram.CurrentPassengers -= totalDisembarkingPassengers;

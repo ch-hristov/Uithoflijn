@@ -38,7 +38,7 @@ namespace Uithoflijn
 
         public IEnumerable<UEdge> InEdges { get; internal set; }
 
-        public int TimeOfLastTram { get; set; }
+        public int? TimeOfLastTram { get; set; }
 
         public Queue<Tram> Trams { get; private set; }
 
@@ -298,16 +298,16 @@ namespace Uithoflijn
 
             double lambda = 0;
             // CS -> P+R
-            if (this.Id >= 0 && this.Id <= 8)
+            if (Id >= 0 && Id <= 8)
             {
                 // If for any reason we are delayed, we have to go back to the data that we know.
                 if (index > RouteCStoPR.GetLength(0) - 1)
                     index = RouteCStoPR.GetLength(0) - 1;
-                lambda = RouteCStoPR[index, this.Id];
+                lambda = RouteCStoPR[index, Id];
             }
             else
             {
-                if (this.Id == -1)
+                if (Id == -1)
                 {
                     return 0;
                 }
@@ -316,7 +316,8 @@ namespace Uithoflijn
                     // If for any reason we are delayed, we have to go back to the data that we know.
                     if (index > RoutePRtoCS.GetLength(0) - 1)
                         index = RoutePRtoCS.GetLength(0) - 1;
-                    lambda = RoutePRtoCS[index, this.Id - 8];
+
+                    lambda = RoutePRtoCS[index, Id - 8];
                 }
             }
 
@@ -333,7 +334,7 @@ namespace Uithoflijn
             int[] arrivals = new int[n];
 
             // We will get the arrival times from the uniform distribution. U[0,T]
-            DiscreteUniform ud = new DiscreteUniform(this.TimeOfLastTram, time);
+            DiscreteUniform ud = new DiscreteUniform(TimeOfLastTram.Value, time);
 
             for (int i = 0; i < n; ++i)
             {
