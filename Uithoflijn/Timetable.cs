@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Uithoflijn
@@ -25,6 +26,19 @@ namespace Uithoflijn
         {
             if (triggerTime < 0 || triggerTime >= Range) return false;
             return this[triggerTime] == 1;
+        }
+
+        public int? NextFromSchedule(int triggerTime)
+        {
+            if (triggerTime - 1 >= Range) return null;
+            int j = triggerTime - 1;
+            while (j < Range)
+            {
+                if (this[j] == 1) return j + 1;
+                j++;
+            }
+
+            return null;
         }
     }
 }

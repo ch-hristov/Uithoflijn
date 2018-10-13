@@ -12,11 +12,12 @@ namespace Uithoflijn
         /// <summary>
         /// Enable this to track the results
         /// </summary>
-        public static bool DEBUG = false;
+        public static bool DEBUG = true;
 
         public const int TOTAL_TESTED_FREQUENCIES = 5;
         public const int TOTAL_TRAMSCOUNT_TO_TEST = 2;
         public const int AT_LEAST_COUNT_TRAMS = 6;
+        public const int TURNAROUND_TIME = 300;
 
         public static void Main(string[] args)
         {
@@ -51,7 +52,7 @@ namespace Uithoflijn
                   var sm = new StateManager();
 
                   Console.WriteLine($"Executing freq: {tramFrequency}; tram count: {tramCount}");
-                  var statistics = sm.Start(tramFrequency, tramCount);
+                  var statistics = sm.Start(TURNAROUND_TIME, tramFrequency, tramCount);
                   var data = $"{tramFrequency};{tramCount};{statistics.ToString()}";
 
                   output.Add(data);

@@ -28,17 +28,19 @@ namespace Uithoflijn
         public ICollection<Tram> Trams = new List<Tram>();
 
         public Terrain Track { get; set; }
+        public int TurnaroundTime { get; private set; }
         public int CurrentFrequency { get; private set; }
 
         private const int _DELAY_PROBE = 10;
         public int TotalDelay { get; set; }
 
 
-        public TramStatistics Start(int frequency, int numberOfTrams)
+        public TramStatistics Start(int turnAround, int frequency, int numberOfTrams)
         {
             //Issue lots of trams(iliketrains)
-            Track = new Terrain(frequency);
+            Track = new Terrain(frequency, turnAround);
 
+            this.TurnaroundTime = turnAround;
             InitialTrams = numberOfTrams;
             CurrentFrequency = numberOfTrams;
 
@@ -271,15 +273,32 @@ namespace Uithoflijn
             //Disembark passengers if neccessary
             EmbarkDisembarkPassengers(e, ref totalEmbarkingPassengers, ref totalDisembarkingPassengers);
 
-            var stationTime = (int)Math.Ceiling(GetStationTime(totalDisembarkingPassengers, totalDisembarkingPassengers));
-            if (e.ToStation == Track.GetPRDepot()) stationTime = 1;
+            var dwell = (int)Math.Ceiling(GetStationTime(totalDisembarkingPassengers, totalDisembarkingPassengers));
+
+            if (e.ToStation == Track.GetPRDepot()) dwell = 0;
+
+            var scheduleCorrection = 0;
+
+            if (e.ToStation.IsTerminal)
+            {
+                var timeCorrection = e.ToStation.Timetable.NextFromSchedule(e.TriggerTime);
+
+                if (timeCorrection != null)
+                {
+                    var punctuality = e.TriggerTime - timeCorrection.Value;
+                }
+                else
+                {
+                    //can't jump to the next schedule
+                }
+            }
 
             // upon arrival schedule an departure
             EventQueue.Enqueue(new TransportArgs()
             {
                 FromStation = e.ToStation,
                 ToStation = Track.NextStation(e.ToStation),
-                TriggerTime = e.TriggerTime + stationTime,
+                TriggerTime = e.TriggerTime + Math.Max(Math.Max(dwell, scheduleCorrection), TurnaroundTime),
                 Tram = e.Tram,
                 Type = TransportArgsType.ExpectedDeparture
             });
