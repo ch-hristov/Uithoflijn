@@ -36,10 +36,10 @@ namespace Uithoflijn
 
     public enum TransportArgsType
     {
+        Idle,
         Arrival,
         Departure,
-        Idle,
         ExpectedArrival,
-        ExpectedDeparture
+        ExpectedDeparture,
     }
 }

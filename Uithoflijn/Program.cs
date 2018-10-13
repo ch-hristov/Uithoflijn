@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Uithoflijn
@@ -12,10 +13,10 @@ namespace Uithoflijn
         /// <summary>
         /// Enable this to track the results
         /// </summary>
-        public static bool DEBUG = true;
+        public static bool DEBUG = false;
 
-        public const int TOTAL_TESTED_FREQUENCIES = 15;
-        public const int TOTAL_TRAMSCOUNT_TO_TEST = 10;
+        public const int TOTAL_TESTED_FREQUENCIES = 1;
+        public const int TOTAL_TRAMSCOUNT_TO_TEST = 1;
         public const int AT_LEAST_COUNT_TRAMS = 6;
         public const int TURNAROUND_TIME = 300;
 
@@ -50,6 +51,14 @@ namespace Uithoflijn
                   var tramFrequency = tuple.Item1;
                   var tramCount = tuple.Item2;
 
+                  if (DEBUG)
+                  {
+                      if (File.Exists($"DEBUG_{tramFrequency}_{tramCount}.txt")) File.Delete($"DEBUG_{tramFrequency}_{tramCount}.txt");
+
+                      //guarantee the file is deleted..
+                      Thread.Sleep(50);
+                  }
+
                   using (var file = File.OpenWrite($"DEBUG_{tramFrequency}_{tramCount}.txt"))
                   {
                       using (var streamWriter = new StreamWriter(file))
@@ -63,6 +72,7 @@ namespace Uithoflijn
                               if (!string.IsNullOrEmpty(arg.ToString().Trim()))
                                   streamWriter.WriteLine(arg.ToString());
                           };
+
                           var statistics = sm.Start(TURNAROUND_TIME, tramFrequency, tramCount);
 
                           var data = $"{tramFrequency};{tramCount};{statistics.ToString()}";
