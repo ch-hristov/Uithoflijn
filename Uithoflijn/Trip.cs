@@ -89,7 +89,7 @@ namespace Uithoflijn
             //Set path from depot to station 1
             AddEdge(new UEdge(Vertices.Single(x => x.Id == -1), Vertices.SingleOrDefault(x => x.Name == T2))
             {
-                Weight = 1
+                Weight = 0
             });
 
             foreach (var vertex in Vertices)

@@ -12,11 +12,11 @@ namespace Uithoflijn
         /// <summary>
         /// Enable this to track the results
         /// </summary>
-        public static bool DEBUG = false;
+        public static bool DEBUG = true;
 
-        public const int TOTAL_TESTED_FREQUENCIES = 5;
-        public const int TOTAL_TRAMSCOUNT_TO_TEST = 2;
-        public const int AT_LEAST_COUNT_TRAMS = 2;
+        public const int TOTAL_TESTED_FREQUENCIES = 15;
+        public const int TOTAL_TRAMSCOUNT_TO_TEST = 10;
+        public const int AT_LEAST_COUNT_TRAMS = 6;
         public const int TURNAROUND_TIME = 300;
 
         public static void Main(string[] args)
@@ -49,22 +49,34 @@ namespace Uithoflijn
               {
                   var tramFrequency = tuple.Item1;
                   var tramCount = tuple.Item2;
-                  var sm = new StateManager();
 
-                  Console.WriteLine($"Executing freq: {tramFrequency}; tram count: {tramCount}");
-
-                  var statistics = sm.Start(TURNAROUND_TIME, tramFrequency, tramCount);
-
-                  var data = $"{tramFrequency};{tramCount};{statistics.ToString()}";
-
-                  output.Add(data);
-                  Console.WriteLine(data.ToString());
-
-                  if (statistics.TotalPassengersServiced > optimalPassCount)
+                  using (var file = File.OpenWrite($"DEBUG_{tramFrequency}_{tramCount}.txt"))
                   {
-                      optimalPassCount = statistics.TotalPassengersServiced;
-                      optimalFrequency = tramFrequency;
-                      optimalTramCount = tramCount;
+                      using (var streamWriter = new StreamWriter(file))
+                      {
+                          var sm = new StateManager();
+
+                          Console.WriteLine($"Executing freq: {tramFrequency}; tram count: {tramCount}");
+
+                          sm.DebugLine += (send, arg) =>
+                          {
+                              if (!string.IsNullOrEmpty(arg.ToString().Trim()))
+                                  streamWriter.WriteLine(arg.ToString());
+                          };
+                          var statistics = sm.Start(TURNAROUND_TIME, tramFrequency, tramCount);
+
+                          var data = $"{tramFrequency};{tramCount};{statistics.ToString()}";
+
+                          output.Add(data);
+                          Console.WriteLine(data.ToString());
+
+                          if (statistics.TotalPassengersServiced > optimalPassCount)
+                          {
+                              optimalPassCount = statistics.TotalPassengersServiced;
+                              optimalFrequency = tramFrequency;
+                              optimalTramCount = tramCount;
+                          }
+                      }
                   }
               });
 
