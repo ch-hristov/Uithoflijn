@@ -12,11 +12,11 @@ namespace Uithoflijn
         /// <summary>
         /// Enable this to track the results
         /// </summary>
-        public static bool DEBUG = true;
+        public static bool DEBUG = false;
 
         public const int TOTAL_TESTED_FREQUENCIES = 5;
         public const int TOTAL_TRAMSCOUNT_TO_TEST = 2;
-        public const int AT_LEAST_COUNT_TRAMS = 6;
+        public const int AT_LEAST_COUNT_TRAMS = 2;
         public const int TURNAROUND_TIME = 300;
 
         public static void Main(string[] args)
