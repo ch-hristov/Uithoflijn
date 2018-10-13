@@ -108,18 +108,64 @@ namespace Uithoflijn
             {
                 TotalPassengersServiced = totalServedInDay,
                 Punctuality = 0,
-                TotalDelay = 0
+                TotalDelay = TotalDelay
             };
         }
 
         public void HandleExpectedDeparture(object sender, TransportArgs e)
         {
+            var diff = Math.Abs(e.TriggerTime - e.ToStation.TimeOfLastTram);
 
+            if (diff < 40)
+            {
+                EventQueue.Enqueue(new TransportArgs()
+                {
+                    FromStation = e.FromStation,
+                    Tram = e.Tram,
+                    ToStation = e.ToStation,
+                    TriggerTime = e.TriggerTime + (40 - diff)
+                });
+            }
+            else
+            {
+                TramDeparture(this, new TransportArgs()
+                {
+                    FromStation = e.FromStation,
+                    Tram = e.Tram,
+                    ToStation = e.ToStation,
+                    TriggerTime = e.TriggerTime
+                });
+            }
         }
 
         public void HandleExpectedArrival(object sender, TransportArgs e)
         {
+            if (e.ToStation.CurrentTram == null)
+            {
+                EventQueue.Enqueue(new TransportArgs()
+                {
+                    Tram = e.Tram,
+                    FromStation = e.FromStation,
+                    ToStation = e.ToStation,
+                    Type = TransportArgsType.Arrival,
+                    TriggerTime = e.TriggerTime,
+                    ExpectedTime = e.ExpectedTime
+                });
+            }
+            else
+            {
+                EventQueue.Enqueue(new TransportArgs()
+                {
+                    Tram = e.Tram,
+                    ExpectedTime = e.ExpectedTime,
+                    TriggerTime = e.TriggerTime + _DELAY_PROBE,
+                    FromStation = e.FromStation,
+                    ToStation = e.ToStation,
+                    Type = TransportArgsType.ExpectedArrival
+                });
 
+                TotalDelay += _DELAY_PROBE;
+            }
         }
 
         private void HandleIdle(object sender, TransportArgs e)
@@ -148,7 +194,6 @@ namespace Uithoflijn
                             {
                                 FromStation = tram.CurrentStation,
                                 ToStation = Track.NextStation(tram.CurrentStation),
-                                Priority = 0,
                                 Tram = tram,
                                 Type = TransportArgsType.Departure,
                                 TriggerTime = e.TriggerTime
@@ -177,7 +222,7 @@ namespace Uithoflijn
                 ToStation = e.ToStation,
                 TriggerTime = e.TriggerTime + GetTravelTime(e.FromStation, e.ToStation),
                 Tram = e.Tram,
-                Type = TransportArgsType.Arrival
+                Type = TransportArgsType.ExpectedArrival
             });
         }
 
@@ -201,7 +246,6 @@ namespace Uithoflijn
 
                 // get the number of new passengers that arrived at the platform while it had no tram.
                 var toEmbark = e.ToStation.GetEmbarkingPassengers(e.Tram, e.TriggerTime);
-                e.ToStation.CurrentTram = e.Tram;
 
                 e.Tram.CurrentStation = e.ToStation;
 
@@ -252,54 +296,27 @@ namespace Uithoflijn
                     totalEmbarkingPassengers += canEnter;
 
                     // Now, the toEmbark, become LeftBehind. 
-                    int leftBehind = toEmbark - canEnter;
+                    var leftBehind = toEmbark - canEnter;
 
                     e.ToStation.LeftBehind += leftBehind;
                 }
-
             }
 
-            //Don't immediately schedule departure if the trams just arrived at the depot,
-            //This is done by the idle event
-            if (e.ToStation != Track.GetPRDepot())
+            //Don't immediately schedule departure if the trams just arrived at the depot(happens initially)
+            if (e.ToStation == Track.GetPRDepot()) return;
+
+            if (TotalTime <= e.TriggerTime && e.ToStation == Track.GetPR())
+                return;
+
+            // upon arrival schedule an departure
+            EventQueue.Enqueue(new TransportArgs()
             {
-                if (TotalTime <= e.TriggerTime && e.ToStation == Track.GetPR())
-                {
-                    // Do not issue more trains from depot, 
-                    return;
-                }
-                else
-                {
-                    var delay = GetDelaymentTime(e.Tram, Track.NextStation(e.Tram.CurrentStation));
-
-                    if (delay == 0)
-                    {
-                        // upon arrival schedule a departure if that's possible
-                        EventQueue.Enqueue(new TransportArgs()
-                        {
-                            FromStation = e.ToStation,
-                            ToStation = Track.NextStation(e.ToStation),
-                            TriggerTime = e.TriggerTime + (int)Math.Ceiling(GetStationTime(totalDisembarkingPassengers, totalDisembarkingPassengers)),
-                            Tram = e.Tram,
-                            Type = TransportArgsType.ExpectedDeparture
-                        });
-                    }
-                    else
-                    {
-                        TramArrived(this, new TransportArgs()
-                        {
-                            FromStation = e.FromStation,
-                            ToStation = e.ToStation,
-                            TriggerTime = e.TriggerTime + delay,
-                            Type = e.Type,
-                            Priority = 0,
-                            Tram = e.Tram
-                        });
-
-                        TotalDelay += _DELAY_PROBE;
-                    }
-                }
-            }
+                FromStation = e.ToStation,
+                ToStation = Track.NextStation(e.ToStation),
+                TriggerTime = e.TriggerTime + (int)Math.Ceiling(GetStationTime(totalDisembarkingPassengers, totalDisembarkingPassengers)),
+                Tram = e.Tram,
+                Type = TransportArgsType.ExpectedDeparture
+            });
         }
 
         private int GetDelaymentTime(Tram tram, Station nextStation)

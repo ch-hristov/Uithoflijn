@@ -13,13 +13,14 @@ namespace Uithoflijn
         /// Enable this to track the results
         /// </summary>
         public static bool DEBUG = false;
+
         public const int TOTAL_TESTED_FREQUENCIES = 30;
         public const int TOTAL_TRAMSCOUNT_TO_TEST = 9;
 
         public static void Main(string[] args)
         {
             //The values of the frequencies we're testing, issue at least every 40 seconds
-            var tramFrequencies = Enumerable.Range(300, TOTAL_TESTED_FREQUENCIES);
+            var tramFrequencies = Enumerable.Range(25, TOTAL_TESTED_FREQUENCIES);
 
             //check if debugger is attached to guarantee nice debugging
             if (System.Diagnostics.Debugger.IsAttached)

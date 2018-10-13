@@ -8,6 +8,11 @@ namespace Uithoflijn
 {
     public class Station
     {
+        public Station()
+        {
+            Trams = new Queue<Tram>();
+        }
+
         public void SetTimetable(Timetable t)
         {
             if (Timetable != null || !IsTerminal)
