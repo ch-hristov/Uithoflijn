@@ -98,7 +98,6 @@ namespace Uithoflijn
                 vertex.InEdges = Edges.Where(x => x.Target == vertex).ToList();
             }
 
-
             Vertices.FirstOrDefault(x => x.Name == T2).SetTimetable(new Timetable(frequency, 0));
             Vertices.FirstOrDefault(x => x.Name == T1).SetTimetable(new Timetable(frequency, 17 * 60 + turnaroundTime));
         }

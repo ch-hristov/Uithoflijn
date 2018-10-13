@@ -52,7 +52,9 @@ namespace Uithoflijn
                   var sm = new StateManager();
 
                   Console.WriteLine($"Executing freq: {tramFrequency}; tram count: {tramCount}");
+
                   var statistics = sm.Start(TURNAROUND_TIME, tramFrequency, tramCount);
+
                   var data = $"{tramFrequency};{tramCount};{statistics.ToString()}";
 
                   output.Add(data);

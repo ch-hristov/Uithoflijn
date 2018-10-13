@@ -41,7 +41,7 @@ namespace Uithoflijn
             //Issue lots of trams(iliketrains)
             Track = new Terrain(frequency, turnAround);
 
-            this.TurnaroundTime = turnAround;
+            TurnaroundTime = turnAround;
             InitialTrams = numberOfTrams;
             CurrentFrequency = numberOfTrams;
 
@@ -54,23 +54,21 @@ namespace Uithoflijn
             TramExpectedDeparture += HandleExpectedDeparture;
 
             // initialize trams
-            for (var i = 0; i < InitialTrams; i++)
-                Trams.Add(new Tram() { Id = i, CurrentStation = Track.GetPRDepot() });
+            for (var i = 0; i < InitialTrams; i++) Trams.Add(new Tram() { Id = i, CurrentStation = Track.GetPRDepot() });
 
             //all go to depot
-            int arr_i = 0;
+            var c = 0;
             foreach (var tram in Trams)
             {
-                int arr = arr_i * frequency;
                 HandleArrival(this, new TransportArgs()
                 {
                     FromStation = null,
                     ToStation = Track.GetPRDepot(),
                     Tram = tram,
                     Type = TransportArgsType.Arrival,
-                    TriggerTime = arr
+                    TriggerTime = c * frequency
                 });
-                arr_i++;
+                c++;
             }
 
             var T = 0;
@@ -88,13 +86,13 @@ namespace Uithoflijn
 
                 while (EventQueue.Any(x => x.TriggerTime == T))
                 {
-                    var set = new Queue<TransportArgs>(EventQueue.Where(x => x.TriggerTime == T));
+                    var set = new List<TransportArgs>(EventQueue.Where(x => x.TriggerTime == T))
+                                                        .OrderBy(x => (int)x.Type);
+
                     EventQueue = new Queue<TransportArgs>(EventQueue.Except(set));
 
-                    while (set.Any())
+                    foreach (var next in set)
                     {
-                        var next = set.Dequeue();
-
                         if (next.ToString() != "")
                             Console.WriteLine(next.ToString());
 
@@ -121,8 +119,7 @@ namespace Uithoflijn
 
             var totalServedInDay = 0;
 
-            foreach (var tram in Trams)
-                totalServedInDay += tram.ServedPassengers;
+            foreach (var tram in Trams) totalServedInDay += tram.ServedPassengers;
 
             return new TramStatistics()
             {
@@ -168,9 +165,6 @@ namespace Uithoflijn
             var expectedAtTime = e.ExpectedTime;
             var currentTime = e.TriggerTime;
 
-            if (!e.ToStation.Trams.Contains(e.Tram))
-                e.ToStation.Trams.Enqueue(e.Tram);
-
             if (e.ToStation.CurrentTram == null)
             {
                 EventQueue.Enqueue(new TransportArgs()
@@ -185,22 +179,13 @@ namespace Uithoflijn
             }
             else
             {
-                EventQueue.Enqueue(new TransportArgs()
-                {
-                    Tram = e.Tram,
-                    ExpectedTime = e.ExpectedTime,
-                    TriggerTime = e.TriggerTime + _DELAY_PROBE,
-                    FromStation = e.FromStation,
-                    ToStation = e.ToStation,
-                    Type = TransportArgsType.ExpectedArrival
-                });
-
-                TotalDelay += _DELAY_PROBE;
+                e.ToStation.Trams.Enqueue(e.Tram);
             }
         }
 
         private void HandleIdle(object sender, TransportArgs e)
         {
+            //check if we should issue a tram from the depot
             IssueTram(e);
 
             EventQueue.Enqueue(new TransportArgs()
@@ -217,21 +202,17 @@ namespace Uithoflijn
                 if (terminal.Timetable.ShouldIssueAtTime(e.TriggerTime))
                 {
                     //check if we should issue a tram
-                    foreach (var tram in Trams)
+                    foreach (var tram in Trams.Where(tram => tram.CurrentStation == Track.GetPRDepot()))
                     {
-                        if (Track.GetPRDepot() == tram.CurrentStation)
+                        EventQueue.Enqueue(new TransportArgs()
                         {
-                            EventQueue.Enqueue(new TransportArgs()
-                            {
-                                FromStation = tram.CurrentStation,
-                                ToStation = Track.NextStation(tram.CurrentStation),
-                                Tram = tram,
-                                Type = TransportArgsType.Arrival,
-                                TriggerTime = e.TriggerTime
-                                                + GetTravelTime(tram.CurrentStation, Track.NextStation(tram.CurrentStation))
-                            });
-                            break;
-                        }
+                            FromStation = tram.CurrentStation,
+                            ToStation = Track.NextStation(tram.CurrentStation),
+                            Tram = tram,
+                            Type = TransportArgsType.Arrival,
+                            TriggerTime = e.TriggerTime + GetTravelTime(tram.CurrentStation, Track.NextStation(tram.CurrentStation))
+                        });
+                        break;
                     }
                 }
             }
@@ -240,14 +221,23 @@ namespace Uithoflijn
         private void HandleDeparture(object sender, TransportArgs e)
         {
             // remove tram from station
-            if (e.FromStation.CurrentTram != null && e.FromStation != Track.GetPRDepot())
-            {
-                e.FromStation.Trams.Dequeue();
-                e.FromStation.TimeOfLastTram = e.TriggerTime;
-            }
+            e.FromStation.TimeOfLastTram = e.TriggerTime;
 
             e.FromStation.CurrentTram = null;
             e.Tram.CurrentStation = null;
+
+            if (e.FromStation.Trams.Count > 0)
+            {
+                EventQueue.Enqueue(new TransportArgs()
+                {
+                    Tram = e.FromStation.Trams.Dequeue(),
+                    FromStation = e.FromStation,
+                    ToStation = e.FromStation,
+                    ExpectedTime = e.TriggerTime,
+                    TriggerTime = e.TriggerTime,
+                    Type = TransportArgsType.Arrival
+                });
+            }
 
             // upon departure schedule an arrival
             EventQueue.Enqueue(new TransportArgs()
@@ -278,7 +268,7 @@ namespace Uithoflijn
 
             var dwell = (int)Math.Ceiling(GetStationTime(totalDisembarkingPassengers, totalDisembarkingPassengers));
 
-            if (e.ToStation == Track.GetPRDepot()) dwell = 0;
+            if (e.ToStation == Track.GetPRDepot()) { dwell = 0; }
 
             var scheduleCorrection = 0;
             var turnAroundAdd = 0;
@@ -293,22 +283,31 @@ namespace Uithoflijn
                 {
                     var punctuality = e.TriggerTime - timeCorrection.Value;
                     TotalPunctuality += punctuality;
-                }
-                else
-                {
-                    //can't jump to the next schedule
+
+                    // upon arrival schedule an departure
+                    EventQueue.Enqueue(new TransportArgs()
+                    {
+                        FromStation = e.ToStation,
+                        ToStation = Track.NextStation(e.ToStation),
+                        TriggerTime = timeCorrection.Value + Math.Max(Math.Max(dwell, scheduleCorrection), turnAroundAdd),
+                        Tram = e.Tram,
+                        Type = TransportArgsType.ExpectedDeparture
+                    });
                 }
             }
-
-            // upon arrival schedule an departure
-            EventQueue.Enqueue(new TransportArgs()
+            else
             {
-                FromStation = e.ToStation,
-                ToStation = Track.NextStation(e.ToStation),
-                TriggerTime = e.TriggerTime + Math.Max(Math.Max(dwell, scheduleCorrection), turnAroundAdd),
-                Tram = e.Tram,
-                Type = TransportArgsType.ExpectedDeparture
-            });
+                EventQueue.Enqueue(new TransportArgs()
+                {
+                    FromStation = e.ToStation,
+                    ToStation = Track.NextStation(e.ToStation),
+                    TriggerTime = e.TriggerTime,
+                    Tram = e.Tram,
+                    Type = TransportArgsType.ExpectedDeparture
+                });
+            }
+
+
         }
 
         private void EmbarkDisembarkPassengers(TransportArgs e, ref int totalEmbarkingPassengers, ref int totalDisembarkingPassengers)
