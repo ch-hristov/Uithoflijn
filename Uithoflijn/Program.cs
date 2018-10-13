@@ -12,22 +12,23 @@ namespace Uithoflijn
         /// <summary>
         /// Enable this to track the results
         /// </summary>
-        public static bool DEBUG = true;
+        public static bool DEBUG = false;
 
         public const int TOTAL_TESTED_FREQUENCIES = 30;
         public const int TOTAL_TRAMSCOUNT_TO_TEST = 9;
+        public const int AT_LEAST_COUNT_TRAMS = 6;
 
         public static void Main(string[] args)
         {
             //The values of the frequencies we're testing, issue at least every 40 seconds
-            var tramFrequencies = Enumerable.Range(25, TOTAL_TESTED_FREQUENCIES);
+            var tramFrequencies = Enumerable.Range(40, TOTAL_TESTED_FREQUENCIES);
 
             //check if debugger is attached to guarantee nice debugging
             if (System.Diagnostics.Debugger.IsAttached)
                 DEBUG = true;
 
             //The values for the tram counts we're testing
-            var tramNumbers = Enumerable.Range(1, TOTAL_TRAMSCOUNT_TO_TEST);
+            var tramNumbers = Enumerable.Range(AT_LEAST_COUNT_TRAMS, TOTAL_TRAMSCOUNT_TO_TEST);
             var output = new ConcurrentBag<string>();
 
             var optimalFrequency = 40;
@@ -54,7 +55,7 @@ namespace Uithoflijn
                   var data = $"{tramFrequency};{tramCount};{statistics.ToString()}";
 
                   output.Add(data);
-                  Console.WriteLine(statistics.ToString());
+                  Console.WriteLine(data.ToString());
 
                   if (statistics.TotalPassengersServiced > optimalPassCount)
                   {

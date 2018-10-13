@@ -57,12 +57,12 @@ namespace Uithoflijn
             //all go to depot
             foreach (var tram in Trams)
             {
-                HandleExpectedArrival(this, new TransportArgs()
+                HandleArrival(this, new TransportArgs()
                 {
                     FromStation = null,
                     ToStation = Track.GetPRDepot(),
                     Tram = tram,
-                    Type = TransportArgsType.ExpectedArrival,
+                    Type = TransportArgsType.Arrival,
                     TriggerTime = 0
                 });
             }
@@ -82,8 +82,8 @@ namespace Uithoflijn
                 {
                     var next = events.Dequeue();
 
-                    if (next.ToString() != "")
-                        Console.WriteLine(next.ToString());
+                    //if (next.ToString() != "")
+                    //    Console.WriteLine(next.ToString());
 
                     if (next.Type == TransportArgsType.ExpectedArrival)
                         TramExpectedArrival(this, next);
@@ -131,6 +131,7 @@ namespace Uithoflijn
                     TriggerTime = e.TriggerTime + (40 - diff),
                     Type = TransportArgsType.ExpectedDeparture
                 });
+                TotalDelay += 40 - diff;
             }
             else
             {
@@ -225,11 +226,13 @@ namespace Uithoflijn
         private void HandleDeparture(object sender, TransportArgs e)
         {
             // remove tram from station
-            if (e.FromStation.CurrentTram != null)
+            if (e.FromStation.CurrentTram != null && e.FromStation != Track.GetPRDepot())
             {
                 e.FromStation.Trams.Dequeue();
                 e.FromStation.TimeOfLastTram = e.TriggerTime;
             }
+
+            e.FromStation.CurrentTram = null;
 
             // upon departure schedule an arrival
             EventQueue.Enqueue(new TransportArgs()
@@ -270,7 +273,6 @@ namespace Uithoflijn
                 Tram = e.Tram,
                 Type = TransportArgsType.ExpectedDeparture
             });
-
         }
 
         private void EmbarkDisembarkPassengers(TransportArgs e, ref int totalEmbarkingPassengers, ref int totalDisembarkingPassengers)
