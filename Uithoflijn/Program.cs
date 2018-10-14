@@ -13,7 +13,6 @@ namespace Uithoflijn
         /// <summary>
         /// Enable this to track the results
         /// </summary>
-        /// 
         private const int TEST_COUNTS = 10;
         public static bool DEBUG = false;
 
@@ -32,10 +31,12 @@ namespace Uithoflijn
 
         public static void Main(string[] args)
         {
-
             //TODO: do stuff with this??
             var validationData = ValidationFileReader.ReadValidationFolder();
-
+            //every item in validationData contains the information for a file.
+            //1-st item for example has n items which correspond to the rows in the file
+            //2-nd same etc,, ffor another file.. you can decide what to do with them but 
+            //make sure u dont break anything
             Console.WriteLine();
 
 
