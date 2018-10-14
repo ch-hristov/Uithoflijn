@@ -20,3 +20,10 @@ C:\Users\hrist\source\repos\Uithoflijn\Uithoflijn\bin\Debug\netcoreapp2.1\Uithof
 C:\Users\hrist\source\repos\Uithoflijn\Uithoflijn\bin\Debug\netcoreapp2.1\Uithoflijn.dll
 C:\Users\hrist\source\repos\Uithoflijn\Uithoflijn\bin\Debug\netcoreapp2.1\Uithoflijn.pdb
 C:\Users\hrist\source\repos\Uithoflijn\Uithoflijn\obj\Debug\netcoreapp2.1\Uithoflijn.csprojAssemblyReference.cache
+C:\Users\hrist\source\repos\Uithoflijn\Uithoflijn\bin\Debug\netcoreapp2.1\validation\input-data-passengers-01 (1).csv
+C:\Users\hrist\source\repos\Uithoflijn\Uithoflijn\bin\Debug\netcoreapp2.1\validation\input-data-passengers-015 (1).csv
+C:\Users\hrist\source\repos\Uithoflijn\Uithoflijn\bin\Debug\netcoreapp2.1\validation\input-data-passengers-02.csv
+C:\Users\hrist\source\repos\Uithoflijn\Uithoflijn\bin\Debug\netcoreapp2.1\validation\input-data-passengers-025.csv
+C:\Users\hrist\source\repos\Uithoflijn\Uithoflijn\bin\Debug\netcoreapp2.1\validation\input-data-passengers-03.csv
+C:\Users\hrist\source\repos\Uithoflijn\Uithoflijn\bin\Debug\netcoreapp2.1\validation\input-data-passengers-04.csv
+C:\Users\hrist\source\repos\Uithoflijn\Uithoflijn\bin\Debug\netcoreapp2.1\validation\input-data-passengers-06.csv

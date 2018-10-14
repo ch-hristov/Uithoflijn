@@ -32,6 +32,13 @@ namespace Uithoflijn
 
         public static void Main(string[] args)
         {
+
+            //TODO: do stuff with this??
+            var validationData = ValidationFileReader.ReadValidationFolder();
+
+            Console.WriteLine();
+
+
             //The values of the frequencies we're testing, issue at least every 40 seconds(otherwise we issue waaaay too fast)
             var testFrequencies = new List<int>();
             var turnAroundTimes = new List<int>();
@@ -83,6 +90,7 @@ namespace Uithoflijn
                       using (var streamWriter = new StreamWriter(file))
                       {
                           var sm = new StateManager();
+
                           sm.DebugLine += (send, arg) =>
                           {
                               if (DEBUG)
@@ -91,6 +99,7 @@ namespace Uithoflijn
                           };
 
                           var statistics = sm.Start(turnAroundTime, tramFrequency, tramCount, DEBUG);
+
                           if (string.IsNullOrEmpty(header)) header = statistics.GetHeader();
 
                           var data = $"{turnAroundTime};{tramFrequency};{tramCount};{statistics.ToString()}";
@@ -104,6 +113,7 @@ namespace Uithoflijn
                           }
                       }
                   }
+
                   progress++;
                   Console.WriteLine($"Progress : {Math.Round(progress / total * 100, 1)}%");
               });
