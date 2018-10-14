@@ -37,7 +37,6 @@ namespace Uithoflijn
                          int range = 54000)
         {
             Range = range;
-            Offset = offset;
             FrequencyIntervals = intervals;
 
             // initialize all to 0
@@ -60,8 +59,6 @@ namespace Uithoflijn
 
 
         public int Range { get; }
-
-        public int Offset { get; }
 
         public IEnumerable<FrequencyInterval> FrequencyIntervals { get; }
 

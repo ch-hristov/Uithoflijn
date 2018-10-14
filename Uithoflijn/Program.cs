@@ -14,7 +14,7 @@ namespace Uithoflijn
         /// Enable this to track the results
         /// </summary>
         /// 
-        private const int TEST_COUNTS = 10;
+        private const int TEST_COUNTS = 5;
         public static bool DEBUG = false;
 
         public const int TOTAL_TESTED_FREQUENCIES = TEST_COUNTS;
@@ -25,7 +25,7 @@ namespace Uithoflijn
 
         public static int MIN_FREQ = (int)TimeSpan.FromMinutes(1).TotalSeconds;
 
-        public const int AT_LEAST_COUNT_TRAMS = 6;
+        public const int AT_LEAST_COUNT_TRAMS = 10;
 
         public const int TURNAROUND_TIME_MIN = 300;
         public const int TURNAROUND_TIME_TEST_FREQ = 15;
@@ -77,7 +77,7 @@ namespace Uithoflijn
                       Thread.Sleep(50);
                   }
 
-                  using (var file = File.OpenWrite($"DEBUG_{tramFrequency}_{tramCount}.txt"))
+                  using (var file = File.OpenWrite($"DEBUG_{tramFrequency}_{tramCount}_{turnAroundTime}.txt"))
                   {
                       using (var streamWriter = new StreamWriter(file))
                       {
@@ -89,7 +89,7 @@ namespace Uithoflijn
                                       streamWriter.WriteLine(arg.ToString());
                           };
 
-                          var statistics = sm.Start(turnAroundTime, tramFrequency, tramCount);
+                          var statistics = sm.Start(turnAroundTime, tramFrequency, tramCount, DEBUG);
                           var data = $"{turnAroundTime};{tramFrequency};{tramCount};{statistics.ToString()}";
 
                           output.Add(data);
