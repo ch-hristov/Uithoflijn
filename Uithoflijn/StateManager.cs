@@ -239,6 +239,8 @@ namespace Uithoflijn
 
                 //we satisfied this departure time
                 var sch = e.ToStation.Timetable.Schedule;
+
+                //mark departure time as used
                 e.ToStation.Timetable[dep] = 0;
 
                 //how long more did we take than expected?

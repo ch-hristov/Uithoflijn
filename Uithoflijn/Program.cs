@@ -14,7 +14,7 @@ namespace Uithoflijn
         /// Enable this to track the results
         /// </summary>
         /// 
-        private const int TEST_COUNTS = 5;
+        private const int TEST_COUNTS = 10;
         public static bool DEBUG = false;
 
         public const int TOTAL_TESTED_FREQUENCIES = TEST_COUNTS;

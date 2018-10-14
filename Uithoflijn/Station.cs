@@ -6,12 +6,28 @@ using MathNet.Numerics.Distributions;
 
 namespace Uithoflijn
 {
+    public class ArrivalClass
+    {
+        /// <summary>
+        /// From time
+        /// </summary>
+        public int From { get; set; }
+
+        /// <summary>
+        /// To time
+        /// </summary>
+        public int To { get; set; }
+    }
+
     public class Station
     {
         public Station()
         {
             Trams = new Queue<Tram>();
+            ArrivalClasses = new Dictionary<ArrivalClass, int>();
         }
+
+        public Dictionary<ArrivalClass, int> ArrivalClasses { get; set; }
 
         public void SetTimetable(Timetable t)
         {
@@ -44,7 +60,7 @@ namespace Uithoflijn
 
         public Tram CurrentTram { get; set; }
 
-        Dictionary<DateTime, int> IndexFinderDict = new Dictionary<DateTime, int>()
+        private Dictionary<DateTime, int> IndexFinderDict = new Dictionary<DateTime, int>()
         {
             {new DateTime(01, 1, 1, 6, 0, 0), 0},
             {new DateTime(01, 1, 1, 6, 15, 0), 1},
@@ -111,7 +127,7 @@ namespace Uithoflijn
             {new DateTime(01, 1, 1, 21, 30, 0), 62}
         };
 
-        double[,] RouteCStoPR = new double[,] {
+        private double[,] RouteCStoPR = new double[,] {
             {0.05,0.75,0.3,0.1,0.15,0.475,0.05,1.45,0},
             {0.19,3.5,0,0.095,1.14,2.95,0.952,1.19,0},
             {0.55,3.4,0,1,1.95,3.7,1.35,0.85,0},
@@ -176,7 +192,7 @@ namespace Uithoflijn
             {0.48,4,5.19,0.19,0.86,1.1,0.667,0.38,0}
         };
 
-        double[,] RoutePRtoCS = new double[,] {
+        private double[,] RoutePRtoCS = new double[,] {
             {0,0,0,0.143,0,0,0.024,2.26,73.7},
             {0,0,0.025,0.325,0.575,0.55,1.225,4.775,34.1},
             {0,0,0,0.524,1,1.905,0.619,1.38,47.7},
