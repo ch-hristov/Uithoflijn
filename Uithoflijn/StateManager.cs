@@ -23,8 +23,6 @@ namespace Uithoflijn
         public event EventHandler<TransportArgs> TramExpectedDeparture = delegate { };
         public event EventHandler<TransportArgs> TramExpectedArrival = delegate { };
 
-        public event EventHandler<TransportArgs> Idle = delegate { };
-
         public event EventHandler<TransportArgs> DebugLine = delegate { };
 
         private Queue<TransportArgs> EventQueue = new Queue<TransportArgs>();
@@ -54,18 +52,34 @@ namespace Uithoflijn
             TramExpectedArrival += HandleExpectedArrival;
             TramExpectedDeparture += HandleExpectedDeparture;
 
-            Idle += HandleIdle;
-
             // initialize trams to depot
             for (var i = 0; i < InitialTrams; i++)
                 Trams.Add(new Tram() { Id = i, CurrentStation = Track.GetPRDepot() });
 
             var time = 0;
 
-            Idle(this, new TransportArgs() { TriggerTime = 0 });
+            var VIABLE_ISSUE_RANGE = (int)TimeSpan.FromMinutes(17).TotalSeconds + turnAroundTime + (int)TimeSpan.FromMinutes(17).TotalSeconds;
+
+            for (int i = 0; i <= VIABLE_ISSUE_RANGE; i++)
+            {
+                var nextTram = Trams.FirstOrDefault(tram => tram.CurrentStation == Track.GetPRDepot());
+                if (nextTram != null)
+                {
+                    EventQueue.Enqueue(new TransportArgs()
+                    {
+                        FromStation = Track.GetPRDepot(),
+                        ToStation = Track.NextStation(Track.GetPRDepot()),
+                        Tram = nextTram,
+                        Type = TransportArgsType.ExpectedArrival,
+                        TriggerTime = i + GetTravelTime(nextTram.CurrentStation, Track.NextStation(nextTram.CurrentStation))
+                    });
+                }
+            }
+
 
             while (time <= TotalTime || EventQueue.Any())
             {
+                ///*Console.Wri*/teLine(time);
                 while (EventQueue.Any(x => x.TriggerTime == time))
                 {
                     var set = new List<TransportArgs>(EventQueue.Where(x => x.TriggerTime == time))
@@ -86,9 +100,6 @@ namespace Uithoflijn
 
                         if (next.Type == TransportArgsType.Departure)
                             TramDeparture(this, next);
-
-                        if (time <= TotalTime && next.Type == TransportArgsType.Idle)
-                            Idle(this, next);
                     }
                     //remove processed items
                     EventQueue = new Queue<TransportArgs>(EventQueue.Except(set));
@@ -150,40 +161,6 @@ namespace Uithoflijn
                 });
             }
             else { e.ToStation.Trams.Enqueue(e.Tram); }//enqueue it to the station for arrival when the other trams leave it
-        }
-
-        private void HandleIdle(object sender, TransportArgs e)
-        {
-            //check if we should issue a tram from the depot
-            IssueTram(e);
-
-            EventQueue.Enqueue(new TransportArgs()
-            {
-                TriggerTime = e.TriggerTime + 1,
-                Type = TransportArgsType.Idle,
-            });
-        }
-
-        private void IssueTram(TransportArgs e)
-        {
-            var terminal = Track.Vertices.FirstOrDefault(station => station == Track.GetPR());
-
-            if (terminal.Timetable.ShouldIssueAtTime(e.TriggerTime))
-            {
-                //check if we can issue a tram
-                foreach (var tram in Trams.Where(tram => tram.CurrentStation == Track.GetPRDepot()))
-                {
-                    EventQueue.Enqueue(new TransportArgs()
-                    {
-                        FromStation = Track.GetPRDepot(),
-                        ToStation = Track.NextStation(Track.GetPRDepot()),
-                        Tram = tram,
-                        Type = TransportArgsType.ExpectedArrival,
-                        TriggerTime = e.TriggerTime + GetTravelTime(tram.CurrentStation, Track.NextStation(tram.CurrentStation))
-                    });
-                    break;
-                }
-            }
         }
 
         private void HandleDeparture(object sender, TransportArgs e)
@@ -257,12 +234,15 @@ namespace Uithoflijn
                 //Get next departure time
                 var nextDepartureTime = e.ToStation.Timetable.GetNextDepartureTime(tramDepartureFromTerminal);
 
+                if (nextDepartureTime == null) return;
+                var dep = nextDepartureTime.Value;
+
                 //we satisfied this departure time
                 var sch = e.ToStation.Timetable.Schedule;
-                e.ToStation.Timetable[nextDepartureTime] = 0;
+                e.ToStation.Timetable[dep] = 0;
 
                 //how long more did we take than expected?
-                var punctuality = currentTime - nextDepartureTime;
+                var punctuality = currentTime - dep;
 
                 //arriving early is good :))))
                 TotalPunctuality += Math.Max(punctuality, 0);
@@ -272,7 +252,7 @@ namespace Uithoflijn
                 {
                     FromStation = e.ToStation,
                     ToStation = Track.NextStation(e.ToStation),
-                    TriggerTime = nextDepartureTime,
+                    TriggerTime = dep,
                     Tram = e.Tram,
                     Type = TransportArgsType.ExpectedDeparture
                 });
@@ -292,70 +272,73 @@ namespace Uithoflijn
 
         private void EmbarkDisembarkPassengers(TransportArgs e, ref int totalEmbarkingPassengers, ref int totalDisembarkingPassengers)
         {
+            var min = 0;
             if (e.ToStation.TimeOfLastTram.HasValue)
             {
-                // handle boarding ? how many people can board?
-                totalDisembarkingPassengers = e.Tram.GetDisembarkingPassengers(e.ToStation, e.TriggerTime);
+                min = e.ToStation.TimeOfLastTram.Value;
+            }
 
-                // get the number of people that have been here before
-                var leftOverPeople = e.ToStation.LeftBehind;
+            // handle boarding ? how many people can board?
+            totalDisembarkingPassengers = e.Tram.GetDisembarkingPassengers(e.ToStation, e.TriggerTime);
 
-                // increment the waiting time of these people it will be the number of the people * the time the platform has been empty. 
-                e.ToStation.IncrementLeftBehindAverageWaiting(e.TriggerTime - e.ToStation.TimeOfLastTram.Value);
+            // get the number of people that have been here before
+            var leftOverPeople = e.ToStation.LeftBehind;
 
-                // get the number of new passengers that arrived at the platform while it had no tram.
-                var toEmbark = e.ToStation.GetEmbarkingPassengers(e.Tram, e.TriggerTime);
+            // increment the waiting time of these people it will be the number of the people * the time the platform has been empty. 
+            e.ToStation.IncrementLeftBehindAverageWaiting(e.TriggerTime - min);
 
-                // people exit train
-                e.Tram.CurrentPassengers -= totalDisembarkingPassengers;
+            // get the number of new passengers that arrived at the platform while it had no tram.
+            var toEmbark = e.ToStation.GetEmbarkingPassengers(e.Tram, e.TriggerTime);
 
-                // This many people can enter
-                var canEnter = Math.Max(0, MAX_PASSENGERS_IN_TRAIN - e.Tram.CurrentPassengers);
+            // people exit train
+            e.Tram.CurrentPassengers -= totalDisembarkingPassengers;
 
-                // compute net entering
-                var totalEntering = Math.Min(canEnter, toEmbark);
+            // This many people can enter
+            var canEnter = Math.Max(0, MAX_PASSENGERS_IN_TRAIN - e.Tram.CurrentPassengers);
 
-                // Passengers board
-                e.Tram.CurrentPassengers += totalEntering;
-                e.Tram.ServedPassengers += totalEntering;
+            // compute net entering
+            var totalEntering = Math.Min(canEnter, toEmbark);
 
-                // First we have to board the left behind people because they put the waiting times through the roof.
-                if (leftOverPeople <= canEnter)
-                {
-                    e.Tram.CurrentPassengers += leftOverPeople;
-                    totalEmbarkingPassengers += leftOverPeople;
-                    e.ToStation.LeftBehind -= leftOverPeople;
-                }
-                else
-                {
-                    // Some get in, but some people will be left behind (again).
-                    e.Tram.CurrentPassengers += canEnter;
-                    totalEmbarkingPassengers += canEnter;
+            // Passengers board
+            e.Tram.CurrentPassengers += totalEntering;
+            e.Tram.ServedPassengers += totalEntering;
 
-                    // Now, count the people that are left behind.
-                    e.ToStation.LeftBehind = leftOverPeople - canEnter;
-                }
+            // First we have to board the left behind people because they put the waiting times through the roof.
+            if (leftOverPeople <= canEnter)
+            {
+                e.Tram.CurrentPassengers += leftOverPeople;
+                totalEmbarkingPassengers += leftOverPeople;
+                e.ToStation.LeftBehind -= leftOverPeople;
+            }
+            else
+            {
+                // Some get in, but some people will be left behind (again).
+                e.Tram.CurrentPassengers += canEnter;
+                totalEmbarkingPassengers += canEnter;
 
-                // Re-compute the number of people entering
-                canEnter = Math.Max(0, MAX_PASSENGERS_IN_TRAIN - e.Tram.CurrentPassengers);
+                // Now, count the people that are left behind.
+                e.ToStation.LeftBehind = leftOverPeople - canEnter;
+            }
 
-                // Easy case, the people that have been waiting, can board. All of them
-                if (toEmbark <= canEnter)
-                {
-                    e.Tram.CurrentPassengers += toEmbark;
-                    totalEmbarkingPassengers += toEmbark;
-                }
-                else
-                {
-                    // Some get in, but some people will be left behind.
-                    e.Tram.CurrentPassengers += canEnter;
-                    totalEmbarkingPassengers += canEnter;
+            // Re-compute the number of people entering
+            canEnter = Math.Max(0, MAX_PASSENGERS_IN_TRAIN - e.Tram.CurrentPassengers);
 
-                    // Now, the toEmbark, become LeftBehind. 
-                    var leftBehind = toEmbark - canEnter;
+            // Easy case, the people that have been waiting, can board. All of them
+            if (toEmbark <= canEnter)
+            {
+                e.Tram.CurrentPassengers += toEmbark;
+                totalEmbarkingPassengers += toEmbark;
+            }
+            else
+            {
+                // Some get in, but some people will be left behind.
+                e.Tram.CurrentPassengers += canEnter;
+                totalEmbarkingPassengers += canEnter;
 
-                    e.ToStation.LeftBehind += leftBehind;
-                }
+                // Now, the toEmbark, become LeftBehind. 
+                var leftBehind = toEmbark - canEnter;
+
+                e.ToStation.LeftBehind += leftBehind;
             }
         }
 

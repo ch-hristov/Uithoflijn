@@ -68,17 +68,19 @@ namespace Uithoflijn
             return this[triggerTime] == 1;
         }
 
-        public int GetNextDepartureTime(int tramFromTerminalTime)
+        public int? GetNextDepartureTime(int tramFromTerminalTime)
         {
             var departTime = tramFromTerminalTime;
 
             for (int i = departTime; i < Count; i++)
+            {
                 if (this[i] == 1)
                 {
                     return i;
                 }
+            }
 
-            throw new Exception();
+            return null;
         }
     }
 }

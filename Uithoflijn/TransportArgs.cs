@@ -16,19 +16,15 @@ namespace Uithoflijn
 
         public override string ToString()
         {
-            if (Type != TransportArgsType.Idle)
-            {
-                string fs = "NONE";
-                var id = "";
+            string fs = "NONE";
+            var id = "";
 
-                if (FromStation != null)
-                {
-                    fs = FromStation.Name;
-                    id = "NONE";
-                }
-                return $"[{Type.ToString("G")}]{Tram.Id} from {fs}[{id}] -> {ToStation.Name}[{ToStation.Id}] / T = {TriggerTime}";
+            if (FromStation != null)
+            {
+                fs = FromStation.Name;
+                id = "NONE";
             }
-            return "";
+            return $"[{Type.ToString("G")}]{Tram.Id} from {fs}[{id}] -> {ToStation.Name}[{ToStation.Id}] / T = {TriggerTime}";
         }
     }
 
@@ -38,6 +34,5 @@ namespace Uithoflijn
         Arrival,
         ExpectedArrival,
         ExpectedDeparture,
-        Idle,
     }
 }

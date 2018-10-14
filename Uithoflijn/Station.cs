@@ -332,9 +332,12 @@ namespace Uithoflijn
 
             // Initialize an array to store the arrival times t_i, i = {1,2,..., n}.
             int[] arrivals = new int[n];
+            //Console.WriteLine($"time: {time}; lambda: {lambda}");
 
             // We will get the arrival times from the uniform distribution. U[0,T]
-            DiscreteUniform ud = new DiscreteUniform(TimeOfLastTram.Value, time);
+            var last = 0;
+            if (TimeOfLastTram.HasValue) last = TimeOfLastTram.Value;
+            DiscreteUniform ud = new DiscreteUniform(last, time);
 
             for (int i = 0; i < n; ++i)
             {
