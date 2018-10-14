@@ -22,20 +22,50 @@ namespace Uithoflijn
 
     public class Station
     {
-        public Station()
+        public Station(int minSwitchDelay = 40)
         {
             Trams = new Queue<Tram>();
             ArrivalClasses = new Dictionary<ArrivalClass, int>();
+            SwitchUsedLast = -1;
+            _switchDelay = minSwitchDelay;
         }
 
         public Dictionary<ArrivalClass, int> ArrivalClasses { get; set; }
 
         public void SetTimetable(Timetable t)
         {
-            if (Timetable != null || !IsTerminal)
-                throw new Exception("Cant set timetable for this station");
+            if (Timetable != null || !IsTerminal) throw new Exception("Cant set timetable for this station");
             Timetable = t;
         }
+
+        public int SwitchDelay(int time)
+        {
+            if (!IsTerminal) return 0;
+
+            if (SwitchUsedLast == -1)
+            {
+                SwitchUsedLast = time;
+                return 0;
+            }
+            else
+            {
+                if (time - SwitchUsedLast < 0) throw new Exception("Invalid state..something is really bad");
+
+                if (time - SwitchUsedLast < _switchDelay)
+                {
+                    //wait for some time :/
+                    return _switchDelay - (time - SwitchUsedLast);
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+        }
+
+        public int SwitchUsedLast { get; set; }
+
+        private int _switchDelay;
 
         public Timetable Timetable { get; private set; }
 

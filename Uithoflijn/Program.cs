@@ -24,7 +24,7 @@ namespace Uithoflijn
 
         public static int MIN_FREQ = (int)TimeSpan.FromMinutes(1).TotalSeconds;
 
-        public const int AT_LEAST_COUNT_TRAMS = 10;
+        public const int AT_LEAST_COUNT_TRAMS = 3;
 
         public const int TURNAROUND_TIME_MIN = 300;
         public const int TURNAROUND_TIME_TEST_FREQ = 15;
@@ -76,15 +76,20 @@ namespace Uithoflijn
                   var tramFrequency = tuple.Item1;
                   var tramCount = tuple.Item2;
                   var turnAroundTime = tuple.Item3;
+                  var debugFile = $"DEBUG_{tramFrequency}_{tramCount}_{turnAroundTime}.txt";
 
                   if (DEBUG)
                   {
-                      if (File.Exists($"DEBUG_{tramFrequency}_{tramCount}.txt")) File.Delete($"DEBUG_{tramFrequency}_{tramCount}.txt");
+                      if (File.Exists(debugFile))
+                      {
+                          File.Delete(debugFile);
+                      }
+
                       //guarantee the file is deleted..
                       Thread.Sleep(50);
                   }
 
-                  using (var file = File.OpenWrite($"DEBUG_{tramFrequency}_{tramCount}_{turnAroundTime}.txt"))
+                  using (var file = File.OpenWrite(debugFile))
                   {
                       using (var streamWriter = new StreamWriter(file))
                       {
@@ -112,6 +117,8 @@ namespace Uithoflijn
                           }
                       }
                   }
+                  // delete temp stuff if debug mode is off X_X
+                  if (!DEBUG) if (File.Exists(debugFile)) File.Delete(debugFile);
 
                   progress++;
                   Console.WriteLine($"Progress : {Math.Round(progress / total * 100, 1)}%");
