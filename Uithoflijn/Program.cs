@@ -13,14 +13,17 @@ namespace Uithoflijn
         /// <summary>
         /// Enable this to track the results
         /// </summary>
+        /// 
+        private const int TEST_COUNTS = 10;
         public static bool DEBUG = false;
 
-        public const int TOTAL_TESTED_FREQUENCIES = 10;
-        public const int TOTAL_TRAMSCOUNT_TO_TEST = 10;
-        public const int TURNAROUND_TIME_TESTS = 10;
-        public const int FREQ_TEST_FREQ = 15;
+        public const int TOTAL_TESTED_FREQUENCIES = TEST_COUNTS;
+        public const int TOTAL_TRAMSCOUNT_TO_TEST = TEST_COUNTS;
+        public const int TURNAROUND_TIME_TESTS = TEST_COUNTS;
 
-        public static int MIN_FREQ = (int)TimeSpan.FromMinutes(4).TotalSeconds;
+        public const int FREQ_TEST_FREQ = TURNAROUND_TIME_TEST_FREQ * 3;
+
+        public static int MIN_FREQ = (int)TimeSpan.FromMinutes(1).TotalSeconds;
 
         public const int AT_LEAST_COUNT_TRAMS = 6;
 

@@ -98,7 +98,7 @@ namespace Uithoflijn
                 vertex.InEdges = Edges.Where(x => x.Target == vertex).ToList();
             }
 
-            var offset = 17 * 60 + turnaroundTime;
+            var offset = (int)TimeSpan.FromMinutes(17).TotalSeconds + turnaroundTime;
             var fifteenMin = (int)TimeSpan.FromMinutes(15).TotalSeconds;
             var hour = (int)TimeSpan.FromHours(1).TotalSeconds;
             var peakHours = (int)TimeSpan.FromHours(12).TotalSeconds;
@@ -110,14 +110,14 @@ namespace Uithoflijn
             {
                 new FrequencyInterval { Start = 0 /* start at the beggining of simulation*/, End = hour , Frequency  = fifteenMin},
                 new FrequencyInterval { Start = hour, End = hour + peakHours, Frequency = frequency},
-                new FrequencyInterval { Start = hour + peakHours , End = hour + peakHours + hour, Frequency = fifteenMin}
+                new FrequencyInterval { Start = hour + peakHours , End = 54000, Frequency = fifteenMin}
             }, 0));
 
             Vertices.FirstOrDefault(x => x.Name == T1).SetTimetable(new Timetable(new[]
             {
                 new FrequencyInterval { Start = offset /* start at the beggining of simulation*/, End = hour , Frequency  = fifteenMin},
                 new FrequencyInterval { Start = hour, End = hour + peakHours, Frequency = frequency},
-                new FrequencyInterval { Start = hour + peakHours , End = hour + peakHours + hour, Frequency = fifteenMin}
+                new FrequencyInterval { Start = hour + peakHours , End = 54000, Frequency = fifteenMin}
             }, 17 * 60 + turnaroundTime));
 
             var psr = Vertices.FirstOrDefault(x => x.Name == T2).Timetable.ToString();

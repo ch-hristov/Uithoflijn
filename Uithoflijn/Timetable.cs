@@ -15,6 +15,11 @@ namespace Uithoflijn
         public int End { get; set; }
 
         public int Frequency { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Start} to {End} per {Frequency}";
+        }
     }
 
     public class Timetable : List<int>
@@ -45,7 +50,7 @@ namespace Uithoflijn
                 var end = interval.End;
                 var freq = interval.Frequency;
 
-                for (int i = start + offset; i <= end; i += freq)
+                for (int i = start; i <= end; i += freq)
                 {
                     this[i] = 1;
                     Schedule.Add(i);
@@ -71,7 +76,10 @@ namespace Uithoflijn
             var departTime = tramFromTerminalTime;
 
             for (int i = departTime; i < Count; i++)
-                if (this[i] == 1) { return i; }
+                if (this[i] == 1)
+                {
+                    return i;
+                }
 
             throw new Exception();
         }

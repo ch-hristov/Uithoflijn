@@ -6,8 +6,6 @@ namespace Uithoflijn
     {
         public int TriggerTime { get; set; }
 
-        public int ExpectedTime { get; set; }
-
         public Tram Tram { get; set; }
 
         public Station FromStation { get; set; }
@@ -36,10 +34,10 @@ namespace Uithoflijn
 
     public enum TransportArgsType
     {
-        Idle,
-        Arrival,
         Departure,
+        Arrival,
         ExpectedArrival,
         ExpectedDeparture,
+        Idle,
     }
 }
