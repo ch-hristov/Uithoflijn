@@ -57,24 +57,26 @@ namespace Uithoflijn
             // initialize trams to depot
             for (var i = 0; i < InitialTrams; i++) Trams.Add(new Tram() { Id = i, CurrentStation = Track.GetPRDepot() });
 
-            var time = 0;
-
             var VIABLE_ISSUE_RANGE = (int)TimeSpan.FromMinutes(17).TotalSeconds + turnAroundTime + (int)TimeSpan.FromMinutes(17).TotalSeconds;
 
             var pr = Track.GetPR().Timetable;
-            int j = 0;
 
-            foreach (var nextTram in Trams)
+            for (int i = 0; i <= VIABLE_ISSUE_RANGE; i++)
             {
-                EventQueue.Add(new TransportArgs()
+                if (pr.ShouldIssueAtTime(i))
                 {
-                    FromStation = Track.GetPRDepot(),
-                    ToStation = Track.NextStation(Track.GetPRDepot()),
-                    Tram = nextTram,
-                    Type = TransportArgsType.ExpectedArrival,
-                    TriggerTime = j + GetTravelTime(nextTram.CurrentStation, Track.NextStation(nextTram.CurrentStation))
-                });
-                j += 40;
+                    foreach (var nextTram in Trams)
+                    {
+                        EventQueue.Add(new TransportArgs()
+                        {
+                            FromStation = Track.GetPRDepot(),
+                            ToStation = Track.NextStation(Track.GetPRDepot()),
+                            Tram = nextTram,
+                            Type = TransportArgsType.ExpectedArrival,
+                            TriggerTime = i + GetTravelTime(nextTram.CurrentStation, Track.NextStation(nextTram.CurrentStation))
+                        });
+                    }
+                }
             }
 
             while (!EventQueue.IsEmpty)
