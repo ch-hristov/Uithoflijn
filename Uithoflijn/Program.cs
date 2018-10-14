@@ -15,15 +15,25 @@ namespace Uithoflijn
         /// </summary>
         public static bool DEBUG = false;
 
-        public const int TOTAL_TESTED_FREQUENCIES = 1;
-        public const int TOTAL_TRAMSCOUNT_TO_TEST = 1;
+        public const int FREQ_TEST_FREQ = 3;
+        public const int TOTAL_TESTED_FREQUENCIES = 15;
+        public const int TOTAL_TRAMSCOUNT_TO_TEST = 10;
         public const int AT_LEAST_COUNT_TRAMS = 6;
-        public const int TURNAROUND_TIME = 300;
+
+        public const int MIN_FREQ = 100;
+
+        public const int TURNAROUND_TIME_MIN = 150;
+        public const int TURNAROUND_TIME_TEST_FREQ = 15;
+        public const int TURNAROUND_TIME_TESTS = 20;
 
         public static void Main(string[] args)
         {
-            //The values of the frequencies we're testing, issue at least every 40 seconds
-            var tramFrequencies = Enumerable.Range(40, TOTAL_TESTED_FREQUENCIES);
+            //The values of the frequencies we're testing, issue at least every 40 seconds(otherwise we issue waaaay too fast)
+            var testFrequencies = new List<int>();
+            var turnAroundTimes = new List<int>();
+
+            for (var i = 0; i < TOTAL_TESTED_FREQUENCIES; i++) { testFrequencies.Add(MIN_FREQ + (i * FREQ_TEST_FREQ)); }
+            for (var i = 0; i < TURNAROUND_TIME_TESTS; i++) { turnAroundTimes.Add(TURNAROUND_TIME_MIN + (i * TURNAROUND_TIME_TEST_FREQ)); }
 
             //check if debugger is attached to guarantee nice debugging
             if (System.Diagnostics.Debugger.IsAttached)
@@ -37,11 +47,17 @@ namespace Uithoflijn
             var optimalTramCount = 0;
             var optimalPassCount = 0;
 
-            var testValues = new List<Tuple<int, int>>();
 
-            foreach (var tramFrequency in tramFrequencies)
+
+            var testValues = new List<Tuple<int, int, int>>();
+
+            foreach (var tramFrequency in testFrequencies)
                 foreach (var tramCount in tramNumbers)
-                    testValues.Add(new Tuple<int, int>(tramFrequency, tramCount));
+                    foreach (var turnAroundFreq in turnAroundTimes)
+                        testValues.Add(new Tuple<int, int, int>(tramFrequency, tramCount, turnAroundFreq));
+
+            int total = testValues.Count;
+            double progress = 0.0;
 
             Parallel.ForEach(testValues, new ParallelOptions()
             {
@@ -50,6 +66,7 @@ namespace Uithoflijn
               {
                   var tramFrequency = tuple.Item1;
                   var tramCount = tuple.Item2;
+                  var turnAroundTime = tuple.Item3;
 
                   if (DEBUG)
                   {
@@ -65,7 +82,6 @@ namespace Uithoflijn
                       {
                           var sm = new StateManager();
 
-                          Console.WriteLine($"Executing freq: {tramFrequency}; tram count: {tramCount}");
 
                           sm.DebugLine += (send, arg) =>
                           {
@@ -73,12 +89,11 @@ namespace Uithoflijn
                                   streamWriter.WriteLine(arg.ToString());
                           };
 
-                          var statistics = sm.Start(TURNAROUND_TIME, tramFrequency, tramCount);
+                          var statistics = sm.Start(turnAroundTime, tramFrequency, tramCount);
 
-                          var data = $"{tramFrequency};{tramCount};{statistics.ToString()}";
+                          var data = $"{turnAroundTime};{tramFrequency};{tramCount};{statistics.ToString()}";
 
                           output.Add(data);
-                          Console.WriteLine(data.ToString());
 
                           if (statistics.TotalPassengersServiced > optimalPassCount)
                           {
@@ -88,13 +103,13 @@ namespace Uithoflijn
                           }
                       }
                   }
+                  progress++;
+                  Console.WriteLine($"Progress : {Math.Round(progress / total * 100, 3)}%");
               });
 
             var final = new List<string>(output);
-            final.Insert(0, "freq;tramcnt;delay;punctuality;serviced");
-
+            final.Insert(0, "q;freq;tramcnt;delay;punctuality;serviced");
             File.WriteAllLines("output.csv", final);
-            Console.WriteLine(final.Aggregate((a, b) => a + Environment.NewLine + b));
         }
 
         public static double ComputeCycleLength()
@@ -108,6 +123,5 @@ namespace Uithoflijn
         {
             var dt1 = new DateTime(01, 1, 1, 1, 1, 1);
         }
-
     }
 }

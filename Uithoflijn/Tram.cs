@@ -51,6 +51,8 @@ namespace Uithoflijn
 
         public Station CurrentStation { get => _currentStation; set => SetValue(value); }
 
+        public int DepartureFromTerminal { get; set; }
+
         private void SetValue(Station val)
         {
             //Remember last active station

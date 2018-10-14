@@ -98,8 +98,30 @@ namespace Uithoflijn
                 vertex.InEdges = Edges.Where(x => x.Target == vertex).ToList();
             }
 
-            Vertices.FirstOrDefault(x => x.Name == T2).SetTimetable(new Timetable(frequency, 0));
-            Vertices.FirstOrDefault(x => x.Name == T1).SetTimetable(new Timetable(frequency, 17 * 60 + turnaroundTime));
+            var offset = 17 * 60 + turnaroundTime;
+
+            var hour = (int)TimeSpan.FromHours(1).TotalSeconds;
+            var peakHours = (int)TimeSpan.FromHours(12).TotalSeconds;
+
+            //--------- this section builds the timetables at the terminal stations
+
+            // the frequency intervals at the PR
+            Vertices.FirstOrDefault(x => x.Name == T2).SetTimetable(new Timetable(new[]
+            {
+                new FrequencyInterval { Start = 0 /* start at the beggining of simulation*/, End = hour - 1 , Frequency  = (int)TimeSpan.FromMinutes(15).TotalSeconds},
+                new FrequencyInterval { Start = hour, End = hour + peakHours, Frequency = frequency},
+                new FrequencyInterval { Start = hour + peakHours, End = hour + peakHours + hour, Frequency = (int)TimeSpan.FromMinutes(15).TotalSeconds}
+            }, 0));
+
+            Vertices.FirstOrDefault(x => x.Name == T1).SetTimetable(new Timetable(new[]
+            {
+                new FrequencyInterval { Start = 0 /* start at the beggining of simulation*/, End = hour - 1 , Frequency  = 5},
+                new FrequencyInterval { Start = hour, End = hour + peakHours, Frequency = frequency},
+                new FrequencyInterval { Start = hour + peakHours, End = hour + peakHours + hour, Frequency = 15}
+            }, 17 * 60 + turnaroundTime));
+
+            var psr = Vertices.FirstOrDefault(x => x.Name == T2).Timetable.ToString();
+            var uff = Vertices.FirstOrDefault(x => x.Name == T1).Timetable.ToString();
         }
 
         public Station GetCS()
