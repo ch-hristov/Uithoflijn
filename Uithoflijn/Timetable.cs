@@ -57,7 +57,6 @@ namespace Uithoflijn
             }
         }
 
-
         public int Range { get; }
 
         public IEnumerable<FrequencyInterval> FrequencyIntervals { get; }

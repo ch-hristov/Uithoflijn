@@ -2,6 +2,18 @@
   "version": 3,
   "targets": {
     ".NETCoreApp,Version=v2.1": {
+      "C5/2.5.3": {
+        "type": "package",
+        "dependencies": {
+          "NETStandard.Library": "1.6.1"
+        },
+        "compile": {
+          "lib/netstandard1.0/C5.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.0/C5.dll": {}
+        }
+      },
       "MathNet.Numerics/4.5.1": {
         "type": "package",
         "compile": {
@@ -235,6 +247,27 @@
     }
   },
   "libraries": {
+    "C5/2.5.3": {
+      "sha512": "0entkPMY08efpo9w95vu8EoTIIs/DdGHxSQo1KxZhXYLWxnNb5UA2OCW4rioSm7L0ZSysQV1tiLIqzyZkscqoQ==",
+      "type": "package",
+      "path": "c5/2.5.3",
+      "files": [
+        "c5.2.5.3.nupkg.sha512",
+        "c5.nuspec",
+        "lib/net35/C5.dll",
+        "lib/net35/C5.xml",
+        "lib/net40/C5.dll",
+        "lib/net40/C5.xml",
+        "lib/net45/C5.dll",
+        "lib/net45/C5.xml",
+        "lib/netstandard1.0/C5.dll",
+        "lib/netstandard1.0/C5.xml",
+        "lib/portable-net40+sl5+win8+wp8+wpa81/C5.dll",
+        "lib/portable-net40+sl5+win8+wp8+wpa81/C5.xml",
+        "lib/portable-net45+win8+wp8+wpa81/C5.dll",
+        "lib/portable-net45+win8+wp8+wpa81/C5.xml"
+      ]
+    },
     "MathNet.Numerics/4.5.1": {
       "sha512": "GOjrYhkAbzrObW8SG5X42ET0nbAAsJmJ3edBLk58dbHbiXeA0hZReqVYfRZTsqB/yYZhK8lgDliZjGKnk/gGhg==",
       "type": "package",
@@ -740,6 +773,7 @@
   },
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v2.1": [
+      "C5 >= 2.5.3",
       "MathNet.Numerics >= 4.5.1",
       "Microsoft.NETCore.App >= 2.1.0",
       "QuickGraph >= 3.6.61119.7"
@@ -786,6 +820,10 @@
     "frameworks": {
       "netcoreapp2.1": {
         "dependencies": {
+          "C5": {
+            "target": "Package",
+            "version": "[2.5.3, )"
+          },
           "MathNet.Numerics": {
             "target": "Package",
             "version": "[4.5.1, )"

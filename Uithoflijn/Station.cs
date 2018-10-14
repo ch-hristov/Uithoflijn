@@ -17,6 +17,7 @@ namespace Uithoflijn
         /// To time
         /// </summary>
         public int To { get; set; }
+
     }
 
     public class Station

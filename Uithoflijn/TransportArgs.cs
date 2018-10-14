@@ -2,7 +2,7 @@
 
 namespace Uithoflijn
 {
-    public class TransportArgs : EventArgs
+    public class TransportArgs : EventArgs, IComparable<TransportArgs>
     {
         public int TriggerTime { get; set; }
 
@@ -13,6 +13,13 @@ namespace Uithoflijn
         public Station ToStation { get; set; }
 
         public TransportArgsType Type { get; set; }
+
+        public int CompareTo(TransportArgs other)
+        {
+            if (TriggerTime > other.TriggerTime) return 1;
+            if (TriggerTime < other.TriggerTime) return -1;
+            return 0;
+        }
 
         public override string ToString()
         {
@@ -32,7 +39,7 @@ namespace Uithoflijn
     {
         Departure,
         Arrival,
-        ExpectedArrival,
         ExpectedDeparture,
+        ExpectedArrival,
     }
 }

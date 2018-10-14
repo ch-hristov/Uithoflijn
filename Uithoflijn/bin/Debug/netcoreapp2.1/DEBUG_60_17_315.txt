@@ -1,0 +1,17 @@
+[ExpectedArrival]0 from Depot[NONE] -> P+R De Uithof[8] / T = 0
+[ExpectedArrival]1 from Depot[NONE] -> P+R De Uithof[8] / T = 40
+[ExpectedArrival]2 from Depot[NONE] -> P+R De Uithof[8] / T = 80
+[ExpectedArrival]3 from Depot[NONE] -> P+R De Uithof[8] / T = 120
+[ExpectedArrival]4 from Depot[NONE] -> P+R De Uithof[8] / T = 160
+[ExpectedArrival]5 from Depot[NONE] -> P+R De Uithof[8] / T = 200
+[ExpectedArrival]6 from Depot[NONE] -> P+R De Uithof[8] / T = 240
+[ExpectedArrival]7 from Depot[NONE] -> P+R De Uithof[8] / T = 280
+[ExpectedArrival]8 from Depot[NONE] -> P+R De Uithof[8] / T = 320
+[ExpectedArrival]9 from Depot[NONE] -> P+R De Uithof[8] / T = 360
+[ExpectedArrival]10 from Depot[NONE] -> P+R De Uithof[8] / T = 400
+[ExpectedArrival]11 from Depot[NONE] -> P+R De Uithof[8] / T = 440
+[ExpectedArrival]12 from Depot[NONE] -> P+R De Uithof[8] / T = 480
+[ExpectedArrival]13 from Depot[NONE] -> P+R De Uithof[8] / T = 520
+[ExpectedArrival]14 from Depot[NONE] -> P+R De Uithof[8] / T = 560
+[ExpectedArrival]15 from Depot[NONE] -> P+R De Uithof[8] / T = 600
+[ExpectedArrival]16 from Depot[NONE] -> P+R De Uithof[8] / T = 640
