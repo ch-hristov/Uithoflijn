@@ -99,7 +99,7 @@ namespace Uithoflijn
             }
 
             var offset = 17 * 60 + turnaroundTime;
-
+            var fifteenMin = (int)TimeSpan.FromMinutes(15).TotalSeconds;
             var hour = (int)TimeSpan.FromHours(1).TotalSeconds;
             var peakHours = (int)TimeSpan.FromHours(12).TotalSeconds;
 
@@ -108,16 +108,16 @@ namespace Uithoflijn
             // the frequency intervals at the PR
             Vertices.FirstOrDefault(x => x.Name == T2).SetTimetable(new Timetable(new[]
             {
-                new FrequencyInterval { Start = 0 /* start at the beggining of simulation*/, End = hour - 1 , Frequency  = (int)TimeSpan.FromMinutes(15).TotalSeconds},
+                new FrequencyInterval { Start = 0 /* start at the beggining of simulation*/, End = hour , Frequency  = fifteenMin},
                 new FrequencyInterval { Start = hour, End = hour + peakHours, Frequency = frequency},
-                new FrequencyInterval { Start = hour + peakHours, End = hour + peakHours + hour, Frequency = (int)TimeSpan.FromMinutes(15).TotalSeconds}
+                new FrequencyInterval { Start = hour + peakHours , End = hour + peakHours + hour, Frequency = fifteenMin}
             }, 0));
 
             Vertices.FirstOrDefault(x => x.Name == T1).SetTimetable(new Timetable(new[]
             {
-                new FrequencyInterval { Start = 0 /* start at the beggining of simulation*/, End = hour - 1 , Frequency  = 5},
+                new FrequencyInterval { Start = offset /* start at the beggining of simulation*/, End = hour , Frequency  = fifteenMin},
                 new FrequencyInterval { Start = hour, End = hour + peakHours, Frequency = frequency},
-                new FrequencyInterval { Start = hour + peakHours, End = hour + peakHours + hour, Frequency = 15}
+                new FrequencyInterval { Start = hour + peakHours , End = hour + peakHours + hour, Frequency = fifteenMin}
             }, 17 * 60 + turnaroundTime));
 
             var psr = Vertices.FirstOrDefault(x => x.Name == T2).Timetable.ToString();

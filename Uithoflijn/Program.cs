@@ -15,16 +15,17 @@ namespace Uithoflijn
         /// </summary>
         public static bool DEBUG = false;
 
-        public const int FREQ_TEST_FREQ = 3;
-        public const int TOTAL_TESTED_FREQUENCIES = 15;
+        public const int TOTAL_TESTED_FREQUENCIES = 10;
         public const int TOTAL_TRAMSCOUNT_TO_TEST = 10;
+        public const int TURNAROUND_TIME_TESTS = 10;
+        public const int FREQ_TEST_FREQ = 15;
+
+        public static int MIN_FREQ = (int)TimeSpan.FromMinutes(4).TotalSeconds;
+
         public const int AT_LEAST_COUNT_TRAMS = 6;
 
-        public const int MIN_FREQ = 100;
-
-        public const int TURNAROUND_TIME_MIN = 150;
+        public const int TURNAROUND_TIME_MIN = 300;
         public const int TURNAROUND_TIME_TEST_FREQ = 15;
-        public const int TURNAROUND_TIME_TESTS = 20;
 
         public static void Main(string[] args)
         {
@@ -47,8 +48,6 @@ namespace Uithoflijn
             var optimalTramCount = 0;
             var optimalPassCount = 0;
 
-
-
             var testValues = new List<Tuple<int, int, int>>();
 
             foreach (var tramFrequency in testFrequencies)
@@ -56,8 +55,8 @@ namespace Uithoflijn
                     foreach (var turnAroundFreq in turnAroundTimes)
                         testValues.Add(new Tuple<int, int, int>(tramFrequency, tramCount, turnAroundFreq));
 
-            int total = testValues.Count;
-            double progress = 0.0;
+            var total = testValues.Count;
+            var progress = 0.0;
 
             Parallel.ForEach(testValues, new ParallelOptions()
             {
@@ -71,7 +70,6 @@ namespace Uithoflijn
                   if (DEBUG)
                   {
                       if (File.Exists($"DEBUG_{tramFrequency}_{tramCount}.txt")) File.Delete($"DEBUG_{tramFrequency}_{tramCount}.txt");
-
                       //guarantee the file is deleted..
                       Thread.Sleep(50);
                   }
@@ -81,20 +79,17 @@ namespace Uithoflijn
                       using (var streamWriter = new StreamWriter(file))
                       {
                           var sm = new StateManager();
-
-
                           sm.DebugLine += (send, arg) =>
                           {
-                              if (!string.IsNullOrEmpty(arg.ToString().Trim()))
-                                  streamWriter.WriteLine(arg.ToString());
+                              if (DEBUG)
+                                  if (!string.IsNullOrEmpty(arg.ToString().Trim()))
+                                      streamWriter.WriteLine(arg.ToString());
                           };
 
                           var statistics = sm.Start(turnAroundTime, tramFrequency, tramCount);
-
                           var data = $"{turnAroundTime};{tramFrequency};{tramCount};{statistics.ToString()}";
 
                           output.Add(data);
-
                           if (statistics.TotalPassengersServiced > optimalPassCount)
                           {
                               optimalPassCount = statistics.TotalPassengersServiced;
@@ -104,12 +99,13 @@ namespace Uithoflijn
                       }
                   }
                   progress++;
-                  Console.WriteLine($"Progress : {Math.Round(progress / total * 100, 3)}%");
+                  Console.WriteLine($"Progress : {Math.Round(progress / total * 100, 1)}%");
               });
 
             var final = new List<string>(output);
             final.Insert(0, "q;freq;tramcnt;delay;punctuality;serviced");
             File.WriteAllLines("output.csv", final);
+            Console.WriteLine(final.Aggregate((a, b) => a + Environment.NewLine + b));
         }
 
         public static double ComputeCycleLength()

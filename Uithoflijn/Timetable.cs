@@ -36,7 +36,8 @@ namespace Uithoflijn
             FrequencyIntervals = intervals;
 
             // initialize all to 0
-            for (var i = 0; i < range; i++) Add(0);
+            for (var i = 0; i <= range; i++)
+                Add(0);
 
             foreach (var interval in FrequencyIntervals)
             {
@@ -65,27 +66,12 @@ namespace Uithoflijn
             return this[triggerTime] == 1;
         }
 
-        public int? NextFromSchedule(int triggerTime)
+        public int GetNextDepartureTime(int tramFromTerminalTime)
         {
-            if (triggerTime - 1 >= Range) return null;
-            int j = triggerTime - 1;
-            while (j < Range)
-            {
-                if (this[j] == 1) return j + 1;
-                j++;
-            }
+            var departTime = tramFromTerminalTime;
 
-            return null;
-        }
-
-        public int GetNextDeparture(Tram tram)
-        {
-            var departTime = tram.DepartureFromTerminal;
-
-            for (int i = departTime; i < this.Count; i++)
-            {
-                if (this[i] == 1) return i + 1;
-            }
+            for (int i = departTime; i < Count; i++)
+                if (this[i] == 1) { return i; }
 
             throw new Exception();
         }
