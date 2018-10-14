@@ -60,26 +60,30 @@ namespace Uithoflijn
 
             var VIABLE_ISSUE_RANGE = (int)TimeSpan.FromMinutes(17).TotalSeconds + turnAroundTime + (int)TimeSpan.FromMinutes(17).TotalSeconds;
 
+            var pr = Track.GetPR().Timetable;
+
             for (int i = 0; i <= VIABLE_ISSUE_RANGE; i++)
             {
-                var nextTram = Trams.FirstOrDefault(tram => tram.CurrentStation == Track.GetPRDepot());
-                if (nextTram != null)
+                if (pr.ShouldIssueAtTime(i))
                 {
-                    EventQueue.Enqueue(new TransportArgs()
+                    var nextTram = Trams.FirstOrDefault(tram => tram.CurrentStation == Track.GetPRDepot());
+                    if (nextTram != null)
                     {
-                        FromStation = Track.GetPRDepot(),
-                        ToStation = Track.NextStation(Track.GetPRDepot()),
-                        Tram = nextTram,
-                        Type = TransportArgsType.ExpectedArrival,
-                        TriggerTime = i + GetTravelTime(nextTram.CurrentStation, Track.NextStation(nextTram.CurrentStation))
-                    });
+                        EventQueue.Enqueue(new TransportArgs()
+                        {
+                            FromStation = Track.GetPRDepot(),
+                            ToStation = Track.NextStation(Track.GetPRDepot()),
+                            Tram = nextTram,
+                            Type = TransportArgsType.ExpectedArrival,
+                            TriggerTime = i + GetTravelTime(nextTram.CurrentStation, Track.NextStation(nextTram.CurrentStation))
+                        });
+                    }
                 }
             }
 
 
             while (time <= TotalTime || EventQueue.Any())
             {
-                ///*Console.Wri*/teLine(time);
                 while (EventQueue.Any(x => x.TriggerTime == time))
                 {
                     var set = new List<TransportArgs>(EventQueue.Where(x => x.TriggerTime == time))

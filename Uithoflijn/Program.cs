@@ -37,8 +37,6 @@ namespace Uithoflijn
             //1-st item for example has n items which correspond to the rows in the file
             //2-nd same etc,, ffor another file.. you can decide what to do with them but 
             //make sure u dont break anything
-            Console.WriteLine();
-
 
             //The values of the frequencies we're testing, issue at least every 40 seconds(otherwise we issue waaaay too fast)
             var testFrequencies = new List<int>();
@@ -68,7 +66,7 @@ namespace Uithoflijn
 
             var total = testValues.Count;
             var progress = 0.0;
-            string header = "";
+            var header = "";
 
             Parallel.ForEach(testValues, new ParallelOptions()
             {
