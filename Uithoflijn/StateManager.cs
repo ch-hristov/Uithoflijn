@@ -119,7 +119,9 @@ namespace Uithoflijn
             {
                 TotalPassengersServiced = totalServedInDay,
                 Punctuality = TotalPunctuality,
-                TotalDelay = TotalDelay
+                TotalDelay = TotalDelay,
+                StationPassengerCongestion = 0,
+                HighLatenessTrams = 0
             };
         }
 

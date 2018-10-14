@@ -60,6 +60,7 @@ namespace Uithoflijn
 
             var total = testValues.Count;
             var progress = 0.0;
+            string header = "";
 
             Parallel.ForEach(testValues, new ParallelOptions()
             {
@@ -90,6 +91,8 @@ namespace Uithoflijn
                           };
 
                           var statistics = sm.Start(turnAroundTime, tramFrequency, tramCount, DEBUG);
+                          if (string.IsNullOrEmpty(header)) header = statistics.GetHeader();
+
                           var data = $"{turnAroundTime};{tramFrequency};{tramCount};{statistics.ToString()}";
 
                           output.Add(data);
@@ -106,7 +109,7 @@ namespace Uithoflijn
               });
 
             var final = new List<string>(output);
-            final.Insert(0, "q;freq;tramcnt;delay;punctuality;serviced");
+            final.Insert(0, string.Concat("q;freq;tramcnt;", header));
             File.WriteAllLines("output.csv", final);
             Console.WriteLine(final.Aggregate((a, b) => a + Environment.NewLine + b));
         }
