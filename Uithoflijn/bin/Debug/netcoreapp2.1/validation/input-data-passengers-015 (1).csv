@@ -1,0 +1,91 @@
+Stop;Direction;From;To;PassIn;PassOut
+P+R Uithof;0;6;7;0;0
+WKZ;0;6;7;36;0
+UMC;0;6;7;113;0
+Heidelberglaan;0;6;7;461;0
+Padualaan;0;6;7;348;11
+Kromme Rijn;0;6;7;24;2
+Galgenwaard;0;6;7;21;14
+Vaartscherijn;0;6;7;66;21
+Centraal Station Centrumzijde;0;6;7;0;1023
+P+R Uithof;0;7;9;0;0
+WKZ;0;7;9;454;0
+UMC;0;7;9;118;0
+Heidelberglaan;0;7;9;234;0
+Padualaan;0;7;9;148;154
+Kromme Rijn;0;7;9;210;0
+Galgenwaard;0;7;9;78;40
+Vaartscherijn;0;7;9;258;88
+Centraal Station Centrumzijde;0;7;9;0;1212
+P+R Uithof;0;9;16;14;0
+WKZ;0;9;16;504;0
+UMC;0;9;16;1575;0
+Heidelberglaan;0;9;16;6447;0
+Padualaan;0;9;16;4872;147
+Kromme Rijn;0;9;16;336;35
+Galgenwaard;0;9;16;294;189
+Vaartscherijn;0;9;16;938;287
+Centraal Station Centrumzijde;0;9;16;0;14322
+P+R Uithof;0;16;18;10;0
+WKZ;0;16;18;396;0
+UMC;0;16;18;1794;0
+Heidelberglaan;0;16;18;4950;0
+Padualaan;0;16;18;3700;6
+Kromme Rijn;0;16;18;382;10
+Galgenwaard;0;16;18;438;102
+Vaartscherijn;0;16;18;402;348
+Centraal Station Centrumzijde;0;16;18;0;11610
+P+R Uithof;0;18;21.5;0;0
+WKZ;0;18;21.5;126;0
+UMC;0;18;21.5;395.5;0
+Heidelberglaan;0;18;21.5;1613.5;0
+Padualaan;0;18;21.5;1218;38.5
+Kromme Rijn;0;18;21.5;84;7
+Galgenwaard;0;18;21.5;73.5;49
+Vaartscherijn;0;18;21.5;231;73.5
+Centraal Station Centrumzijde;0;18;21.5;0;3580.5
+Centraal Station Centrumzijde;1;6;7;789;0
+Vaartscherijn;1;6;7;86;93
+Galgenwaard;1;6;7;12;62
+Kromme Rijn;1;6;7;2;42
+Padualaan;1;6;7;0;357
+Heidelberglaan;1;6;7;0;224
+UMC;1;6;7;0;95
+WKZ;1;6;7;0;18
+P+R Uithof;1;6;7;0;0
+Centraal Station Centrumzijde;1;7;9;12186;0
+Vaartscherijn;1;7;9;1434;442
+Galgenwaard;1;7;9;270;456
+Kromme Rijn;1;7;9;40;348
+Padualaan;1;7;9;0;6826
+Heidelberglaan;1;7;9;0;3796
+UMC;1;7;9;0;1648
+WKZ;1;7;9;0;402
+P+R Uithof;1;7;9;0;10
+Centraal Station Centrumzijde;1;9;16;11060;0
+Vaartscherijn;1;9;16;1211;1302
+Galgenwaard;1;9;16;182;861
+Kromme Rijn;1;9;16;21;588
+Padualaan;1;9;16;0;4998
+Heidelberglaan;1;9;16;0;3129
+UMC;1;9;16;0;1316
+WKZ;1;9;16;0;266
+P+R Uithof;1;9;16;0;14
+Centraal Station Centrumzijde;1;16;18;3198;0
+Vaartscherijn;1;16;18;484;444
+Galgenwaard;1;16;18;40;342
+Kromme Rijn;1;16;18;6;438
+Padualaan;1;16;18;12;1078
+Heidelberglaan;1;16;18;10;750
+UMC;1;16;18;10;484
+WKZ;1;16;18;0;220
+P+R Uithof;1;16;18;0;0
+Centraal Station Centrumzijde;1;18;21.5;2761.5;0
+Vaartscherijn;1;18;21.5;301;325.5
+Galgenwaard;1;18;21.5;42;217
+Kromme Rijn;1;18;21.5;7;147
+Padualaan;1;18;21.5;0;1249.5
+Heidelberglaan;1;18;21.5;0;784
+UMC;1;18;21.5;0;332.5
+WKZ;1;18;21.5;0;63
+P+R Uithof;1;18;21.5;0;0
