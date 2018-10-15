@@ -345,7 +345,7 @@ namespace Uithoflijn
         /// <returns>The time we're gonna wait at that station</returns>
         public int GetStationTime(int embarkingPassengers, int disembarkingPassengers)
         {
-            var stationTime = 12.5 * 0.27 * embarkingPassengers + 0.13 * disembarkingPassengers;
+            var stationTime = 12.5 + 0.27 * embarkingPassengers + 0.13 * disembarkingPassengers;
 
             //can't leave immediately.... *_*
             return Math.Max(10, (int)Math.Ceiling(stationTime));
