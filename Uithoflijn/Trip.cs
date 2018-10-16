@@ -11,7 +11,7 @@ namespace Uithoflijn
         private const string T1 = "Centraal Station";
         private const string T2 = "P+R De Uithof";
 
-        public Terrain(int frequency, int turnaroundTime = 300)
+        public Terrain(int frequency, int turnaroundTime, int switchDelay)
         {
             var names = new List<string>() { T1, "Vaartsche Rijn", "Galgenwaard", "Kromme Rijn","Padualaan",
                                                        "Heidelberglaan",  "UMC", "WKZ" , T2};
@@ -39,7 +39,7 @@ namespace Uithoflijn
                         if (Vertices.Any(vertex => vertex.Name == name))
                             return;
                     }
-                    vertices.Add(new Station()
+                    vertices.Add(new Station(switchDelay)
                     {
                         Name = name,
                         IsTerminal = name == T1 || name == T2,
@@ -80,7 +80,7 @@ namespace Uithoflijn
                 Weight = backwards[backwards.Count - 1]
             });
 
-            AddVertex(new Station()
+            AddVertex(new Station(switchDelay)
             {
                 Name = "Depot",
                 Id = -1,

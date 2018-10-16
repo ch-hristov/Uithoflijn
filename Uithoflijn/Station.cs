@@ -22,7 +22,7 @@ namespace Uithoflijn
 
     public class Station
     {
-        public Station(int minSwitchDelay = 40)
+        public Station(int minSwitchDelay)
         {
             Trams = new Queue<Tram>();
             ArrivalClasses = new Dictionary<ArrivalClass, int>();

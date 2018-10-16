@@ -99,7 +99,9 @@ namespace Uithoflijn
                           {
                               if (DEBUG)
                                   if (!string.IsNullOrEmpty(arg.ToString().Trim()))
+                                  {
                                       streamWriter.WriteLine(arg.ToString());
+                                  }
                           };
 
                           var statistics = sm.Start(turnAroundTime, tramFrequency, tramCount, DEBUG);

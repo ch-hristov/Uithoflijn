@@ -16,6 +16,9 @@ namespace Uithoflijn
         private const int MinimumTimeBetweenTrains = 40;
         private const int MAX_PASSENGERS_IN_TRAIN = 420;
 
+
+        private const int SWITCH_DELAY = 60;
+
         public int InitialTrams { get; set; }
 
         public event EventHandler<TransportArgs> TramArrived = delegate { };
@@ -41,7 +44,7 @@ namespace Uithoflijn
         public TramStatistics Start(int turnAroundTime, int peakFrequency, int numberOfTrams, bool debug = false)
         {
             //Issue lots of trams(iliketrains)
-            Track = new Terrain(peakFrequency, turnAroundTime);
+            Track = new Terrain(peakFrequency, turnAroundTime, SWITCH_DELAY);
             DEBUG = debug;
 
             TurnaroundTime = turnAroundTime;
@@ -102,7 +105,8 @@ namespace Uithoflijn
 
             var totalServedInDay = 0;
 
-            foreach (var tram in Trams) totalServedInDay += tram.ServedPassengers;
+            foreach (var tram in Trams)
+                totalServedInDay += tram.ServedPassengers;
 
             // TODO: fill up
             // return output statistics for the output analysis
@@ -112,7 +116,8 @@ namespace Uithoflijn
                 Punctuality = TotalPunctuality,
                 TotalDelay = TotalDelay,
                 StationPassengerCongestion = 0,
-                HighLatenessTrams = Trams.Count(x => x.WasLate)
+                HighLatenessTrams = Trams.Count(x => x.WasLate),
+                TotalWaitingTime = Track.Vertices.Sum(wait => (double)wait.TotalWaitingTime / wait.TotalPassengersServiced)
             };
         }
 
@@ -124,9 +129,7 @@ namespace Uithoflijn
             var switchDelay = 0;
 
             if (e.ToStation.IsTerminal)
-            {
                 switchDelay = e.ToStation.SwitchDelay(e.TriggerTime);
-            }
 
             if (e.ToStation.TimeOfLastTram.HasValue)
                 delayAtStation = (e.ToStation.TimeOfLastTram.Value + MinimumTimeBetweenTrains) - e.TriggerTime;
@@ -225,10 +228,8 @@ namespace Uithoflijn
                 var nextDepartureTime = e.ToStation.Timetable.GetNextDepartureTime(tramDepartureFromTerminal);
 
                 if (nextDepartureTime == null) return;
-                var dep = nextDepartureTime.Value;
 
-                //we satisfied this departure time
-                var sch = e.ToStation.Timetable.Schedule;
+                var dep = nextDepartureTime.Value;
 
                 //mark departure time as used
                 e.ToStation.Timetable[dep] = 0;
@@ -287,6 +288,8 @@ namespace Uithoflijn
 
             // people exit train
             e.Tram.CurrentPassengers -= totalDisembarkingPassengers;
+
+            e.ToStation.TotalPassengersServiced += totalEmbarkingPassengers;
 
             // This many people can enter
             var canEnter = Math.Max(0, MAX_PASSENGERS_IN_TRAIN - e.Tram.CurrentPassengers);
