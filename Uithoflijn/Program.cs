@@ -42,8 +42,8 @@ namespace Uithoflijn
             var testFrequencies = new List<int>();
             var turnAroundTimes = new List<int>();
 
-            for (var i = 0; i < TOTAL_TESTED_FREQUENCIES; i++) { testFrequencies.Add(MIN_FREQ + (i * FREQ_TEST_FREQ)); }
-            for (var i = 0; i < TURNAROUND_TIME_TESTS; i++) { turnAroundTimes.Add(TURNAROUND_TIME_MIN + (i * TURNAROUND_TIME_TEST_FREQ)); }
+            for (var seconds = 15*60; seconds > 3 * 60; seconds -= 30) { testFrequencies.Add(seconds); }
+            for (var seconds = 5*60; seconds > 2 * 60; seconds -= 30) { turnAroundTimes.Add(seconds); }
 
             //check if debugger is attached to guarantee nice debugging
             if (System.Diagnostics.Debugger.IsAttached)
@@ -68,33 +68,55 @@ namespace Uithoflijn
             var progress = 0.0;
             var header = "";
 
+
             Parallel.ForEach(testValues, new ParallelOptions()
             {
                 MaxDegreeOfParallelism = DEBUG ? 1 : 8
             }, tuple =>
               {
+<<<<<<< HEAD
                   var tramFrequency = tuple.Item1;
                   var tramCount = tuple.Item2;
                   var turnAroundTime = tuple.Item3;
 
                   var debugFile = $"DEBUG_{tramFrequency}_{tramCount}_{turnAroundTime}.txt";
+=======
+              var tramFrequency = tuple.Item1;
+              var tramCount = tuple.Item2;
+              var turnAroundTime = tuple.Item3;
+                var debugFile = $"debug/DEBUG_{tramFrequency}_{tramCount}_{turnAroundTime}.txt";
+              var statisticsFile = $"stat/STAT_{tramFrequency}_{tramCount}_{turnAroundTime}.txt";
+>>>>>>> d3c03d85aa152fa18ecc5fd7e0d62f947f24a1dd
 
-                  if (DEBUG)
+              if (DEBUG)
+              {
+                  if (File.Exists(debugFile))
                   {
-                      if (File.Exists(debugFile))
-                      {
-                          File.Delete(debugFile);
-                      }
-                      //guarantee the file is deleted..
-                      Thread.Sleep(50);
+                      File.Delete(debugFile);
                   }
+                  //guarantee the file is deleted..
+                  Thread.Sleep(50);
+              }
 
-                  using (var file = File.OpenWrite(debugFile))
-                  {
-                      using (var streamWriter = new StreamWriter(file))
+
+              using (var file = File.OpenWrite(debugFile))
+              using (var stat = File.OpenWrite(statisticsFile))
+              {
+                    using (var statisticsWriter = new StreamWriter(stat))
+                    using (var streamWriter = new StreamWriter(file))
+                    {
+                      var sm = new StateManager();
+
+                      sm.DebugLine += (send, arg) =>
                       {
-                          var sm = new StateManager();
+                          if (DEBUG)
+                              if (!string.IsNullOrEmpty(arg.ToString().Trim()))
+                                  streamWriter.WriteLine(arg.ToString());
+                      };
 
+                      var statistics = sm.Start(turnAroundTime, tramFrequency, tramCount, DEBUG);
+
+<<<<<<< HEAD
                           //Register for debug events if needed
                           if (DEBUG)
                           {
@@ -109,20 +131,40 @@ namespace Uithoflijn
                                   }
                               };
                           }
+=======
+                      var terrain = sm.Track.Vertices;
+                      List<string> statistics_per_station = new List<string>();
+                      foreach (var st in terrain)
+                      {
+                            double avg_waiting_time = (double)st.TotalWaitingTime / st.TotalPassengersServiced;
+                            string toWrite = st.Name + "," + st.Id + "," + avg_waiting_time + "," + st.TotalPassengersServiced;
+                            statistics_per_station.Add(toWrite);
+                      }
+>>>>>>> d3c03d85aa152fa18ecc5fd7e0d62f947f24a1dd
 
-                          var statistics = sm.Start(turnAroundTime, tramFrequency, tramCount, DEBUG);
 
+<<<<<<< HEAD
                           if (string.IsNullOrEmpty(header)) { header = statistics.GetHeader(); }
 
                           var data = $"{turnAroundTime};{tramFrequency};{tramCount};{statistics.ToString()}";
                           output.Add(data);
+=======
+                        statisticsWriter.WriteLine("Station,id,avg_wait_time,total_passengers_serviced");
+                      statisticsWriter.WriteLine(string.Join("\n", statistics_per_station));
 
-                          if (statistics.TotalPassengersServiced > optimalPassCount)
-                          {
-                              optimalPassCount = statistics.TotalPassengersServiced;
-                              optimalFrequency = tramFrequency;
-                              optimalTramCount = tramCount;
-                          }
+                      if (string.IsNullOrEmpty(header)) header = statistics.GetHeader();
+
+                      var data = $"{turnAroundTime};{tramFrequency};{tramCount};{statistics.ToString()}";
+>>>>>>> d3c03d85aa152fa18ecc5fd7e0d62f947f24a1dd
+
+                      output.Add(data);
+
+                      if (statistics.TotalPassengersServiced > optimalPassCount)
+                      {
+                          optimalPassCount = statistics.TotalPassengersServiced;
+                          optimalFrequency = tramFrequency;
+                          optimalTramCount = tramCount;
+                      }
                       }
                   }
                   // delete temp stuff if debug mode is off X_X

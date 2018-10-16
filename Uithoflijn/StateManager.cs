@@ -108,7 +108,7 @@ namespace Uithoflijn
                 TotalDelay = TotalDelay,
                 StationPassengerCongestion = 0,
                 HighLatenessTrams = Trams.Count(x => x.WasLate),
-                TotalWaitingTime = Track.Vertices.Sum(wait => (double)wait.TotalWaitingTime / wait.TotalPassengersServiced)
+                //TotalWaitingTime = Track.Vertices.Sum(wait => (double)wait.TotalWaitingTime / wait.TotalPassengersServiced)
             };
 
         }
@@ -207,6 +207,9 @@ namespace Uithoflijn
             //Disembark passengers if neccessary
             EmbarkDisembarkPassengers(e, ref totalEmbarkingPassengers, ref totalDisembarkingPassengers);
 
+            //
+            e.ToStation.TotalPassengersServiced += totalEmbarkingPassengers;
+
             //compute how long we have to wait
             var stationDwell = GetStationTime(totalDisembarkingPassengers, totalDisembarkingPassengers);
 
@@ -283,8 +286,6 @@ namespace Uithoflijn
 
             // people exit train
             e.Tram.CurrentPassengers -= totalDisembarkingPassengers;
-
-            e.ToStation.TotalPassengersServiced += totalEmbarkingPassengers;
 
             // This many people can enter
             var canEnter = Math.Max(0, MAX_PASSENGERS_IN_TRAIN - e.Tram.CurrentPassengers);
