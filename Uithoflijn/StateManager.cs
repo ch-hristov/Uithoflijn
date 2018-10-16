@@ -105,8 +105,7 @@ namespace Uithoflijn
 
             var totalServedInDay = 0;
 
-            foreach (var tram in Trams)
-                totalServedInDay += tram.ServedPassengers;
+            foreach (var tram in Trams) totalServedInDay += tram.ServedPassengers;
 
             // TODO: fill up
             // return output statistics for the output analysis

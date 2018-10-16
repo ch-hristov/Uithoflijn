@@ -84,7 +84,6 @@ namespace Uithoflijn
                       {
                           File.Delete(debugFile);
                       }
-
                       //guarantee the file is deleted..
                       Thread.Sleep(50);
                   }
@@ -99,9 +98,7 @@ namespace Uithoflijn
                           {
                               if (DEBUG)
                                   if (!string.IsNullOrEmpty(arg.ToString().Trim()))
-                                  {
                                       streamWriter.WriteLine(arg.ToString());
-                                  }
                           };
 
                           var statistics = sm.Start(turnAroundTime, tramFrequency, tramCount, DEBUG);
@@ -111,6 +108,7 @@ namespace Uithoflijn
                           var data = $"{turnAroundTime};{tramFrequency};{tramCount};{statistics.ToString()}";
 
                           output.Add(data);
+
                           if (statistics.TotalPassengersServiced > optimalPassCount)
                           {
                               optimalPassCount = statistics.TotalPassengersServiced;
