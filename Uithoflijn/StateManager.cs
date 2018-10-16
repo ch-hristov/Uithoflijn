@@ -56,14 +56,14 @@ namespace Uithoflijn
             TramExpectedDeparture += HandleExpectedDeparture;
 
             // initialize trams to depot
-            for (var i = 0; i < InitialTrams; i++) Trams.Add(new Tram() { Id = i, CurrentStation = Track.GetPRDepot() });
+            for (var i = 0; i < InitialTrams; i++) Trams.Add(new Tram { Id = i, CurrentStation = Track.GetPRDepot() });
 
             var pr = Track.GetPR().Timetable;
             var tramDelay = 0;
 
             foreach (var nextTram in Trams.Where(x => x.CurrentStation == Track.GetPRDepot()))
             {
-                EventQueue.Add(new TransportArgs()
+                EventQueue.Add(new TransportArgs
                 {
                     FromStation = Track.GetPRDepot(),
                     ToStation = Track.NextStation(Track.GetPRDepot()),
@@ -79,6 +79,7 @@ namespace Uithoflijn
             {
                 var next = EventQueue.Min();
                 EventQueue.DeleteMin();
+
                 DebugLine(this, next);
 
                 if (next.Type == TransportArgsType.ExpectedArrival)
@@ -99,7 +100,6 @@ namespace Uithoflijn
             var totalServedInDay = 0;
             foreach (var tram in Trams) { totalServedInDay += tram.ServedPassengers; }
 
-            // TODO: fill up
             // return output statistics for the output analysis
             return new TramStatistics()
             {
@@ -110,7 +110,6 @@ namespace Uithoflijn
                 HighLatenessTrams = Trams.Count(x => x.WasLate),
                 //TotalWaitingTime = Track.Vertices.Sum(wait => (double)wait.TotalWaitingTime / wait.TotalPassengersServiced)
             };
-
         }
 
         public void HandleExpectedDeparture(object sender, TransportArgs e)
@@ -120,7 +119,7 @@ namespace Uithoflijn
             var delayAtStation = 0;
             var switchDelay = 0;
 
-            if (e.ToStation.IsTerminal)
+            if (e.ToStation.IsTerminal && e.FromStation != e.ToStation)
                 switchDelay = e.ToStation.SwitchDelay(e.TriggerTime);
 
             if (e.ToStation.TimeOfLastTram.HasValue)
@@ -154,10 +153,8 @@ namespace Uithoflijn
                 });
             }
             else
-            {
                 //enqueue it to the station for arrival when the other trams leave it
                 e.ToStation.Trams.Enqueue(e.Tram);
-            }
         }
 
         private void HandleDeparture(object sender, TransportArgs e)
@@ -207,17 +204,22 @@ namespace Uithoflijn
             //Disembark passengers if neccessary
             EmbarkDisembarkPassengers(e, ref totalEmbarkingPassengers, ref totalDisembarkingPassengers);
 
-            //
             e.ToStation.TotalPassengersServiced += totalEmbarkingPassengers;
 
             //compute how long we have to wait
             var stationDwell = GetStationTime(totalDisembarkingPassengers, totalDisembarkingPassengers);
+            var departTime = e.TriggerTime + stationDwell;
 
             //we need to make a turnaround now, this takes Turnaround time
-            if (e.ToStation.IsTerminal && e.FromStation != Track.GetPRDepot())
+            if (e.ToStation.IsTerminal)
             {
+                var turnaroundTime = TurnaroundTime;
+
+                if (e.FromStation == Track.GetPRDepot())
+                    turnaroundTime = 0;
+
                 // people board while waiting
-                var currentTime = e.TriggerTime + Math.Max(TurnaroundTime, stationDwell);
+                var currentTime = e.TriggerTime + Math.Max(turnaroundTime, stationDwell);
 
                 var tramDepartureFromTerminal = e.Tram.DepartureFromPreviousTerminal;
                 //Get next departure time
@@ -227,6 +229,8 @@ namespace Uithoflijn
 
                 var dep = nextDepartureTime.Value;
 
+                departTime = dep;
+
                 //mark departure time as used
                 e.ToStation.Timetable[dep] = 0;
 
@@ -234,35 +238,23 @@ namespace Uithoflijn
                 var punctuality = currentTime - dep;
 
                 //Check if this tram was very late :/ 
-                if (punctuality > 60) e.Tram.WasLate = true;
+                if (punctuality > 60)
+                    e.Tram.WasLate = true;
 
                 //arriving early is good :))))
                 TotalPunctuality += Math.Max(punctuality, 0);
+            }
 
-                // upon arrival schedule a departure
-                EventQueue.Add(new TransportArgs()
-                {
-                    FromStation = e.ToStation,
-                    ToStation = Track.NextStation(e.ToStation),
-                    TriggerTime = dep,
-                    Tram = e.Tram,
-                    Type = TransportArgsType.ExpectedDeparture
-                });
-            }
-            else
+            // upon arrival schedule a departure
+            EventQueue.Add(new TransportArgs()
             {
-                if (e.ToStation.IsTerminal && e.FromStation == Track.GetPRDepot())
-                {
-                    EventQueue.Add(new TransportArgs()
-                    {
-                        FromStation = e.ToStation,
-                        ToStation = Track.NextStation(e.ToStation),
-                        TriggerTime = Track.GetPR().Timetable.GetNextDepartureTime(e.TriggerTime + 1).Value,
-                        Tram = e.Tram,
-                        Type = TransportArgsType.ExpectedDeparture
-                    });
-                }
-            }
+                FromStation = e.ToStation,
+                ToStation = Track.NextStation(e.ToStation),
+                TriggerTime = departTime,
+                Tram = e.Tram,
+                Type = TransportArgsType.ExpectedDeparture
+            });
+
         }
 
         private void EmbarkDisembarkPassengers(TransportArgs e, ref int totalEmbarkingPassengers, ref int totalDisembarkingPassengers)
