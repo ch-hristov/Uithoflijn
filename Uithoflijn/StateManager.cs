@@ -38,9 +38,15 @@ namespace Uithoflijn
         private int TurnaroundTime { get; set; }
         private int CurrentFrequency { get; set; }
         private bool DEBUG { get; set; }
-        private int LatenessThreshold { get; set; }
 
-        public TramStatistics Start(int turnAroundTime, int peakFrequency, int numberOfTrams, int latenessThreshold = 60, bool debug = false)
+        private int LatenessThreshold { get; set; }
+        private int MaxDepartureLateness { get; set; }
+
+        public TramStatistics Start(int turnAroundTime,
+                                                        int peakFrequency,
+                                                        int numberOfTrams,
+                                                        int latenessThreshold = 60,
+                                                        bool debug = false)
         {
             LatenessThreshold = latenessThreshold;
 
@@ -58,7 +64,11 @@ namespace Uithoflijn
             TramExpectedDeparture += HandleExpectedDeparture;
 
             // initialize trams to depot
-            for (var i = 0; i < InitialTrams; i++) Trams.Add(new Tram { Id = i, CurrentStation = Track.GetPRDepot() });
+            for (var i = 0; i < InitialTrams; i++) Trams.Add(new Tram
+            {
+                Id = i,
+                CurrentStation = Track.GetPRDepot()
+            });
 
             var pr = Track.GetPR().Timetable;
             var tramDelay = 0;
@@ -74,6 +84,7 @@ namespace Uithoflijn
                     TriggerTime = tramDelay + GetTravelTime(nextTram.CurrentStation, Track.NextStation(nextTram.CurrentStation))
                     //normally + part is 0 as its from depot
                 });
+
                 tramDelay++;
             }
 
@@ -100,7 +111,10 @@ namespace Uithoflijn
             }
 
             var totalServedInDay = 0;
-            foreach (var tram in Trams) { totalServedInDay += tram.ServedPassengers; }
+            foreach (var tram in Trams)
+            {
+                totalServedInDay += tram.ServedPassengers;
+            }
 
             // return output statistics for the output analysis
             return new TramStatistics()
@@ -110,7 +124,8 @@ namespace Uithoflijn
                 TotalDelay = TotalDelay,
                 StationPassengerCongestion = 0,
                 HighLatenessTrams = Trams.Count(x => x.WasLate),
-                TotalWaitingTime = Track.Vertices.Sum(wait => (double)wait.TotalWaitingTime / wait.TotalPassengersServiced)
+                TotalWaitingTime = Track.Vertices.Sum(wait => (double)wait.TotalWaitingTime / wait.TotalPassengersServiced),
+                MaximumDepartureLateness = MaxDepartureLateness
             };
         }
 
@@ -240,8 +255,14 @@ namespace Uithoflijn
                 var punctuality = currentTime - dep;
 
                 //Check if this tram was very late :/ 
-                if (punctuality > this.LatenessThreshold)
+                if (punctuality > LatenessThreshold)
+                {
                     e.Tram.WasLate = true;
+                    if (punctuality > MaxDepartureLateness)
+                    {
+                        MaxDepartureLateness = punctuality;
+                    }
+                }
 
                 //arriving early is good :))))
                 TotalPunctuality += Math.Max(punctuality, 0);
@@ -264,7 +285,9 @@ namespace Uithoflijn
             var min = 0;
 
             if (e.ToStation.TimeOfLastTram.HasValue)
+            {
                 min = e.ToStation.TimeOfLastTram.Value;
+            }
 
             // handle boarding ? how many people can board?
             totalDisembarkingPassengers = e.Tram.GetDisembarkingPassengers(e.ToStation, e.TriggerTime);
@@ -341,7 +364,7 @@ namespace Uithoflijn
             var stationTime = 12.5 + 0.27 * embarkingPassengers + 0.13 * disembarkingPassengers;
 
             //can't leave immediately.... *_*
-            return Math.Max(10, (int)Math.Ceiling(stationTime));
+            return (int)Math.Ceiling(stationTime);
         }
 
         /// <summary>

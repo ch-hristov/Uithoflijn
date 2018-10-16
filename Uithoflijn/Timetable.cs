@@ -33,7 +33,6 @@ namespace Uithoflijn
         public List<int> Schedule = new List<int>();
 
         public Timetable(IEnumerable<FrequencyInterval> intervals,
-                         int offset,
                          int range = 54000)
         {
             Range = range;

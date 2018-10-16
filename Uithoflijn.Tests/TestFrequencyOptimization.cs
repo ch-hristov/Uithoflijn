@@ -14,10 +14,11 @@ namespace Uithoflijn.Tests
             // a tuple consists of
             var list = new List<(int, int, int)>()
             {
-                (300,1,300)
+                (300,5,300)
             };
 
-            var results = new Program(15000).Run(list);
+            var results = new Program().Run(list);
+
             Console.WriteLine(results.FirstOrDefault());
             Assert.IsTrue(results.Single().HighLatenessTrams == 0);
         }

@@ -68,7 +68,6 @@ namespace Uithoflijn
             var pr = GetPR();
             var afterPR = Vertices.FirstOrDefault(x => x.Id == 9);
 
-            //add edges to final stations
             AddEdge(new UEdge(pr, afterPR)
             {
                 Weight = backwards[0]
@@ -76,7 +75,6 @@ namespace Uithoflijn
 
             AddEdge(new UEdge(Vertices.FirstOrDefault(x => x.Id == 15), GetCS())
             {
-                //TODO: check this
                 Weight = backwards[backwards.Count - 1]
             });
 
@@ -86,7 +84,6 @@ namespace Uithoflijn
                 Id = -1,
             });
 
-            //Set path from depot to station 1
             AddEdge(new UEdge(Vertices.Single(x => x.Id == -1), Vertices.SingleOrDefault(x => x.Name == T2))
             {
                 Weight = 0
@@ -102,23 +99,27 @@ namespace Uithoflijn
             var fifteenMin = (int)TimeSpan.FromMinutes(15).TotalSeconds;
             var hour = (int)TimeSpan.FromHours(1).TotalSeconds;
             var peakHours = (int)TimeSpan.FromHours(12).TotalSeconds;
+            var totalWorkTime = 54000;
+
+            var timetablePR = new Timetable(new[]
+            {
+                new FrequencyInterval { Start = 0 /* start at the beggining of simulation*/, End = hour , Frequency  = fifteenMin},
+                new FrequencyInterval { Start = hour, End = totalWorkTime - (int)TimeSpan.FromHours(2).TotalSeconds, Frequency = frequency},
+                new FrequencyInterval { Start = hour + peakHours , End = totalWorkTime, Frequency = fifteenMin}
+            });
+
+            var timeTableUithof = new Timetable(new[]
+            {
+                new FrequencyInterval { Start = offset /* start at the beggining of simulation*/, End = hour , Frequency  = fifteenMin},
+                new FrequencyInterval { Start = hour, End = totalWorkTime - (int)TimeSpan.FromHours(2).TotalSeconds, Frequency = frequency},
+                new FrequencyInterval { Start = hour + peakHours , End = totalWorkTime, Frequency = fifteenMin}
+            });
 
             //--------- this section builds the timetables at the terminal stations
 
             // the frequency intervals at the PR
-            Vertices.FirstOrDefault(x => x.Name == T2).SetTimetable(new Timetable(new[]
-            {
-                new FrequencyInterval { Start = 0 /* start at the beggining of simulation*/, End = hour , Frequency  = fifteenMin},
-                new FrequencyInterval { Start = hour, End = hour + peakHours, Frequency = frequency},
-                new FrequencyInterval { Start = hour + peakHours , End = 54000, Frequency = fifteenMin}
-            }, 0));
-
-            Vertices.FirstOrDefault(x => x.Name == T1).SetTimetable(new Timetable(new[]
-            {
-                new FrequencyInterval { Start = offset /* start at the beggining of simulation*/, End = hour , Frequency  = fifteenMin},
-                new FrequencyInterval { Start = hour, End = hour + peakHours, Frequency = frequency},
-                new FrequencyInterval { Start = hour + peakHours , End = 54000, Frequency = fifteenMin}
-            }, 17 * 60 + turnaroundTime));
+            Vertices.FirstOrDefault(x => x.Name == T2).SetTimetable(timetablePR);
+            Vertices.FirstOrDefault(x => x.Name == T1).SetTimetable(timeTableUithof);
 
             var psr = Vertices.FirstOrDefault(x => x.Name == T2).Timetable.ToString();
             var uff = Vertices.FirstOrDefault(x => x.Name == T1).Timetable.ToString();

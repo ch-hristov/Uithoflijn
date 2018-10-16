@@ -155,6 +155,7 @@ namespace Uithoflijn
 
 
             var final = new List<string>(output);
+
             final.Insert(0, string.Concat("q;freq;tramcnt;", header));
             File.WriteAllLines("output.csv", final);
 
