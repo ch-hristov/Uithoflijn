@@ -9,8 +9,7 @@ namespace Uithoflijn
 {
     public class StateManager
     {
-
-        public List<TransportArgs> DebugLog = new List<TransportArgs>();
+        private readonly List<TransportArgs> DebugLog = new List<TransportArgs>();
 
         private const int TotalTime = 54000;
         private const int MinimumTimeBetweenTrains = 40;
@@ -19,29 +18,32 @@ namespace Uithoflijn
 
         public int InitialTrams { get; set; }
 
-        public event EventHandler<TransportArgs> TramArrived = delegate { };
-        public event EventHandler<TransportArgs> TramDeparture = delegate { };
+        private event EventHandler<TransportArgs> TramArrived = delegate { };
+        private event EventHandler<TransportArgs> TramDeparture = delegate { };
 
-        public event EventHandler<TransportArgs> TramExpectedDeparture = delegate { };
-        public event EventHandler<TransportArgs> TramExpectedArrival = delegate { };
+        private event EventHandler<TransportArgs> TramExpectedDeparture = delegate { };
+        private event EventHandler<TransportArgs> TramExpectedArrival = delegate { };
 
-        public event EventHandler<TransportArgs> DebugLine = delegate { };
+        internal event EventHandler<TransportArgs> DebugLine = delegate { };
 
         private IntervalHeap<TransportArgs> EventQueue = new IntervalHeap<TransportArgs>();
         private System.Collections.Generic.ICollection<Tram> Trams = new List<Tram>();
 
         public Terrain Track { get; set; }
-        public int TotalDelay { get; set; }
-        public int TotalPunctuality { get; set; }
-        public int TotalHighLatenessTrams { get; set; }
 
-        public int TurnaroundTime { get; private set; }
-        public int CurrentFrequency { get; private set; }
-        public bool DEBUG { get; private set; }
+        private int TotalDelay { get; set; }
+        private int TotalPunctuality { get; set; }
+        private int TotalHighLatenessTrams { get; set; }
 
-        public TramStatistics Start(int turnAroundTime, int peakFrequency, int numberOfTrams, bool debug = false)
+        private int TurnaroundTime { get; set; }
+        private int CurrentFrequency { get; set; }
+        private bool DEBUG { get; set; }
+        private int LatenessThreshold { get; set; }
+
+        public TramStatistics Start(int turnAroundTime, int peakFrequency, int numberOfTrams, int latenessThreshold = 60, bool debug = false)
         {
-            //Issue lots of trams(iliketrains)
+            LatenessThreshold = latenessThreshold;
+
             Track = new Terrain(peakFrequency, turnAroundTime, SWITCH_DELAY);
             DEBUG = debug;
 
@@ -108,7 +110,7 @@ namespace Uithoflijn
                 TotalDelay = TotalDelay,
                 StationPassengerCongestion = 0,
                 HighLatenessTrams = Trams.Count(x => x.WasLate),
-                //TotalWaitingTime = Track.Vertices.Sum(wait => (double)wait.TotalWaitingTime / wait.TotalPassengersServiced)
+                TotalWaitingTime = Track.Vertices.Sum(wait => (double)wait.TotalWaitingTime / wait.TotalPassengersServiced)
             };
         }
 
@@ -238,7 +240,7 @@ namespace Uithoflijn
                 var punctuality = currentTime - dep;
 
                 //Check if this tram was very late :/ 
-                if (punctuality > 60)
+                if (punctuality > this.LatenessThreshold)
                     e.Tram.WasLate = true;
 
                 //arriving early is good :))))
