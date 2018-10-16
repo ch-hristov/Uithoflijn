@@ -14,7 +14,7 @@ namespace Uithoflijn
         /// Enable this to track the results
         /// </summary>
         private const int TEST_COUNTS = 10;
-        public static bool DEBUG = false;
+        public static bool DEBUG = true;
 
         public const int TOTAL_TESTED_FREQUENCIES = TEST_COUNTS;
         public const int TOTAL_TRAMSCOUNT_TO_TEST = TEST_COUNTS;
@@ -24,7 +24,7 @@ namespace Uithoflijn
 
         public static int MIN_FREQ = (int)TimeSpan.FromMinutes(1).TotalSeconds;
 
-        public const int AT_LEAST_COUNT_TRAMS = 3;
+        public const int AT_LEAST_COUNT_TRAMS = 6;
 
         public const int TURNAROUND_TIME_MIN = 300;
         public const int TURNAROUND_TIME_TEST_FREQ = 15;
@@ -76,6 +76,7 @@ namespace Uithoflijn
                   var tramFrequency = tuple.Item1;
                   var tramCount = tuple.Item2;
                   var turnAroundTime = tuple.Item3;
+
                   var debugFile = $"DEBUG_{tramFrequency}_{tramCount}_{turnAroundTime}.txt";
 
                   if (DEBUG)
@@ -94,19 +95,26 @@ namespace Uithoflijn
                       {
                           var sm = new StateManager();
 
-                          sm.DebugLine += (send, arg) =>
+                          //Register for debug events if needed
+                          if (DEBUG)
                           {
-                              if (DEBUG)
-                                  if (!string.IsNullOrEmpty(arg.ToString().Trim()))
-                                      streamWriter.WriteLine(arg.ToString());
-                          };
+                              sm.DebugLine += (send, arg) =>
+                              {
+                                  if (DEBUG)
+                                  {
+                                      if (!string.IsNullOrEmpty(arg.ToString().Trim()))
+                                      {
+                                          streamWriter.WriteLine(arg.ToString());
+                                      }
+                                  }
+                              };
+                          }
 
                           var statistics = sm.Start(turnAroundTime, tramFrequency, tramCount, DEBUG);
 
-                          if (string.IsNullOrEmpty(header)) header = statistics.GetHeader();
+                          if (string.IsNullOrEmpty(header)) { header = statistics.GetHeader(); }
 
                           var data = $"{turnAroundTime};{tramFrequency};{tramCount};{statistics.ToString()}";
-
                           output.Add(data);
 
                           if (statistics.TotalPassengersServiced > optimalPassCount)
