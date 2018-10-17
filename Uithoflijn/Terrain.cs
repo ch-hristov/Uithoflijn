@@ -148,7 +148,12 @@ namespace Uithoflijn
                         comingSt.GoingDistrubutions.Add(val);
             }
 
-            Console.WriteLine();
+            foreach (var station in Vertices)
+            {
+                station.ComingDistrubutions = new List<InputRow>(station.ComingDistrubutions.OrderBy(x => x.From));
+                station.GoingDistrubutions = new List<InputRow>(station.GoingDistrubutions.OrderBy(x => x.From));
+            }
+
         }
 
         public Station GetCS()

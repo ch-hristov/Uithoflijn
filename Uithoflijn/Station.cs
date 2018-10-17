@@ -23,6 +23,7 @@ namespace Uithoflijn
     public class Station
     {
         public List<InputRow> GoingDistrubutions { get; set; }
+
         public List<InputRow> ComingDistrubutions { get; set; }
 
         public Station(int minSwitchDelay)
