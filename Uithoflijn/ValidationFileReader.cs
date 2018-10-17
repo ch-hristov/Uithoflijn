@@ -11,8 +11,7 @@ namespace Uithoflijn
             var results = new List<InputRow>();
 
             //skip header
-
-            for (int i = 1; i < lines.Length; i++)
+            for (var i = 1; i < lines.Length; i++)
                 results.Add(new InputRow(lines[i].Split(';')));
 
             return results;
@@ -27,7 +26,8 @@ namespace Uithoflijn
         {
             var validations = new List<List<InputRow>>();
 
-            foreach (var file in Directory.EnumerateFiles(dir))
+            //read all csv files for testing
+            foreach (var file in Directory.EnumerateFiles(dir, "*.csv"))
                 validations.Add(ReadFile(file));
 
             return validations;
@@ -44,15 +44,17 @@ namespace Uithoflijn
         public InputRow(string[] data)
         {
             Stop = data[0];
-            From = int.Parse(data[1]);
-            To = int.Parse(data[2]);
-            PassIn = double.Parse(data[3]);
-            PassOut = double.Parse(data[4]);
+            Direction = int.Parse(data[1]);
+            From = double.Parse(data[2]);
+            To = double.Parse(data[3]);
+            PassIn = double.Parse(data[4]);
+            PassOut = double.Parse(data[5]);
         }
 
+        public int Direction { get; set; }
         public string Stop { get; set; }
-        public int From { get; set; }
-        public int To { get; set; }
+        public double From { get; set; }
+        public double To { get; set; }
         public double PassIn { get; set; }
         public double PassOut { get; set; }
     }

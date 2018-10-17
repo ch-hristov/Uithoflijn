@@ -14,7 +14,7 @@ namespace Uithoflijn
         /// <summary>
         /// Enable this to track the results
         /// </summary>
-        public static bool DEBUG = false;
+        public static bool DEBUG = true;
         private const int AT_LEAST_COUNT_TRAMS = 1;
 
         public int LatenessThreshold { get; }
@@ -31,7 +31,7 @@ namespace Uithoflijn
             var turnAroundTimes = new List<int>();
             var tramNumbers = new List<int>();
 
-            const int sec = 30;
+            const int sec = 180;
 
             for (var seconds = 15 * 60; seconds > 1 * 60; seconds -= sec) { testFrequencies.Add(seconds); }
             for (var seconds = 5 * 60; seconds > 2 * 60; seconds -= sec) { turnAroundTimes.Add(seconds); }
@@ -49,19 +49,30 @@ namespace Uithoflijn
                     foreach (var turnAroundFreq in turnAroundTimes)
                         testValues.Add((tramFrequency, tramCount, turnAroundFreq));
 
-            new Program().Run(testValues);
+
+            var validationData = ValidationFileReader.ReadValidationFolder();
+
+            foreach (var validationSet in validationData)
+                new Program().Run(testValues, validationSet);
         }
 
-        public IEnumerable<TramStatistics> Run(List<(int frequency, int tramCount, int turnAroundTime)> testValues)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="testValues"></param>
+        /// <param name="stationFrequencies"></param>
+        /// <returns></returns>
+        public IEnumerable<TramStatistics> Run(List<(int frequency, int tramCount, int turnAroundTime)> testValues, IEnumerable<InputRow> stationFrequencies = null)
         {
-            var validationData = ValidationFileReader.ReadValidationFolder();
+
             //every item in validationData contains the information for a file.
             //1-st item for example has n items which correspond to the rows in the file
             //2-nd same etc for another file.. you can decide what to do with them but 
             //make sure u dont break anything
-            var output = new ConcurrentBag<string>();
 
+            var output = new ConcurrentBag<string>();
             var fileStatistics = new ConcurrentBag<TramStatistics>();
+            var concurrentAccessStationsFreq = new ConcurrentBag<InputRow>(stationFrequencies);
 
             var total = testValues.Count;
             var progress = 0.0;
@@ -78,6 +89,7 @@ namespace Uithoflijn
 
                 var debugFile = $"debug/{tramFrequency}_{tramCount}_{turnAroundTime}.txt";
                 var statisticsFile = $"stat/STAT_{tramFrequency}_{tramCount}_{turnAroundTime}.txt";
+                var visualizeFile = $"vis/vis_{tramFrequency}_{tramCount}_{turnAroundTime}.txt";
 
                 if (File.Exists(debugFile))
                 {
@@ -90,12 +102,15 @@ namespace Uithoflijn
 
                 if (!Directory.Exists("stat")) Directory.CreateDirectory("stat");
                 if (!Directory.Exists("debug")) Directory.CreateDirectory("debug");
+                if (!Directory.Exists("vis")) Directory.CreateDirectory("vis");
 
                 using (var file = File.OpenWrite(debugFile))
                 using (var stat = File.OpenWrite(statisticsFile))
+                using (var visualize = File.OpenWrite(visualizeFile))
                 {
                     using (var statisticsWriter = new StreamWriter(stat))
                     using (var streamWriter = new StreamWriter(file))
+                    using (var visWriter = new StreamWriter(visualize))
                     {
                         var debugStatisticsPerPerson = new List<string>();
                         var sm = new StateManager();
@@ -105,19 +120,25 @@ namespace Uithoflijn
                             if (DEBUG)
                             {
                                 if (!string.IsNullOrEmpty(arg.ToString().Trim()))
-                                {
                                     streamWriter.WriteLine(arg.ToString());
-                                }
                             }
                         };
 
-                        var statistics = sm.Start(turnAroundTime, tramFrequency, tramCount, LatenessThreshold, DEBUG);
+                        sm.WriteState += (send, arg) =>
+                        {
+                            if (DEBUG)
+                            {
+                                visWriter.WriteLine(arg);
+                            }
+                        };
 
+                        var statistics = sm.Start(turnAroundTime, tramFrequency, tramCount, LatenessThreshold, DEBUG, concurrentAccessStationsFreq);
                         fileStatistics.Add(statistics);
 
                         if (DEBUG)
                         {
                             var terrain = sm.Track.Vertices;
+
                             foreach (var st in terrain)
                             {
                                 var avg_waiting_time = (double)st.TotalWaitingTime / st.TotalPassengersServiced;
@@ -150,9 +171,10 @@ namespace Uithoflijn
                 progress++;
                 Console.WriteLine($"Progress : {Math.Round(progress / total * 100, 1)}%");
             });
+
             var final = new List<string>(output);
 
-            final.Insert(0, string.Concat("q;freq;tramcnt;", header));
+            final.Insert(0, string.Concat("q,freq,tramcnt,", header));
             File.WriteAllLines("output.csv", final);
 
             if (DEBUG) Console.WriteLine(final.Aggregate((a, b) => a + Environment.NewLine + b));

@@ -12,7 +12,7 @@
 
         public override string ToString()
         {
-            return $"{TotalDelay};{Punctuality};{TotalPassengersServiced};{StationPassengerCongestion};{HighLatenessTrams};{TotalWaitingTime}";
+            return $"{TotalDelay},{Punctuality},{TotalPassengersServiced},{StationPassengerCongestion},{HighLatenessTrams},{TotalWaitingTime}";
         }
 
         public string GetHeader()

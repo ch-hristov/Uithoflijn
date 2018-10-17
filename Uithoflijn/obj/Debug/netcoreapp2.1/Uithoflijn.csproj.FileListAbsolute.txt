@@ -42,3 +42,4 @@ C:\Users\hrist\source\repos\Uithoflijn\Uithoflijn\bin\Debug\netcoreapp2.1\Uithof
 C:\Users\hrist\source\repos\Uithoflijn\Uithoflijn\bin\Debug\netcoreapp2.1\Uithoflijn.dll
 C:\Users\hrist\source\repos\Uithoflijn\Uithoflijn\bin\Debug\netcoreapp2.1\Uithoflijn.pdb
 C:\Users\hrist\source\repos\Uithoflijn\Uithoflijn\obj\Debug\netcoreapp2.1\Uithoflijn.csprojAssemblyReference.cache
+C:\Users\hrist\source\repos\Uithoflijn\Uithoflijn\bin\Debug\netcoreapp2.1\validation\bus12_validation.csv

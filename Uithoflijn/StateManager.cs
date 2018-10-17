@@ -25,6 +25,7 @@ namespace Uithoflijn
         private event EventHandler<TransportArgs> TramExpectedArrival = delegate { };
 
         internal event EventHandler<TransportArgs> DebugLine = delegate { };
+        internal event EventHandler<string> WriteState = delegate { };
 
         private IntervalHeap<TransportArgs> EventQueue = new IntervalHeap<TransportArgs>();
         private System.Collections.Generic.ICollection<Tram> Trams = new List<Tram>();
@@ -46,11 +47,12 @@ namespace Uithoflijn
                                                         int peakFrequency,
                                                         int numberOfTrams,
                                                         int latenessThreshold = 60,
-                                                        bool debug = false)
+                                                        bool debug = false,
+                                                        IEnumerable<InputRow> stationFrequencies = null)
         {
             LatenessThreshold = latenessThreshold;
 
-            Track = new Terrain(peakFrequency, turnAroundTime, SWITCH_DELAY);
+            Track = new Terrain(peakFrequency, turnAroundTime, SWITCH_DELAY, stationFrequencies);
             DEBUG = debug;
 
             TurnaroundTime = turnAroundTime;
@@ -93,6 +95,7 @@ namespace Uithoflijn
                 var next = EventQueue.Min();
                 EventQueue.DeleteMin();
 
+                WriteState(this, string.Concat($"[{next.TriggerTime}]", BuildState()));
                 DebugLine(this, next);
 
                 if (next.Type == TransportArgsType.ExpectedArrival)
@@ -127,6 +130,21 @@ namespace Uithoflijn
                 TotalWaitingTime = Track.Vertices.Sum(wait => (double)wait.TotalWaitingTime / wait.TotalPassengersServiced),
                 MaximumDepartureLateness = MaxDepartureLateness
             };
+        }
+
+        private string BuildState()
+        {
+            var stationData = new List<string>();
+
+            foreach (var vertex in Track.Vertices.OrderBy(b => b.Id))
+            {
+                var tramsHere = Trams.Where(v => v.CurrentStation == vertex)
+                                     .Select(t => $"[ ID{t.Id}_P{t.CurrentPassengers} ]");
+
+                stationData.Add(string.Concat($"/S{vertex.Id}/", string.Join(",", tramsHere)));
+            }
+
+            return string.Join("______", stationData);
         }
 
         public void HandleExpectedDeparture(object sender, TransportArgs e)

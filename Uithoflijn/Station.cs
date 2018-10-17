@@ -22,12 +22,17 @@ namespace Uithoflijn
 
     public class Station
     {
+        public List<InputRow> GoingDistrubutions { get; set; }
+        public List<InputRow> ComingDistrubutions { get; set; }
+
         public Station(int minSwitchDelay)
         {
             Trams = new Queue<Tram>();
             ArrivalClasses = new Dictionary<ArrivalClass, int>();
             SwitchUsedLast = -1;
             _switchDelay = minSwitchDelay;
+            GoingDistrubutions = new List<InputRow>();
+            ComingDistrubutions = new List<InputRow>();
         }
 
         public Dictionary<ArrivalClass, int> ArrivalClasses { get; set; }
