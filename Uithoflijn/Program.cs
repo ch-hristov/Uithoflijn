@@ -19,10 +19,7 @@ namespace Uithoflijn
 
         public int LatenessThreshold { get; }
 
-        public Program(int latenessThreshold = 60)
-        {
-            LatenessThreshold = latenessThreshold;
-        }
+        public Program(int latenessThreshold = 60) => LatenessThreshold = latenessThreshold;
 
         public static void Main(string[] args)
         {
@@ -32,7 +29,6 @@ namespace Uithoflijn
             var tramNumbers = new List<int>();
 
             const int sec = 180;
-
             for (var seconds = 15 * 60; seconds > 1 * 60; seconds -= sec) { testFrequencies.Add(seconds); }
             for (var seconds = 5 * 60; seconds > 2 * 60; seconds -= sec) { turnAroundTimes.Add(seconds); }
             for (var tramCounts = 20; tramCounts >= AT_LEAST_COUNT_TRAMS; tramCounts--) { tramNumbers.Add(tramCounts); }
@@ -64,12 +60,10 @@ namespace Uithoflijn
         /// <returns></returns>
         public IEnumerable<TramStatistics> Run(List<(int frequency, int tramCount, int turnAroundTime)> testValues, IEnumerable<InputRow> stationFrequencies = null)
         {
-
             //every item in validationData contains the information for a file.
             //1-st item for example has n items which correspond to the rows in the file
             //2-nd same etc for another file.. you can decide what to do with them but 
             //make sure u dont break anything
-
             var output = new ConcurrentBag<string>();
             var fileStatistics = new ConcurrentBag<TramStatistics>();
             var concurrentAccessStationsFreq = new ConcurrentBag<InputRow>(stationFrequencies);
@@ -127,9 +121,7 @@ namespace Uithoflijn
                         sm.WriteState += (send, arg) =>
                         {
                             if (DEBUG)
-                            {
                                 visWriter.WriteLine(arg);
-                            }
                         };
 
                         var statistics = sm.Start(turnAroundTime, tramFrequency, tramCount, LatenessThreshold, DEBUG, concurrentAccessStationsFreq);
@@ -161,12 +153,8 @@ namespace Uithoflijn
 
                 // delete temp stuff if debug mode is off X_X
                 if (!DEBUG)
-                {
                     if (File.Exists(debugFile))
-                    {
                         File.Delete(debugFile);
-                    }
-                }
 
                 progress++;
                 Console.WriteLine($"Progress : {Math.Round(progress / total * 100, 1)}%");
