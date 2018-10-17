@@ -780,28 +780,30 @@
     ]
   },
   "packageFolders": {
-    "/Users/pavlospanteliadis/.nuget/packages/": {},
-    "/usr/local/share/dotnet/sdk/NuGetFallbackFolder": {}
+    "C:\\Users\\hrist\\.nuget\\packages\\": {},
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/pavlospanteliadis/working/UU/Algorithms for decision support/project/Uithoflijn/Uithoflijn/Uithoflijn.csproj",
+      "projectUniqueName": "C:\\Users\\hrist\\source\\repos\\Uithoflijn\\Uithoflijn\\Uithoflijn.csproj",
       "projectName": "Uithoflijn",
-      "projectPath": "/Users/pavlospanteliadis/working/UU/Algorithms for decision support/project/Uithoflijn/Uithoflijn/Uithoflijn.csproj",
-      "packagesPath": "/Users/pavlospanteliadis/.nuget/packages/",
-      "outputPath": "/Users/pavlospanteliadis/working/UU/Algorithms for decision support/project/Uithoflijn/Uithoflijn/obj",
+      "projectPath": "C:\\Users\\hrist\\source\\repos\\Uithoflijn\\Uithoflijn\\Uithoflijn.csproj",
+      "packagesPath": "C:\\Users\\hrist\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\hrist\\source\\repos\\Uithoflijn\\Uithoflijn\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
-        "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
+        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
       ],
       "configFilePaths": [
-        "/Users/pavlospanteliadis/.config/NuGet/NuGet.Config"
+        "C:\\Users\\hrist\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "netcoreapp2.1"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -820,21 +822,20 @@
         "dependencies": {
           "C5": {
             "target": "Package",
-            "version": "2.5.3"
+            "version": "[2.5.3, )"
           },
           "MathNet.Numerics": {
             "target": "Package",
-            "version": "4.5.1"
+            "version": "[4.5.1, )"
+          },
+          "Microsoft.NETCore.App": {
+            "target": "Package",
+            "version": "[2.1.0, )",
+            "autoReferenced": true
           },
           "QuickGraph": {
             "target": "Package",
-            "version": "3.6.61119.7"
-          },
-          "Microsoft.NETCore.App": {
-            "suppressParent": "All",
-            "target": "Package",
-            "version": "2.1.0",
-            "autoReferenced": true
+            "version": "[3.6.61119.7, )"
           }
         },
         "imports": [

@@ -103,14 +103,14 @@ namespace Uithoflijn
 
             var timetablePR = new Timetable(new[]
             {
-                new FrequencyInterval { Start = 0 /* start at the beggining of simulation*/, End = hour , Frequency  = fifteenMin},
+                new FrequencyInterval { Start = 0, End = hour , Frequency  = fifteenMin},
                 new FrequencyInterval { Start = hour, End = totalWorkTime - (int)TimeSpan.FromHours(2).TotalSeconds, Frequency = frequency},
                 new FrequencyInterval { Start = hour + peakHours , End = totalWorkTime, Frequency = fifteenMin}
             });
 
             var timeTableUithof = new Timetable(new[]
             {
-                new FrequencyInterval { Start = offset /* start at the beggining of simulation*/, End = hour , Frequency  = fifteenMin},
+                new FrequencyInterval { Start = offset, End = hour , Frequency  = fifteenMin},
                 new FrequencyInterval { Start = hour, End = totalWorkTime - (int)TimeSpan.FromHours(2).TotalSeconds, Frequency = frequency},
                 new FrequencyInterval { Start = hour + peakHours , End = totalWorkTime, Frequency = fifteenMin}
             });

@@ -242,6 +242,7 @@ namespace Uithoflijn
                 //Get next departure time
                 var nextDepartureTime = e.ToStation.Timetable.GetNextDepartureTime(tramDepartureFromTerminal);
 
+                //we're done
                 if (nextDepartureTime == null) return;
 
                 var dep = nextDepartureTime.Value;
@@ -259,9 +260,7 @@ namespace Uithoflijn
                 {
                     e.Tram.WasLate = true;
                     if (punctuality > MaxDepartureLateness)
-                    {
                         MaxDepartureLateness = punctuality;
-                    }
                 }
 
                 //arriving early is good :))))
@@ -285,9 +284,7 @@ namespace Uithoflijn
             var min = 0;
 
             if (e.ToStation.TimeOfLastTram.HasValue)
-            {
                 min = e.ToStation.TimeOfLastTram.Value;
-            }
 
             // handle boarding ? how many people can board?
             totalDisembarkingPassengers = e.Tram.GetDisembarkingPassengers(e.ToStation, e.TriggerTime);

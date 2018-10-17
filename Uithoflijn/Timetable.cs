@@ -45,7 +45,9 @@ namespace Uithoflijn
             foreach (var interval in FrequencyIntervals)
             {
                 var start = interval.Start;
+
                 var end = interval.End;
+
                 var freq = interval.Frequency;
 
                 for (int i = start; i <= end; i += freq)
@@ -73,9 +75,7 @@ namespace Uithoflijn
             for (int i = departTime; i < Count; i++)
             {
                 if (this[i] == 1)
-                {
                     return i;
-                }
             }
 
             return null;

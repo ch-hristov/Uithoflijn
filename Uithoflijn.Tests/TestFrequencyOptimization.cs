@@ -18,8 +18,8 @@ namespace Uithoflijn.Tests
             };
 
             var results = new Program().Run(list);
-
             Console.WriteLine(results.FirstOrDefault());
+
             Assert.IsTrue(results.Single().HighLatenessTrams == 0);
         }
     }

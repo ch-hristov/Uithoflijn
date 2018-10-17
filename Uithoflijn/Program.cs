@@ -14,13 +14,8 @@ namespace Uithoflijn
         /// <summary>
         /// Enable this to track the results
         /// </summary>
-        private const int TEST_COUNTS = 10;
         public static bool DEBUG = false;
-
-        public const int AT_LEAST_COUNT_TRAMS = 1;
-
-        public const int TURNAROUND_TIME_MIN = 300;
-        public const int TURNAROUND_TIME_TEST_FREQ = 15;
+        private const int AT_LEAST_COUNT_TRAMS = 1;
 
         public int LatenessThreshold { get; }
 
@@ -59,7 +54,6 @@ namespace Uithoflijn
 
         public IEnumerable<TramStatistics> Run(List<(int frequency, int tramCount, int turnAroundTime)> testValues)
         {
-            //TODO: do stuff with this??
             var validationData = ValidationFileReader.ReadValidationFolder();
             //every item in validationData contains the information for a file.
             //1-st item for example has n items which correspond to the rows in the file
@@ -91,7 +85,7 @@ namespace Uithoflijn
                     File.Delete(statisticsFile);
                 }
 
-                //guarantee the debug files are deleted..
+                // guarantee the debug files are deleted..
                 Thread.Sleep(50);
 
                 if (!Directory.Exists("stat")) Directory.CreateDirectory("stat");
@@ -134,7 +128,7 @@ namespace Uithoflijn
 
                         if (string.IsNullOrEmpty(header)) { header = statistics.GetHeader(); }
 
-                        var data = $"{turnAroundTime};{tramFrequency};{tramCount};{statistics.ToString()}";
+                        var data = $"{turnAroundTime},{tramFrequency},{tramCount},{statistics.ToString()}";
                         output.Add(data);
 
                         statisticsWriter.WriteLine("Station,id,avg_wait_time,total_passengers_serviced");
@@ -146,14 +140,16 @@ namespace Uithoflijn
 
                 // delete temp stuff if debug mode is off X_X
                 if (!DEBUG)
+                {
                     if (File.Exists(debugFile))
+                    {
                         File.Delete(debugFile);
+                    }
+                }
 
                 progress++;
                 Console.WriteLine($"Progress : {Math.Round(progress / total * 100, 1)}%");
             });
-
-
             var final = new List<string>(output);
 
             final.Insert(0, string.Concat("q;freq;tramcnt;", header));
