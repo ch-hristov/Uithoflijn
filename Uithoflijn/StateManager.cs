@@ -86,7 +86,6 @@ namespace Uithoflijn
                     TriggerTime = tramDelay + GetTravelTime(nextTram.CurrentStation, Track.NextStation(nextTram.CurrentStation))
                     //normally + part is 0 as its from depot
                 });
-
                 tramDelay++;
             }
 
@@ -114,10 +113,8 @@ namespace Uithoflijn
             }
 
             var totalServedInDay = 0;
-            foreach (var tram in Trams)
-            {
-                totalServedInDay += tram.ServedPassengers;
-            }
+
+            foreach (var tram in Trams) totalServedInDay += tram.ServedPassengers;
 
             // return output statistics for the output analysis
             return new TramStatistics()

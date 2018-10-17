@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Uithoflijn
@@ -22,18 +23,18 @@ namespace Uithoflijn
         /// </summary>
         /// <param name="dir"></param>
         /// <returns></returns>
-        public List<List<InputRow>> ReadDirectory(string dir)
+        public List<(string, List<InputRow>)> ReadDirectory(string dir)
         {
-            var validations = new List<List<InputRow>>();
+            var validations = new List<(string, List<InputRow>)>();
 
             //read all csv files for testing
             foreach (var file in Directory.EnumerateFiles(dir, "*.csv"))
-                validations.Add(ReadFile(file));
+                validations.Add((file, ReadFile(file)));
 
             return validations;
         }
 
-        public static List<List<InputRow>> ReadValidationFolder()
+        public static List<(string, List<InputRow>)> ReadValidationFolder()
         {
             return new ValidationFileReader().ReadDirectory("validation");
         }
@@ -41,6 +42,10 @@ namespace Uithoflijn
 
     public class InputRow
     {
+        public InputRow()
+        {
+
+        }
         public InputRow(string[] data)
         {
             Stop = data[0];
@@ -57,5 +62,18 @@ namespace Uithoflijn
         public double To { get; set; }
         public double PassIn { get; set; }
         public double PassOut { get; set; }
+
+        public InputRow Clone()
+        {
+            return new InputRow()
+            {
+                Direction = Direction,
+                From = From,
+                PassIn = PassIn,
+                PassOut = PassOut,
+                Stop = Stop,
+                To = To
+            };
+        }
     }
 }

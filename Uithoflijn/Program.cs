@@ -49,7 +49,7 @@ namespace Uithoflijn
             var validationData = ValidationFileReader.ReadValidationFolder();
 
             foreach (var validationSet in validationData)
-                new Program().Run(testValues, validationSet);
+                new Program().Run(validationSet.Item1, testValues, validationSet.Item2);
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace Uithoflijn
         /// <param name="testValues"></param>
         /// <param name="stationFrequencies"></param>
         /// <returns></returns>
-        public IEnumerable<TramStatistics> Run(List<(int frequency, int tramCount, int turnAroundTime)> testValues, IEnumerable<InputRow> stationFrequencies = null)
+        public IEnumerable<TramStatistics> Run(string fileName, List<(int frequency, int tramCount, int turnAroundTime)> testValues, IEnumerable<InputRow> stationFrequencies = null)
         {
             //every item in validationData contains the information for a file.
             //1-st item for example has n items which correspond to the rows in the file
@@ -66,7 +66,6 @@ namespace Uithoflijn
             //make sure u dont break anything
             var output = new ConcurrentBag<string>();
             var fileStatistics = new ConcurrentBag<TramStatistics>();
-            var concurrentAccessStationsFreq = new ConcurrentBag<InputRow>(stationFrequencies);
 
             var total = testValues.Count;
             var progress = 0.0;
@@ -77,16 +76,20 @@ namespace Uithoflijn
                 MaxDegreeOfParallelism = DEBUG ? 1 : 8
             }, tuple =>
             {
+                var concurrentAccessStationsFreq = new ConcurrentBag<InputRow>(stationFrequencies.Select(x => x.Clone()));
                 var tramFrequency = tuple.frequency;
                 var tramCount = tuple.tramCount;
                 var turnAroundTime = tuple.turnAroundTime;
 
-                var debugFile = $"debug/{tramFrequency}_{tramCount}_{turnAroundTime}.txt";
-                var statisticsFile = $"stat/STAT_{tramFrequency}_{tramCount}_{turnAroundTime}.txt";
-                var visualizeFile = $"vis/vis_{tramFrequency}_{tramCount}_{turnAroundTime}.txt";
+                var realName = Path.GetFileNameWithoutExtension(fileName);
+
+                var debugFile = $"debug/{realName}_{tramFrequency}_{tramCount}_{turnAroundTime}.txt";
+                var statisticsFile = $"stat/STAT_{realName}_{tramFrequency}_{tramCount}_{turnAroundTime}.txt";
+                var visualizeFile = $"vis/vis_{realName}_{tramFrequency}_{tramCount}_{turnAroundTime}.txt";
 
                 if (File.Exists(debugFile))
                 {
+                    File.Delete(visualizeFile);
                     File.Delete(debugFile);
                     File.Delete(statisticsFile);
                 }
@@ -124,7 +127,10 @@ namespace Uithoflijn
                                 visWriter.WriteLine(arg);
                         };
 
-                        var statistics = sm.Start(turnAroundTime, tramFrequency, tramCount, LatenessThreshold, DEBUG, concurrentAccessStationsFreq);
+                        var statistics = sm.Start(turnAroundTime, tramFrequency,
+                                                  tramCount, LatenessThreshold,
+                                                  DEBUG, concurrentAccessStationsFreq);
+
                         fileStatistics.Add(statistics);
 
                         if (DEBUG)
@@ -163,12 +169,13 @@ namespace Uithoflijn
             var final = new List<string>(output);
 
             final.Insert(0, string.Concat("q,freq,tramcnt,", header));
-            File.WriteAllLines("output.csv", final);
+            File.WriteAllLines($"output_{Path.GetFileNameWithoutExtension(fileName)}.csv", final);
 
             if (DEBUG) Console.WriteLine(final.Aggregate((a, b) => a + Environment.NewLine + b));
 
             return fileStatistics;
         }
+
 
         public static double ComputeCycleLength()
         {

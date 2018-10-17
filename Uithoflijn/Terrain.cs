@@ -8,12 +8,12 @@ namespace Uithoflijn
 {
     public class Terrain : AdjacencyGraph<Station, UEdge>
     {
-        private const string T1 = "Centraal Station";
+        private const string T1 = "Centraal Station Centrumzijde";
         private const string T2 = "P+R Uithof";
 
         public Terrain(int frequency, int turnaroundTime, int switchDelay, IEnumerable<InputRow> frequencies)
         {
-            var names = new List<string>() { T1, "Vaartsche Rijn", "Galgenwaard", "Kromme Rijn","Padualaan",
+            var names = new List<string>() { T1, "Vaartscherijn", "Galgenwaard", "Kromme Rijn","Padualaan",
                                                        "Heidelberglaan",  "UMC", "WKZ" , T2};
 
             var forward = new List<int>() { 134, 243, 59, 101, 60, 86, 78, 113 };
@@ -124,33 +124,33 @@ namespace Uithoflijn
             var psr = Vertices.FirstOrDefault(x => x.Name == T2).Timetable.ToString();
             var uff = Vertices.FirstOrDefault(x => x.Name == T1).Timetable.ToString();
 
-            var stationFrequencies = frequencies.ToLookup(v => v.Direction);
-
-            var going = stationFrequencies[0].ToList().GroupBy(x => x.Stop);
-            var coming = stationFrequencies[1].ToList().GroupBy(x => x.Stop);
-
-            foreach (var goingSt in Vertices)
+            if (frequencies != null)
             {
-                var forStation = going.FirstOrDefault(x => x.Key.Replace(".", " ") == goingSt.Name);
-                if (forStation != null)
-                    foreach (var val in forStation)
-                        goingSt.ComingDistrubutions.Add(val);
-            }
+                var stationFrequencies = frequencies.ToLookup(v => v.Direction);
+                var going = stationFrequencies[0].ToList().GroupBy(x => x.Stop);
+                var coming = stationFrequencies[1].ToList().GroupBy(x => x.Stop);
 
-            foreach (var comingSt in Vertices)
-            {
-                var forStation = coming.FirstOrDefault(x => x.Key.Replace(".", " ") == comingSt.Name);
-                if (forStation != null)
+                foreach (var goingSt in Vertices)
                 {
-                    foreach (var val in forStation)
-                        comingSt.GoingDistrubutions.Add(val);
+                    var forStation = going.FirstOrDefault(x => x.Key.Replace(".", " ") == goingSt.Name);
+                    if (forStation != null)
+                        foreach (var val in forStation)
+                            goingSt.ComingDistrubutions.Add(val);
                 }
-            }
 
-            foreach (var station in Vertices)
-            {
-                station.ComingDistrubutions = new List<InputRow>(station.ComingDistrubutions.OrderBy(x => x.From));
-                station.GoingDistrubutions = new List<InputRow>(station.GoingDistrubutions.OrderBy(x => x.From));
+                foreach (var comingSt in Vertices)
+                {
+                    var forStation = coming.FirstOrDefault(x => x.Key.Replace(".", " ") == comingSt.Name);
+                    if (forStation != null)
+                        foreach (var val in forStation)
+                            comingSt.GoingDistrubutions.Add(val);
+                }
+
+                foreach (var station in Vertices)
+                {
+                    station.ComingDistrubutions = new List<InputRow>(station.ComingDistrubutions.OrderBy(x => x.From));
+                    station.GoingDistrubutions = new List<InputRow>(station.GoingDistrubutions.OrderBy(x => x.From));
+                }
             }
 
         }
