@@ -3,9 +3,10 @@
     <Files>
       <File FileName="Uithoflijn/Utils.cs" Line="19" Column="1" />
       <File FileName="Uithoflijn/Tram.cs" Line="128" Column="1" />
-      <File FileName="Uithoflijn/StateManager.cs" Line="277" Column="31" />
-      <File FileName="Uithoflijn/Program.cs" Line="22" Column="45" />
-      <File FileName="Uithoflijn/Station.cs" Line="80" Column="1" NotebookId="1" />
+      <File FileName="Uithoflijn/Program.cs" Line="55" Column="43" />
+      <File FileName="Uithoflijn/ValidationFileReader.cs" Line="6" Column="18" />
+      <File FileName="Uithoflijn/Station.cs" Line="399" Column="13" NotebookId="1" />
+      <File FileName="Uithoflijn/StateManager.cs" Line="277" Column="31" NotebookId="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.ItemProperties.Uithoflijn PreferredExecutionTarget="MonoDevelop.Default" />

@@ -343,6 +343,18 @@ namespace Uithoflijn
 
         }
 
+        //<summary> Returns the index in the table for the coming passengers
+        // it will be a number between 0 and 4.
+        // For this to work. We assume that the ComingDistrubutions array is sorted as follows:
+        // [6-7], [7-9], [9-16], [16-18], [18,21.5] Where, [] are the array positions and inside the time window
+        public int GetIndex(int time) {
+            if (time <= 3600) return 0;
+            else if (time > 3600 && time <= 10800) return 1;
+            else if (time > 10800 && time <= 36000) return 2;
+            else if (time > 36000 && time <= 43200) return 3;
+            else return 4;
+        }
+
         public int GetEmbarkingPassengers(Tram tram, int time)
         {
             // Find the index in the array of lambdas for the poisson process.
@@ -382,6 +394,22 @@ namespace Uithoflijn
             // Generate the number of new arrival events *n* that will occur.
             Poisson pd = new Poisson(lambda);
             int n = pd.Sample();
+
+
+            int my_index = GetIndex(time);
+
+            // Deduct from the expected people the n we computed.
+            var shouldEnter = (int)this.ComingDistrubutions[my_index].PassIn;
+
+            if (shouldEnter - n >= 0) 
+            {
+                this.ComingDistrubutions[my_index].PassIn -= n;
+            }
+            else 
+            {
+                n = (int)this.ComingDistrubutions[my_index].PassIn;
+                this.ComingDistrubutions[my_index].PassIn = 0;
+            }
 
             // Initialize an array to store the arrival times t_i, i = {1,2,..., n}.
             int[] arrivals = new int[n];
