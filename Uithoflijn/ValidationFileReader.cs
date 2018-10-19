@@ -49,7 +49,6 @@ namespace Uithoflijn
         public InputRow(string[] data)
         {
             Stop = data[0];
-            Console.WriteLine(data[1]);
             Direction = int.Parse(data[1]);
             From = double.Parse(data[2]);
             To = double.Parse(data[3]);

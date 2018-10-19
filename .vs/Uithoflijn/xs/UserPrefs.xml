@@ -1,13 +1,12 @@
 ﻿<Properties StartupConfiguration="{CA52AFCA-804B-47E8-9135-294F197EAB20}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Uithoflijn/ValidationFileReader.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Uithoflijn/StateManager.cs">
     <Files>
       <File FileName="Uithoflijn/Utils.cs" Line="19" Column="1" />
-      <File FileName="Uithoflijn/Tram.cs" Line="49" Column="1" />
-      <File FileName="Uithoflijn/ValidationFileReader.cs" Line="52" Column="1" />
-      <File FileName="Uithoflijn/Station.cs" Line="1" Column="1" NotebookId="1" />
-      <File FileName="Uithoflijn/StateManager.cs" Line="1" Column="1" NotebookId="1" />
+      <File FileName="Uithoflijn/Tram.cs" Line="50" Column="36" />
+      <File FileName="Uithoflijn/ValidationFileReader.cs" Line="51" Column="28" />
+      <File FileName="Uithoflijn/StateManager.cs" Line="128" Column="77" />
       <File FileName="Uithoflijn/Terrain.cs" Line="1" Column="1" NotebookId="1" />
-      <File FileName="Uithoflijn/Program.cs" Line="1" Column="1" NotebookId="1" />
+      <File FileName="Uithoflijn/Program.cs" Line="150" Column="101" NotebookId="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.ItemProperties.Uithoflijn PreferredExecutionTarget="MonoDevelop.Default" />

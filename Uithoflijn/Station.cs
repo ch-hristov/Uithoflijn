@@ -431,14 +431,14 @@ namespace Uithoflijn
                 total_waiting_time += time - arrivals[i];
             }
 
-            TotalWaitingTime += total_waiting_time;
+            this.TotalWaitingTime += total_waiting_time;
 
             return n;
         }
 
         public void IncrementLeftBehindAverageWaiting(int time)
         {
-            TotalWaitingTime += LeftBehind * time;
+            this.TotalWaitingTime += LeftBehind * time;
         }
 
     }
