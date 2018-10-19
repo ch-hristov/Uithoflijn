@@ -147,7 +147,7 @@ namespace Uithoflijn
 
                         if (string.IsNullOrEmpty(header)) { header = statistics.GetHeader(); }
 
-                        var data = $"{turnAroundTime},{tramFrequency},{tramCount},{statistics.ToString()}";
+                        var data = $"{realName},{turnAroundTime},{tramFrequency},{tramCount},{statistics.ToString()}";
                         output.Add(data);
 
                         statisticsWriter.WriteLine("Station,id,avg_wait_time,total_passengers_serviced");
@@ -168,7 +168,7 @@ namespace Uithoflijn
 
             var final = new List<string>(output);
 
-            final.Insert(0, string.Concat("q,freq,tramcnt,", header));
+            final.Insert(0, string.Concat("file,q,freq,tramcnt,", header));
             File.WriteAllLines($"output_{Path.GetFileNameWithoutExtension(fileName)}.csv", final);
 
             if (DEBUG) Console.WriteLine(final.Aggregate((a, b) => a + Environment.NewLine + b));

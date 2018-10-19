@@ -124,7 +124,9 @@ namespace Uithoflijn
                 TotalDelay = TotalDelay,
                 StationPassengerCongestion = 0,
                 HighLatenessTrams = Trams.Count(x => x.WasLate),
-                TotalWaitingTime = Track.Vertices.Sum(wait => (double)wait.TotalWaitingTime / wait.TotalPassengersServiced),
+                TotalWaitingTime = Track.Vertices
+                                        .Where(wait => wait.TotalPassengersServiced != 0)
+                                        .Sum(wait => (double)wait.TotalWaitingTime / wait.TotalPassengersServiced),
                 MaximumDepartureLateness = MaxDepartureLateness
             };
         }
