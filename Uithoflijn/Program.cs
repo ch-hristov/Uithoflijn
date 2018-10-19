@@ -177,7 +177,7 @@ namespace Uithoflijn
         }
 
 
-        public static double ComputeCycleLength()x
+        public static double ComputeCycleLength()
         {
             var dt = new DateTime(01, 1, 1, 6, 30, 0);
             var dt2 = new DateTime(01, 1, 1, 21, 30, 0);
