@@ -105,14 +105,14 @@ namespace Uithoflijn
             {
                 new FrequencyInterval { Start = 0, End = hour , Frequency  = fifteenMin},
                 new FrequencyInterval { Start = hour, End = totalWorkTime - (int)TimeSpan.FromHours(2).TotalSeconds, Frequency = frequency},
-                new FrequencyInterval { Start = hour + peakHours , End = totalWorkTime, Frequency = fifteenMin}
+                new FrequencyInterval { Start = totalWorkTime - (int)TimeSpan.FromHours(2).TotalSeconds , End = totalWorkTime, Frequency = fifteenMin}
             });
 
             var timeTableUithof = new Timetable(new[]
             {
                 new FrequencyInterval { Start = offset, End = hour , Frequency  = fifteenMin},
                 new FrequencyInterval { Start = hour, End = totalWorkTime - (int)TimeSpan.FromHours(2).TotalSeconds, Frequency = frequency},
-                new FrequencyInterval { Start = hour + peakHours , End = totalWorkTime, Frequency = fifteenMin}
+                new FrequencyInterval { Start = totalWorkTime - (int)TimeSpan.FromHours(2).TotalSeconds , End = totalWorkTime, Frequency = fifteenMin}
             });
 
             //--------- this section builds the timetables at the terminal stations

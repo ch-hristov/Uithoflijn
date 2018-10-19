@@ -14,7 +14,7 @@ namespace Uithoflijn
         /// <summary>
         /// Enable this to track the results
         /// </summary>
-        public static bool DEBUG = true;
+        public static bool DEBUG = false;
         private const int AT_LEAST_COUNT_TRAMS = 1;
 
         public int LatenessThreshold { get; }
@@ -28,7 +28,7 @@ namespace Uithoflijn
             var turnAroundTimes = new List<int>();
             var tramNumbers = new List<int>();
 
-            const int sec = 180;
+            const int sec = 30;
             for (var seconds = 15 * 60; seconds > 1 * 60; seconds -= sec) { testFrequencies.Add(seconds); }
             for (var seconds = 5 * 60; seconds > 2 * 60; seconds -= sec) { turnAroundTimes.Add(seconds); }
             for (var tramCounts = 20; tramCounts >= AT_LEAST_COUNT_TRAMS; tramCounts--) { tramNumbers.Add(tramCounts); }
@@ -53,11 +53,11 @@ namespace Uithoflijn
         }
 
         /// <summary>
-        /// 
+        /// Start a simulation with the provided file name
         /// </summary>
-        /// <param name="testValues"></param>
-        /// <param name="stationFrequencies"></param>
-        /// <returns></returns>
+        /// <param name="testValues">data to test for in format( frequency, tram count, turnaround freq(q))</param>
+        /// <param name="stationFrequencies">Predefined frequencies for the stations to use(can be used with the validation set)</param>
+        /// <returns>Results of the analysis for each result item in <paramref name="testValues"/> </returns>
         public IEnumerable<TramStatistics> Run(string fileName, List<(int frequency, int tramCount, int turnAroundTime)> testValues, IEnumerable<InputRow> stationFrequencies = null)
         {
             //every item in validationData contains the information for a file.
@@ -177,7 +177,7 @@ namespace Uithoflijn
         }
 
 
-        public static double ComputeCycleLength()
+        public static double ComputeCycleLength()x
         {
             var dt = new DateTime(01, 1, 1, 6, 30, 0);
             var dt2 = new DateTime(01, 1, 1, 21, 30, 0);
