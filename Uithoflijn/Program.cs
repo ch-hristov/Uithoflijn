@@ -15,6 +15,7 @@ namespace Uithoflijn
         /// Enable this to track the results
         /// </summary>
         public static bool DEBUG = false;
+        public static bool RUN_VALIDATION = false;
         private const int AT_LEAST_COUNT_TRAMS = 1;
 
         public int LatenessThreshold { get; }
@@ -33,7 +34,7 @@ namespace Uithoflijn
             for (var seconds = 5 * 60; seconds > 2 * 60; seconds -= sec) { turnAroundTimes.Add(seconds); }
             for (var tramCounts = 20; tramCounts >= AT_LEAST_COUNT_TRAMS; tramCounts--) { tramNumbers.Add(tramCounts); }
 
-            //check if debugger is attached to guarantee nice debugging
+            //check if debugger is attached to guarantee nice debugging 
             if (Debugger.IsAttached) DEBUG = true;
 
             //The values for the tram counts we're testing
@@ -46,10 +47,18 @@ namespace Uithoflijn
                         testValues.Add((tramFrequency, tramCount, turnAroundFreq));
 
 
-            var validationData = ValidationFileReader.ReadValidationFolder();
+            if (RUN_VALIDATION)
+            {
+                var validationData = ValidationFileReader.ReadValidationFolder();
 
-            foreach (var validationSet in validationData)
-                new Program().Run(validationSet.Item1, testValues, validationSet.Item2);
+                foreach (var validationSet in validationData)
+                    new Program().Run(validationSet.Item1, testValues, validationSet.Item2);
+            }
+
+            else
+            {
+                new Program().Run("real", testValues, null);
+            }
         }
 
         /// <summary>
@@ -58,7 +67,9 @@ namespace Uithoflijn
         /// <param name="testValues">data to test for in format( frequency, tram count, turnaround freq(q))</param>
         /// <param name="stationFrequencies">Predefined frequencies for the stations to use(can be used with the validation set)</param>
         /// <returns>Results of the analysis for each result item in <paramref name="testValues"/> </returns>
-        public IEnumerable<TramStatistics> Run(string fileName, List<(int frequency, int tramCount, int turnAroundTime)> testValues, IEnumerable<InputRow> stationFrequencies = null)
+        public IEnumerable<TramStatistics> Run(string fileName,
+                                                List<(int frequency, int tramCount, int turnAroundTime)> testValues,
+                                               IEnumerable<InputRow> stationFrequencies = null)
         {
             //every item in validationData contains the information for a file.
             //1-st item for example has n items which correspond to the rows in the file
@@ -76,6 +87,7 @@ namespace Uithoflijn
                 MaxDegreeOfParallelism = DEBUG ? 1 : 8
             }, tuple =>
             {
+
                 var concurrentAccessStationsFreq = new ConcurrentBag<InputRow>(stationFrequencies.Select(x => x.Clone()));
                 var tramFrequency = tuple.frequency;
                 var tramCount = tuple.tramCount;
