@@ -15,7 +15,7 @@ namespace Uithoflijn
         /// Enable this to track the results
         /// </summary>
         public static bool DEBUG = false;
-        public static bool RUN_VALIDATION = false;
+        public static bool RUN_VALIDATION = true;
         private const int AT_LEAST_COUNT_TRAMS = 1;
 
         public int LatenessThreshold { get; }
@@ -54,11 +54,6 @@ namespace Uithoflijn
                 foreach (var validationSet in validationData)
                     new Program().Run(validationSet.Item1, testValues, validationSet.Item2);
             }
-
-            else
-            {
-                new Program().Run("real", testValues, null);
-            }
         }
 
         /// <summary>
@@ -87,7 +82,6 @@ namespace Uithoflijn
                 MaxDegreeOfParallelism = DEBUG ? 1 : 8
             }, tuple =>
             {
-
                 var concurrentAccessStationsFreq = new ConcurrentBag<InputRow>(stationFrequencies.Select(x => x.Clone()));
                 var tramFrequency = tuple.frequency;
                 var tramCount = tuple.tramCount;
