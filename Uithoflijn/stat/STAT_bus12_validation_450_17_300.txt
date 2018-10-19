@@ -1,0 +1,18 @@
+Station,id,avg_wait_time,total_passengers_serviced
+Centraal Station Centrumzijde,0,NaN,0
+Vaartscherijn,1,220.240740740741,270
+Galgenwaard,2,221.2037470726,427
+Kromme Rijn,3,212.54028436019,211
+Padualaan,4,237.343137254902,306
+Heidelberglaan,5,245.30303030303,429
+UMC,6,216.371428571429,70
+WKZ,7,228.698461538462,325
+P+R Uithof,8,0,3
+WKZ,9,159.5,2
+UMC,10,280.25,12
+Heidelberglaan,11,220.128205128205,39
+Padualaan,12,250.614678899083,109
+Kromme Rijn,13,244.247787610619,113
+Galgenwaard,14,210.279069767442,43
+Vaartscherijn,15,299.681318681319,91
+Depot,-1,NaN,0
