@@ -34,9 +34,9 @@ namespace Uithoflijn
             return validations;
         }
 
-        public static List<(string, List<InputRow>)> ReadValidationFolder()
+        public static List<(string, List<InputRow>)> ReadValidationFolder(string folder)
         {
-            return new ValidationFileReader().ReadDirectory("validation");
+            return new ValidationFileReader().ReadDirectory(folder);
         }
     }
 

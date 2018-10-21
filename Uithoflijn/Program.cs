@@ -15,7 +15,7 @@ namespace Uithoflijn
         /// Enable this to track the results
         /// </summary>
         public static bool DEBUG = false;
-        public static bool RUN_VALIDATION = true;
+        public static bool RUN_VALIDATION_BUS_TESTING = true;
         private const int AT_LEAST_COUNT_TRAMS = 1;
 
         public int LatenessThreshold { get; }
@@ -47,13 +47,15 @@ namespace Uithoflijn
                         testValues.Add((tramFrequency, tramCount, turnAroundFreq));
 
 
-            if (RUN_VALIDATION)
+            if (RUN_VALIDATION_BUS_TESTING)
             {
-                var validationData = ValidationFileReader.ReadValidationFolder();
+                var validationData = ValidationFileReader.ReadValidationFolder("bus");
 
-                foreach (var validationSet in validationData)
-                    new Program().Run(validationSet.Item1, testValues, validationSet.Item2);
+                for (int i = 0; i < 10; i++)
+                    foreach (var validationSet in validationData)
+                        new Program().Run(validationSet.Item1, testValues, validationSet.Item2, i.ToString());
             }
+
         }
 
         /// <summary>
@@ -62,9 +64,11 @@ namespace Uithoflijn
         /// <param name="testValues">data to test for in format( frequency, tram count, turnaround freq(q))</param>
         /// <param name="stationFrequencies">Predefined frequencies for the stations to use(can be used with the validation set)</param>
         /// <returns>Results of the analysis for each result item in <paramref name="testValues"/> </returns>
-        public IEnumerable<TramStatistics> Run(string fileName,
+        public IEnumerable<TramStatistics> Run(
+                                                string fileName,
                                                 List<(int frequency, int tramCount, int turnAroundTime)> testValues,
-                                               IEnumerable<InputRow> stationFrequencies = null)
+                                               IEnumerable<InputRow> stationFrequencies = null,
+                                               string runIdentifier = "")
         {
             //every item in validationData contains the information for a file.
             //1-st item for example has n items which correspond to the rows in the file
@@ -175,7 +179,10 @@ namespace Uithoflijn
             var final = new List<string>(output);
 
             final.Insert(0, string.Concat("file,q,freq,tramcnt,", header));
-            File.WriteAllLines($"output_{Path.GetFileNameWithoutExtension(fileName)}.csv", final);
+
+            var finalName = $"output_{Path.GetFileNameWithoutExtension(fileName)}_{runIdentifier}.csv";
+
+            File.WriteAllLines(finalName, final);
 
             if (DEBUG) Console.WriteLine(final.Aggregate((a, b) => a + Environment.NewLine + b));
 
