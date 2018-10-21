@@ -365,29 +365,79 @@ namespace Uithoflijn
             var lambda = 0.0;
             var direction = 1;
 
+            if (this.Id == -1) // Depot
+            {
+                return 0;
+            }
+
+            // First I'm gonna check the easy cases. Meaning, non-terminal stations
             // CS -> P+R Direction 1
-            if (Id == 0 && tram.PreviousTerminal.Id == 8)
+            if (Id >= 1 && Id <= 7)
             {
                 // If for any reason we are delayed, we have to go back to the data that we know.
                 if (index > RouteCStoPR.GetLength(0) - 1)
                     index = RouteCStoPR.GetLength(0) - 1;
 
                 lambda = RouteCStoPR[index, Id];
-                // Special case we are Centraal (id = 0) but we came from P+R
-            }
-            else if (Id >= 8)
-            {
-                direction = 0;
 
+                direction = 1;
+            }
+            else if (Id >= 9 && Id <= 15) 
+            {
+                // P+R to CS
                 // If for any reason we are delayed, we have to go back to the data that we know.
                 if (index > RoutePRtoCS.GetLength(0) - 1)
                     index = RoutePRtoCS.GetLength(0) - 1;
 
                 lambda = RoutePRtoCS[index, Id - 8];
+
+                direction = 0;
             }
-            else // Depot
+
+            // Case1: we are at CS
+            if (Id == 0)
             {
-                return 0;
+                // Case1.1: we are at CS and going to P+R
+                if (!tram.IsDirectionToCentraal)
+                {
+                    if (index > RouteCStoPR.GetLength(0) - 1)
+                        index = RouteCStoPR.GetLength(0) - 1;
+
+                    lambda = RouteCStoPR[index, Id];
+                    direction = 1;
+                }
+                else 
+                {
+                    // Case 1.2: We are at CS but this is the end of the line. Meaning, we came from P+R
+                    if (index > RoutePRtoCS.GetLength(0) - 1)
+                        index = RoutePRtoCS.GetLength(0) - 1;
+
+                    lambda = RoutePRtoCS[index, 8];
+                    direction = 0;
+                }
+            }
+
+            // Case 2: We are at P+R
+            if (Id == 8)
+            {
+                // Case 2.1: we are at P+R and going to CS
+                if (tram.IsDirectionToCentraal)
+                {
+                    if (index > RoutePRtoCS.GetLength(0) - 1)
+                        index = RoutePRtoCS.GetLength(0) - 1;
+
+                    lambda = RoutePRtoCS[index, 0];
+                    direction = 0;
+                }
+                else
+                {
+                    // Case 2.2: We are at P+R but this is the end of the line. Meaning, we came from UC
+                    if (index > RouteCStoPR.GetLength(0) - 1)
+                        index = RouteCStoPR.GetLength(0) - 1;
+
+                    lambda = RouteCStoPR[index, 8];
+                    direction = 1;
+                }
             }
 
             if (lambda == 0.0)
