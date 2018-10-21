@@ -358,38 +358,36 @@ namespace Uithoflijn
 
         public int GetEmbarkingPassengers(Tram tram, int time)
         {
-            if (Name.Contains("Cent"))
-            {
-                Console.WriteLine();
-            }
-
             // Find the index in the array of lambdas for the poisson process.
             var currDT = Utils.SecondsToDateTime(time);
             int index = FindAppropriateInterval(currDT);
 
-            double lambda = 0;
-            // CS -> P+R
-            if (Id >= 0 && Id <= 8)
+            var lambda = 0.0;
+            var direction = 1;
+
+            // CS -> P+R Direction 1
+            if (Id == 0 && tram.PreviousTerminal.Id == 8)
             {
                 // If for any reason we are delayed, we have to go back to the data that we know.
                 if (index > RouteCStoPR.GetLength(0) - 1)
                     index = RouteCStoPR.GetLength(0) - 1;
-                lambda = RouteCStoPR[index, Id];
-            }
-            else
-            {
-                if (Id == -1)
-                {
-                    return 0;
-                }
-                else
-                {
-                    // If for any reason we are delayed, we have to go back to the data that we know.
-                    if (index > RoutePRtoCS.GetLength(0) - 1)
-                        index = RoutePRtoCS.GetLength(0) - 1;
 
-                    lambda = RoutePRtoCS[index, Id - 8];
-                }
+                lambda = RouteCStoPR[index, Id];
+                // Special case we are Centraal (id = 0) but we came from P+R
+            }
+            else if (Id >= 8)
+            {
+                direction = 0;
+
+                // If for any reason we are delayed, we have to go back to the data that we know.
+                if (index > RoutePRtoCS.GetLength(0) - 1)
+                    index = RoutePRtoCS.GetLength(0) - 1;
+
+                lambda = RoutePRtoCS[index, Id - 8];
+            }
+            else // Depot
+            {
+                return 0;
             }
 
             if (lambda == 0.0)
@@ -401,16 +399,35 @@ namespace Uithoflijn
             var my_index = GetIndex(time);
 
             // Deduct from the expected people the n we computed.
-            var shouldEnter = (int)ComingDistrubutions[my_index].PassIn;
+            var shouldEnter = 0;
 
-            if (shouldEnter - n >= 0)
+            if (direction == 0)
             {
-                ComingDistrubutions[my_index].PassIn -= n;
+                shouldEnter = (int)ComingDistrubutions[my_index].PassIn;
+
+                if (shouldEnter - n >= 0)
+                {
+                    ComingDistrubutions[my_index].PassIn -= n;
+                }
+                else
+                {
+                    n = (int)ComingDistrubutions[my_index].PassIn;
+                    ComingDistrubutions[my_index].PassIn = 0;
+                }
             }
             else
             {
-                n = (int)ComingDistrubutions[my_index].PassIn;
-                ComingDistrubutions[my_index].PassIn = 0;
+                shouldEnter = (int)GoingDistrubutions[my_index].PassIn;
+
+                if (shouldEnter - n >= 0)
+                {
+                    GoingDistrubutions[my_index].PassIn -= n;
+                }
+                else
+                {
+                    n = (int)GoingDistrubutions[my_index].PassIn;
+                    GoingDistrubutions[my_index].PassIn = 0;
+                }
             }
 
             // Initialize an array to store the arrival times t_i, i = {1,2,..., n}.
@@ -436,7 +453,7 @@ namespace Uithoflijn
                 total_waiting_time += time - arrivals[i];
             }
 
-            this.TotalWaitingTime += total_waiting_time;
+            TotalWaitingTime += total_waiting_time;
 
             return n;
         }

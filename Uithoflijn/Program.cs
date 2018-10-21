@@ -14,7 +14,7 @@ namespace Uithoflijn
         /// <summary>
         /// Enable this to track the results
         /// </summary>
-        public static bool DEBUG = false;
+        public static bool DEBUG = true;
         public static bool RUN_VALIDATION_BUS_TESTING = true;
         private const int AT_LEAST_COUNT_TRAMS = 1;
 

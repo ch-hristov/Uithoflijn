@@ -57,19 +57,16 @@ namespace Uithoflijn
         {
             //Remember last active station
             if (CurrentStation != null)
-            {
                 LastActiveStation = CurrentStation;
-            }
 
             _currentStation = val;
         }
 
         public Station LastActiveStation { get; private set; }
+        public Station PreviousTerminal { get; internal set; }
 
         public int Lateness { get; internal set; }
         public bool WasLate { get; internal set; }
-
-        public Station PreviousTerminal { get; internal set; }
 
         public int GetDisembarkingPassengers(Station atStation, int time)
         {
