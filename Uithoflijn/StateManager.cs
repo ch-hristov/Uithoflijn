@@ -203,6 +203,7 @@ namespace Uithoflijn
             {
                 e.Tram.PreviousTerminal = e.FromStation;
                 e.Tram.DepartureFromPreviousTerminal = e.TriggerTime;
+                e.Tram.IsDirectionToCentraal = Track.GetPR() == e.FromStation;
             }
 
             // remove tram from station
