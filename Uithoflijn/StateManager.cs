@@ -199,7 +199,11 @@ namespace Uithoflijn
 
             //Remember when the tram departed from the terminal
             //to know in which timetable cycle it should arrive
-            if (e.FromStation.IsTerminal) e.Tram.DepartureFromPreviousTerminal = e.TriggerTime;
+            if (e.FromStation.IsTerminal)
+            {
+                e.Tram.PreviousTerminal = e.FromStation;
+                e.Tram.DepartureFromPreviousTerminal = e.TriggerTime;
+            }
 
             // remove tram from station
             e.FromStation.TimeOfLastTram = e.TriggerTime;
