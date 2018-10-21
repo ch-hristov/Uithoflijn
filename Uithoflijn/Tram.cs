@@ -124,7 +124,7 @@ namespace Uithoflijn
             }
 
             // Now that we have the probability, compute the number of passengers that come off. 
-            Binomial binomialDistribution = new Binomial(p, CurrentPassengers);
+            var binomialDistribution = new Binomial(p, CurrentPassengers);
 
             // Return the number of successes from the binomial given the number of passengers and the probability of exiting the station.
             int toDisembark = binomialDistribution.Sample();

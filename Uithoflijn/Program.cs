@@ -65,8 +65,8 @@ namespace Uithoflijn
         /// <param name="stationFrequencies">Predefined frequencies for the stations to use(can be used with the validation set)</param>
         /// <returns>Results of the analysis for each result item in <paramref name="testValues"/> </returns>
         public IEnumerable<TramStatistics> Run(
-                                                string fileName,
-                                                List<(int frequency, int tramCount, int turnAroundTime)> testValues,
+                                               string fileName,
+                                               List<(int frequency, int tramCount, int turnAroundTime)> testValues,
                                                IEnumerable<InputRow> stationFrequencies = null,
                                                string runIdentifier = "")
         {

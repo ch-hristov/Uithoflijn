@@ -187,8 +187,10 @@ namespace Uithoflijn
                 });
             }
             else
+            {
                 //enqueue it to the station for arrival when the other trams leave it
                 e.ToStation.Trams.Enqueue(e.Tram);
+            }
         }
 
         private void HandleDeparture(object sender, TransportArgs e)

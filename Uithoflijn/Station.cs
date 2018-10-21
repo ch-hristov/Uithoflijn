@@ -358,6 +358,11 @@ namespace Uithoflijn
 
         public int GetEmbarkingPassengers(Tram tram, int time)
         {
+            if (Name.Contains("Cent"))
+            {
+                Console.WriteLine();
+            }
+
             // Find the index in the array of lambdas for the poisson process.
             var currDT = Utils.SecondsToDateTime(time);
             int index = FindAppropriateInterval(currDT);
@@ -438,7 +443,7 @@ namespace Uithoflijn
 
         public void IncrementLeftBehindAverageWaiting(int time)
         {
-            this.TotalWaitingTime += LeftBehind * time;
+            TotalWaitingTime += LeftBehind * time;
         }
 
     }
