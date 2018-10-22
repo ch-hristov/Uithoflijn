@@ -14,6 +14,11 @@ namespace Uithoflijn
 
         public TransportArgsType Type { get; set; }
 
+        /// <summary>
+        /// Used by the priority queue
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public int CompareTo(TransportArgs other)
         {
             if (TriggerTime > other.TriggerTime) return 1;

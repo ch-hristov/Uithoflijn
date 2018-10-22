@@ -6,6 +6,12 @@ namespace Uithoflijn
 {
     public class Tram
     {
+        public Tram()
+        {
+            DepartureFromPreviousTerminal = int.MinValue;
+        }
+
+
         public bool IsDirectionToCentraal { get; set; }
 
         private Station _currentStation;

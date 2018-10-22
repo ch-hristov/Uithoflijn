@@ -28,7 +28,7 @@ namespace Uithoflijn
 
         public Station(int minSwitchDelay)
         {
-            Trams = new Queue<Tram>();
+            TramsQueue = new Queue<Tram>();
             ArrivalClasses = new Dictionary<ArrivalClass, int>();
             SwitchUsedLast = -1;
             _switchDelay = minSwitchDelay;
@@ -93,7 +93,7 @@ namespace Uithoflijn
 
         public int? TimeOfLastTram { get; set; }
 
-        public Queue<Tram> Trams { get; private set; }
+        public Queue<Tram> TramsQueue { get; private set; }
 
         public Tram CurrentTram { get; set; }
 

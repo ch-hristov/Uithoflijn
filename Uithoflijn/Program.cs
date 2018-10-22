@@ -17,6 +17,8 @@ namespace Uithoflijn
         public static bool DEBUG = false;
         public static bool RUN_VALIDATION_BUS_TESTING = true;
         private const int AT_LEAST_COUNT_TRAMS = 1;
+        public const int AVERAGING_RUNS_PER_FILE = 10;
+        public const int TOTAL_TRAMS_TESTED = 20;
 
         public int LatenessThreshold { get; }
 
@@ -25,14 +27,14 @@ namespace Uithoflijn
         public static void Main(string[] args)
         {
             //The values of the frequencies we're testing, issue at least every 40 seconds(otherwise we issue waaaay too fast)
-            var testFrequencies = new List<int>();
-            var turnAroundTimes = new List<int>();
+            var testFrequencies = new List<int>() { 240 };
+            var turnAroundTimes = new List<int>() { 300 };
             var tramNumbers = new List<int>();
 
-            const int sec = 30;
-            for (var seconds = 15 * 60; seconds > 1 * 60; seconds -= sec) { testFrequencies.Add(seconds); }
-            for (var seconds = 5 * 60; seconds > 2 * 60; seconds -= sec) { turnAroundTimes.Add(seconds); }
-            for (var tramCounts = 20; tramCounts >= AT_LEAST_COUNT_TRAMS; tramCounts--) { tramNumbers.Add(tramCounts); }
+            //const int sec = 30;
+            //for (var seconds = 15 * 60; seconds > 1 * 60; seconds -= sec) { testFrequencies.Add(seconds); }
+            //for (var seconds = 5 * 60; seconds > 2 * 60; seconds -= sec) { turnAroundTimes.Add(seconds); }
+            for (var tramCounts = TOTAL_TRAMS_TESTED; tramCounts >= AT_LEAST_COUNT_TRAMS; tramCounts--) { tramNumbers.Add(tramCounts); }
 
             //check if debugger is attached to guarantee nice debugging 
             if (Debugger.IsAttached) DEBUG = true;
@@ -49,9 +51,9 @@ namespace Uithoflijn
 
             if (RUN_VALIDATION_BUS_TESTING)
             {
-                var validationData = ValidationFileReader.ReadValidationFolder("bus");
+                var validationData = ValidationFileReader.ReadValidationFolder("validation");
 
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < AVERAGING_RUNS_PER_FILE; i++)
                     foreach (var validationSet in validationData)
                         new Program().Run(validationSet.Item1, testValues, validationSet.Item2, i.ToString());
             }
@@ -125,10 +127,8 @@ namespace Uithoflijn
                         sm.DebugLine += (send, arg) =>
                         {
                             if (DEBUG)
-                            {
                                 if (!string.IsNullOrEmpty(arg.ToString().Trim()))
                                     streamWriter.WriteLine(arg.ToString());
-                            }
                         };
 
                         sm.WriteState += (send, arg) =>
@@ -169,8 +169,10 @@ namespace Uithoflijn
 
                 // delete temp stuff if debug mode is off X_X
                 if (!DEBUG)
+                {
                     if (File.Exists(debugFile))
                         File.Delete(debugFile);
+                }
 
                 progress++;
                 Console.WriteLine($"Progress : {Math.Round(progress / total * 100, 1)}%");
@@ -180,26 +182,14 @@ namespace Uithoflijn
 
             final.Insert(0, string.Concat("file,q,freq,tramcnt,", header));
 
-            var finalName = $"output_{Path.GetFileNameWithoutExtension(fileName)}_{runIdentifier}.csv";
+            if (!Directory.Exists("answers")) Directory.CreateDirectory("answers");
+            var finalName = $"answers/output_{Path.GetFileNameWithoutExtension(fileName)}_{runIdentifier}.csv";
 
             File.WriteAllLines(finalName, final);
 
             if (DEBUG) Console.WriteLine(final.Aggregate((a, b) => a + Environment.NewLine + b));
 
             return fileStatistics;
-        }
-
-
-        public static double ComputeCycleLength()
-        {
-            var dt = new DateTime(01, 1, 1, 6, 30, 0);
-            var dt2 = new DateTime(01, 1, 1, 21, 30, 0);
-            return 0;
-        }
-
-        public void ComputeIntervalsInDay()
-        {
-            var dt1 = new DateTime(01, 1, 1, 1, 1, 1);
         }
     }
 }
