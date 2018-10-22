@@ -61,6 +61,8 @@ stations <- c("P+R.Uithof", "WKZ", "UMC","Heidelberglaan", "Padualaan","Kromme.R
 # dev.off()
 
 dir.create(file.path("plots"), showWarnings = FALSE)
+dir.create(file.path("plots/CS_TO_PR"), showWarnings = FALSE)
+dir.create(file.path("plots/PR_TO_CS"), showWarnings = FALSE)
 
 frequencies <- c(180, 360, 540, 720, 900)
 
@@ -137,8 +139,7 @@ filenames <- c("bus12_validation")
 
 turnaround.times <- c(150, 180, 210, 240, 300)
 
-dir.create(file.path("plots/CS_TO_PR"), showWarnings = FALSE)
-dir.create(file.path("plots/PR_TO_CS"), showWarnings = FALSE)
+
 
 for (file in filenames){
     for (turn in turnaround.times) {
