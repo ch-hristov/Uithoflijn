@@ -5,8 +5,15 @@
 #           performed for the project in Algorithms and Decision Support of Utrecht University    #
 ###################################################################################################
 
-require (reshape)
-require (ggplot2)
+if (!require("reshape")) {
+    library("reshape")
+    install.packages("reshape")
+}
+
+if (!require("ggplot2")) {
+    library("ggplot2")
+    install.packages("ggplot2")
+}
 
 # df <- read.csv("output.csv", sep = ';', header = TRUE)
 # Store the station names in a variable for easy iteration.
@@ -53,17 +60,18 @@ stations <- c("P+R.Uithof", "WKZ", "UMC","Heidelberglaan", "Padualaan","Kromme.R
 # punctuality.plot
 # dev.off()
 
+dir.create(file.path("plots"), showWarnings = FALSE)
 
 frequencies <- c(180, 360, 540, 720, 900)
 
-bus12.df <- read.csv('output_bus12_validation.csv', stringsAsFactors = FALSE)
-validation.1.df <- read.csv('output_input-data-passengers-01.csv', stringsAsFactors = FALSE)
-validation.2.df <- read.csv('output_input-data-passengers-02.csv', stringsAsFactors = FALSE)
-validation.3.df <- read.csv('output_input-data-passengers-03.csv', stringsAsFactors = FALSE)
-validation.4.df <- read.csv('output_input-data-passengers-04.csv', stringsAsFactors = FALSE)
-validation.6.df <- read.csv('output_input-data-passengers-06.csv', stringsAsFactors = FALSE)
-validation.15.df <- read.csv('output_input-data-passengers-015.csv', stringsAsFactors = FALSE)
-validation.25.df <- read.csv('output_input-data-passengers-025.csv', stringsAsFactors = FALSE)
+bus12.df <- read.csv('output_bus12_validation.csv', stringsAsFactors = FALSE, na.strings = "NaN")
+validation.1.df <- read.csv('output_input-data-passengers-01.csv', stringsAsFactors = FALSE, na.strings = "NaN")
+validation.2.df <- read.csv('output_input-data-passengers-02.csv', stringsAsFactors = FALSE, na.strings = "NaN")
+validation.3.df <- read.csv('output_input-data-passengers-03.csv', stringsAsFactors = FALSE, na.strings = "NaN")
+validation.4.df <- read.csv('output_input-data-passengers-04.csv', stringsAsFactors = FALSE, na.strings = "NaN")
+validation.6.df <- read.csv('output_input-data-passengers-06.csv', stringsAsFactors = FALSE, na.strings = "NaN")
+validation.15.df <- read.csv('output_input-data-passengers-015.csv', stringsAsFactors = FALSE, na.strings = "NaN")
+validation.25.df <- read.csv('output_input-data-passengers-025.csv', stringsAsFactors = FALSE, na.strings = "NaN")
 
 # Compine the dfs in to 1.
 df.melted.1 <- rbind(bus12.df, validation.1.df, validation.2.df, validation.3.df)
@@ -125,3 +133,56 @@ for (freq in frequencies) {
 
 
 
+filenames <- c("bus12_validation")
+
+turnaround.times <- c(150, 180, 210, 240, 300)
+
+dir.create(file.path("plots/CS_TO_PR"), showWarnings = FALSE)
+dir.create(file.path("plots/PR_TO_CS"), showWarnings = FALSE)
+
+for (file in filenames){
+    for (turn in turnaround.times) {
+        for (trams in 1:20) {
+            for (freq in frequencies) {
+                stat.df <- read.csv(paste("stat/STAT_", file, "_", freq, "_", trams, "_", turn, ".txt", sep = "" ), stringsAsFactors = T, na.strings = "NaN")
+                stat.df$avg_wait_time <- round(stat.df$avg_wait_time, digits = 2)
+                
+                stat.df[1,1]
+                
+                cs_to_pr <- stat.df[c(1:8),]
+                
+                pr_to_cs <- stat.df[c(9:16),]
+                
+                png(paste("plots/CS_TO_PR/serviced_passengers_per_station_", file, "_", freq, "_", trams, "_", turn, ".png",sep = ""))
+                print(
+                    ggplot(cs_to_pr, aes(x=Station, y=total_passengers_serviced)) +
+                        geom_bar(stat = "identity", position = 'dodge') +
+                        geom_text(aes(label=avg_wait_time), position=position_dodge(width=0.9), vjust=-0.25) +
+                        ylab("Serviced passengers") +
+                        scale_fill_discrete(name = "Data") +
+                        annotate("text", x=Inf, y=Inf, label=paste("Freq = ", freq), vjust=1.1, hjust=1) + 
+                        annotate("text", x=Inf, y=Inf, label=paste("Trams = ", trams), vjust=2.3, hjust=1) + 
+                        annotate("text", x=Inf, y=Inf, label=paste("Turnaround = ", turn), vjust=3.5, hjust=1) + 
+                        theme(axis.text.x = element_text(angle = 45, hjust = 1))
+                        
+                )
+                dev.off()
+                
+                png(paste("plots/PR_TO_CS/serviced_passengers_per_station_", file, "_", freq, "_", trams, "_", turn, ".png",sep = ""))
+                print(
+                    ggplot(pr_to_cs, aes(x=Station, y=total_passengers_serviced)) +
+                        geom_bar(stat = "identity", position = 'dodge') +
+                        geom_text(aes(label=avg_wait_time), position=position_dodge(width=0.9), vjust=-0.25) +
+                        ylab("Serviced passengers") +
+                        scale_fill_discrete(name = "Data") +
+                        annotate("text", x=Inf, y=Inf, label=paste("Freq = ", freq), vjust=1.1, hjust=1) + 
+                        annotate("text", x=Inf, y=Inf, label=paste("Trams = ", trams), vjust=2.3, hjust=1) + 
+                        annotate("text", x=Inf, y=Inf, label=paste("Turnaround = ", turn), vjust=3.5, hjust=1) + 
+                        theme(axis.text.x = element_text(angle = 45, hjust = 1))
+                    
+                )
+                dev.off()
+            }
+        }
+    }
+}
