@@ -39,15 +39,12 @@ namespace Uithoflijn
             FrequencyIntervals = intervals;
 
             // initialize all to 0
-            for (var i = 0; i <= range; i++)
-                Add(0);
+            for (var i = 0; i <= range; i++) Add(0);
 
             foreach (var interval in FrequencyIntervals)
             {
                 var start = interval.Start;
-
                 var end = interval.End;
-
                 var freq = interval.Frequency;
 
                 for (int i = start; i <= end; i += freq)

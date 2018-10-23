@@ -16,8 +16,10 @@ namespace Uithoflijn
             var names = new List<string>() { T1, "Vaartscherijn", "Galgenwaard", "Kromme Rijn","Padualaan",
                                                        "Heidelberglaan",  "UMC", "WKZ" , T2};
 
+            //travelling times forward 
             var forward = new List<int>() { 134, 243, 59, 101, 60, 86, 78, 113 };
             var backwards = new List<int>() { 110, 78, 82, 60, 100, 59, 243, 135 };
+
             var id = 0;
 
             //For both directions
@@ -95,12 +97,18 @@ namespace Uithoflijn
                 vertex.InEdges = Edges.Where(x => x.Target == vertex).ToList();
             }
 
+            //an offset for the issuing of trams from the second terminal
             var offset = (int)TimeSpan.FromMinutes(17).TotalSeconds + turnaroundTime;
-            var fifteenMin = (int)TimeSpan.FromMinutes(15).TotalSeconds;
-            var hour = (int)TimeSpan.FromHours(1).TotalSeconds;
-            var peakHours = (int)TimeSpan.FromHours(12).TotalSeconds;
-            var totalWorkTime = 54000;
 
+            var fifteenMin = (int)TimeSpan.FromMinutes(15).TotalSeconds;
+
+            var hour = (int)TimeSpan.FromHours(1).TotalSeconds;
+
+            var peakHours = (int)TimeSpan.FromHours(12).TotalSeconds;
+
+            /// this is the total working time in seconds
+            var totalWorkTime = 54000;
+                
             var timetablePR = new Timetable(new[]
             {
                 new FrequencyInterval { Start = 0, End = hour , Frequency  = fifteenMin},

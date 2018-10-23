@@ -14,8 +14,8 @@ namespace Uithoflijn
         /// <summary>
         /// Enable this to track the results
         /// </summary>
-        public static bool DEBUG = false;
-        public static bool RUN_VALIDATION_BUS_TESTING = true;
+        public static bool DEBUG = true;
+        public static bool RUN_VALIDATION_TESTING = true;
         private const int AT_LEAST_COUNT_TRAMS = 1;
         public const int AVERAGING_RUNS_PER_FILE = 10;
         public const int TOTAL_TRAMS_TESTED = 20;
@@ -27,13 +27,13 @@ namespace Uithoflijn
         public static void Main(string[] args)
         {
             //The values of the frequencies we're testing, issue at least every 40 seconds(otherwise we issue waaaay too fast)
-            var testFrequencies = new List<int>() { 240 };
-            var turnAroundTimes = new List<int>() { 300 };
+            var testFrequencies = new List<int>() { };
+            var turnAroundTimes = new List<int>() { };
             var tramNumbers = new List<int>();
 
-            //const int sec = 30;
-            //for (var seconds = 15 * 60; seconds > 1 * 60; seconds -= sec) { testFrequencies.Add(seconds); }
-            //for (var seconds = 5 * 60; seconds > 2 * 60; seconds -= sec) { turnAroundTimes.Add(seconds); }
+            const int sec = 30;
+            for (var seconds = 15 * 60; seconds >= 3 * 60; seconds -= sec) { testFrequencies.Add(seconds); }
+            for (var seconds = 5 * 60; seconds >= 2 * 60; seconds -= sec) { turnAroundTimes.Add(seconds); }
             for (var tramCounts = TOTAL_TRAMS_TESTED; tramCounts >= AT_LEAST_COUNT_TRAMS; tramCounts--) { tramNumbers.Add(tramCounts); }
 
             //check if debugger is attached to guarantee nice debugging 
@@ -48,10 +48,9 @@ namespace Uithoflijn
                     foreach (var turnAroundFreq in turnAroundTimes)
                         testValues.Add((tramFrequency, tramCount, turnAroundFreq));
 
-
-            if (RUN_VALIDATION_BUS_TESTING)
+            if (RUN_VALIDATION_TESTING)
             {
-                var validationData = ValidationFileReader.ReadValidationFolder("validation");
+                var validationData = ValidationFileReader.ReadValidationFolder("bus");
 
                 for (int i = 0; i < AVERAGING_RUNS_PER_FILE; i++)
                     foreach (var validationSet in validationData)
@@ -179,7 +178,6 @@ namespace Uithoflijn
             });
 
             var final = new List<string>(output);
-
             final.Insert(0, string.Concat("file,q,freq,tramcnt,", header));
 
             if (!Directory.Exists("answers")) Directory.CreateDirectory("answers");

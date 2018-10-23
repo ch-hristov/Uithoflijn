@@ -261,7 +261,6 @@ namespace Uithoflijn
 
             //compute how long we have to wait
             var stationDwell = GetStationTime(totalDisembarkingPassengers, totalDisembarkingPassengers);
-
             var departTime = e.TriggerTime + stationDwell;
 
             //we need to make a turnaround now, this takes Turnaround time
