@@ -41,6 +41,7 @@ for (file in filenames.2) {
 }
 
 averaged.2 <- aggregate(. ~ tramcnt, FUN=mean, data=output.data)
+averaged.2 <- averaged.2[which(averaged.2$q == 300 & averaged.2$freq == 240),]
 
 # output_input-data-passengers-03_
 filenames.3 <- list.files(path = "answers", pattern = "output_input-data-passengers-03_", full.names = T)
@@ -53,7 +54,7 @@ for (file in filenames.3) {
 }
 
 averaged.3 <- aggregate(. ~ tramcnt, FUN=mean, data=output.data)
-
+averaged.3 <- averaged.3[which(averaged.3$q == 300 & averaged.3$freq == 240),]
 
 # output_input-data-passengers-04_
 filenames.4 <- list.files(path = "answers", pattern = "output_input-data-passengers-04_", full.names = T)
@@ -66,7 +67,7 @@ for (file in filenames.4) {
 }
 
 averaged.4 <- aggregate(. ~ tramcnt, FUN=mean, data=output.data)
-
+averaged.4 <- averaged.4[which(averaged.4$q == 300 & averaged.4$freq == 240),]
 
 # output_input-data-passengers-06_
 filenames.6 <- list.files(path = "answers", pattern = "output_input-data-passengers-06_", full.names = T)
@@ -79,7 +80,7 @@ for (file in filenames.6) {
 }
 
 averaged.6 <- aggregate(. ~ tramcnt, FUN=mean, data=output.data)
-
+averaged.6 <- averaged.6[which(averaged.6$q == 300 & averaged.6$freq == 240),]
 
 
 
@@ -94,7 +95,7 @@ for (file in filenames.025) {
 }
 
 averaged.025 <- aggregate(. ~ tramcnt, FUN=mean, data=output.data)
-
+averaged.025 <- averaged.025[which(averaged.025$q == 300 & averaged.025$freq == 240),]
 
 ######################
 # Plot the graphs
@@ -192,8 +193,4 @@ ggplot(averaged.025, aes(x=factor(tramcnt), y=highLatenessTramsCount)) +
     ylab("Number of Trams") +
     annotate("text", x=Inf, y=Inf, label=paste("input-data-passengers-025.csv"), vjust=1.1, hjust=1)
 dev.off()
-
-
-
-
 

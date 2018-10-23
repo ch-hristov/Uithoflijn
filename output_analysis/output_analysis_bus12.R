@@ -19,52 +19,14 @@ if (!require("ggplot2")) {
 # Store the station names in a variable for easy iteration.
 stations <- c("P+R.Uithof", "WKZ", "UMC","Heidelberglaan", "Padualaan","Kromme.Rijn",
                "Galgenwaard", "Vaartsche.Rijn","Centraal.Station")
-
-
-# # Read the data
-# # PR to CS
-# df.PR.to.CS <- read.csv("passenger_waiting_times_at_stations_PR_to_CS.csv", header = TRUE) 
-# 
-# for (st in stations){
-#     df <- df.PR.to.CS[which(df.PR.to.CS$station==st),]
-#     
-#     plot <- ggplot(df, aes(x = time, y = average_waiting_time)) +
-#         geom_bar(stat = "identity") + 
-#         ylab("Waiting time (sec)") +
-#         scale_x_discrete(limits=c("6-7","7-8","8-9","9-10","10-11","11-12","12-13","13-14","14-15","15-16","16-17","17-18","18-19","19-20","20-21","21-22"))
-#     
-#     png(filename = paste("plots/",st,"_waiting_times.png",sep=""))
-#     print(plot)
-#     dev.off()
-# }
-# 
-# 
-# data.from.output <- read.csv('output.csv', header = T, sep = ';')
-# 
-# data.from.output.trimmed <- data.from.output[(data.from.output$punctuality < max(data.from.output$punctuality) - 900000) ,] 
-# 
-# data.from.output.trimmed$freq <- as.factor(data.from.output.trimmed$freq)
-# data.from.output.trimmed$tramcnt <- as.factor(data.from.output.trimmed$tramcnt)
-# data.from.output.trimmed$q <- as.factor(data.from.output.trimmed$q)
-# 
-# punctuality.plot <- ggplot(data.from.output.trimmed, aes(x = freq, y = punctuality, fill = q)) +
-#     geom_bar(stat = "identity", position = position_dodge()) + 
-#     geom_hline(yintercept = 1020) + 
-#     geom_text(aes(label=tramcnt), position=position_dodge(width=0.9), vjust=-0.25) + 
-#     scale_fill_discrete(name = "Turnaround time (sec)") + 
-#     xlab("Frequency (sec)") + 
-#     ylab("Time for roundtrip (sec)")
-#     #scale_y_continuous(breaks = sort(c(seq(min(punctuality$punctuality), max(punctuality$punctuality), length.out = 5), 1020)))
-# 
-# png(file="plots/punctuality.plot.png")
-# punctuality.plot
-# dev.off()
+frequencies <- c(360,180,210,270,300,480,390,510,330,450,540,570,600,420,690,720,630,240,660,780,810,750,840,870,900)
+turnaround.times <- c(240,270,300,120,150,180,210)
 
 dir.create(file.path("plots"), showWarnings = FALSE)
-dir.create(file.path("plots/CS_TO_PR"), showWarnings = FALSE)
-dir.create(file.path("plots/PR_TO_CS"), showWarnings = FALSE)
+dir.create(file.path("plots/bus12"), showWarnings = FALSE)
+dir.create(file.path("plots/bus12/CS_TO_PR"), showWarnings = FALSE)
+dir.create(file.path("plots/bus12/PR_TO_CS"), showWarnings = FALSE)
 
-frequencies <- c(180, 360, 540, 720, 900)
 
 bus12.df <- read.csv('output_bus12_validation.csv', stringsAsFactors = FALSE, na.strings = "NaN")
 validation.1.df <- read.csv('output_input-data-passengers-01.csv', stringsAsFactors = FALSE, na.strings = "NaN")
@@ -75,70 +37,20 @@ validation.6.df <- read.csv('output_input-data-passengers-06.csv', stringsAsFact
 validation.15.df <- read.csv('output_input-data-passengers-015.csv', stringsAsFactors = FALSE, na.strings = "NaN")
 validation.25.df <- read.csv('output_input-data-passengers-025.csv', stringsAsFactors = FALSE, na.strings = "NaN")
 
-# Compine the dfs in to 1.
-df.melted.1 <- rbind(bus12.df, validation.1.df, validation.2.df, validation.3.df)
-df.melted.2 <- rbind(validation.3.df, validation.4.df, validation.6.df, validation.15.df, validation.25.df)
+#########
+# Open multiple files and average, we 'll plot later
+########
+# Start with the bus data
+bus.12 <- list.files(path = "answers_1", pattern = "output_bus12_validation_", full.names = T)
 
+output.data <- data.frame()
 
-## Barplots for the serviced passengers
-for (freq in frequencies){
-    png(paste("plots/serviced_passengers1_freq", freq, ".png",sep = ""))
-    print(
-        ggplot(df.melted.1[which(df.melted.1$freq == freq),], aes(x=factor(tramcnt), y=serviced, fill=file)) +
-            geom_bar(stat = "identity", position = 'dodge') +
-            xlab("Trams") +
-            ylab("Serviced passengers") +
-            scale_fill_discrete(name = "Data") +
-            annotate("text", x=Inf, y = Inf, label=paste("Freq = ", freq), vjust=1.1, hjust=1) 
-    )
-    dev.off()
-    
-    png(paste("plots/serviced_passengers2_freq", freq, ".png",sep = ""))
-    print(
-        ggplot(df.melted.2[which(df.melted.2$freq == freq),], aes(x=factor(tramcnt), y=serviced, fill=file)) +
-            geom_bar(stat = "identity", position = 'dodge') +
-            xlab("Trams") +
-            ylab("Serviced passengers") +
-            scale_fill_discrete(name = "Data") +
-            annotate("text", x=Inf, y = Inf, label=paste("Freq = ", freq), vjust=1.1, hjust=1)
-    )
-    dev.off()
+for (file in bus.12) {
+    data <- read.csv(file, header = T)
+    output.data <- rbind(output.data, data)
 }
 
-
-## Waiting times
-for (freq in frequencies) {
-    png(paste("plots/waiting_times1_freq", freq, ".png",sep = ""))
-    print(
-        ggplot(df.melted.1[which(df.melted.1$freq == freq),], aes(x=tramcnt, y=total_waiting_time, colour=file)) +
-            geom_line() +
-            scale_x_discrete(limits=c(1:20)) +
-            xlab("Trams") +
-            ylab("Waiting Time (sec)") +
-            labs(color = "Data") +
-            annotate("text", x=Inf, y = Inf, label=paste("Freq = ", freq), vjust=1.1, hjust=1) 
-    )
-    dev.off()
-    
-    png(paste("plots/waiting_times2_freq", freq, ".png",sep = ""))
-    print(
-        ggplot(df.melted.2[which(df.melted.2$freq == freq),], aes(x=tramcnt, y=total_waiting_time, colour=file)) +
-            geom_line() +
-            scale_x_discrete(limits=c(1:20)) +
-            xlab("Trams") +
-            ylab("Waiting Time (sec)") +
-            labs(color = "Data") +
-            annotate("text", x=Inf, y = Inf, label=paste("Freq = ", freq), vjust=1.1, hjust=1)
-    )
-    dev.off()
-}
-
-
-
-filenames <- c("bus12_validation")
-
-turnaround.times <- c(150, 180, 210, 240, 300)
-
+averaged.12 <- aggregate(. ~ tramcnt + q + freq, FUN=mean, data=output.data)
 
 
 for (file in filenames){
@@ -187,3 +99,151 @@ for (file in filenames){
         }
     }
 }
+
+dir.create(file.path("plots/bus12/tramcnt"), showWarnings = FALSE)
+for (q in turnaround.times){
+    png(filename = paste("plots/bus12/tramcnt/bus12_validation_serviced_",q,".png",sep = ""), width = 300, height = 350)
+    print(
+        ggplot(data = averaged.12[which(averaged.12$q == q),]) +
+            geom_line(aes(x=tramcnt, y=serviced, colour=factor(freq))) +
+            xlab("Tram count") +
+            ylab("Serviced passengers") + 
+            annotate("text", x=Inf, y=Inf, label=paste("q = ", q), vjust=1.1, hjust=1) + 
+            labs(color = "Turnaround times")
+    )
+    dev.off()
+    
+    png(filename = paste("plots/bus12/tramcnt/bus12_validation_punctuality_",q,".png",sep = ""), width = 300, height = 350)
+    print(
+        ggplot(data = averaged.12[which(averaged.12$q == q),]) +
+            geom_line(aes(x=tramcnt, y=punctuality, colour=factor(freq))) +
+            xlab("Tram count") +
+            ylab("Punctuality (seconds)") + 
+            annotate("text", x=Inf, y=Inf, label=paste("q = ", q), vjust=1.1, hjust=1) + 
+            labs(color = "Turnaround times")
+    )
+    dev.off()
+    
+    png(filename = paste("plots/bus12/tramcnt/bus12_validation_waitingtime_",q,".png",sep = ""), width = 300, height = 350)
+    print(
+        ggplot(data = averaged.12[which(averaged.12$q == q),]) +
+            geom_line(aes(x=tramcnt, y=total_avg_waiting_time, colour=factor(freq))) +
+            xlab("Tram count") +
+            ylab("Average Waiting time (seconds)") + 
+            annotate("text", x=Inf, y=Inf, label=paste("q = ", q), vjust=1.1, hjust=1) + 
+            labs(color = "Turnaround times")
+    )
+    dev.off()
+}
+
+
+
+
+dir.create(file.path("plots/bus12/freq"), showWarnings = FALSE)
+for (q in turnaround.times){
+    png(filename = paste("plots/bus12/freq/bus12_validation_avgwait_", q, ".png",sep = ""), width = 300, height = 350)
+    print(
+        ggplot(averaged.12[which(averaged.12$q == q),], aes(x = freq, y = total_avg_waiting_time)) +
+            geom_bar(stat = "identity", position = 'dodge') +
+            xlab("Frequency (seconds)") +
+            ylab("Average Waiting time (seconds)") + 
+            annotate("text", x=Inf, y=Inf, label=paste("q = ", q), vjust=1.1, hjust=1)
+    )
+    dev.off()
+    
+    
+    png(filename = paste("plots/bus12/freq/bus12_validation_punctuality_", q, ".png",sep = ""), width = 300, height = 350)
+    print(
+        ggplot(averaged.12[which(averaged.12$q == q),], aes(x = freq, y = punctuality)) +
+            geom_bar(stat = "identity", position = 'dodge') +
+            xlab("Frequency (seconds)") +
+            ylab("Punctuality (seconds)") + 
+            annotate("text", x=Inf, y=Inf, label=paste("q = ", q), vjust=1.1, hjust=1)
+    )
+    dev.off()
+    
+    
+    png(filename = paste("plots/bus12/freq/bus12_validation_serviced_", q, ".png",sep = ""), width = 300, height = 350)
+    print(
+        ggplot(averaged.12[which(averaged.12$q == q),], aes(x = freq, y = serviced)) +
+            geom_bar(stat = "identity", position = 'dodge') +
+            xlab("Frequency (seconds)") +
+            ylab("Serviced Passengers") + 
+            annotate("text", x=Inf, y=Inf, label=paste("q = ", q), vjust=1.1, hjust=1)
+    )
+    dev.off()
+    
+    png(filename = paste("plots/bus12/highlateness/bus12_validation_tramcnt_", q, ".png",sep = ""), width = 300, height = 350)
+    print(
+        ggplot(averaged.12[which(averaged.12$q == q),]) +
+            geom_line(aes(x=tramcnt, y=highLatenessTramsCount, colour=factor(freq))) +
+            xlab("Tram count") +
+            ylab("High Lateness Tram count") + 
+            annotate("text", x=Inf, y=Inf, label=paste("q = ", q), vjust=1.1, hjust=1) + 
+            labs(color = "Turnaround times")
+    )
+    dev.off()
+}
+
+
+dir.create(file.path("plots/bus12/turnaround"), showWarnings = FALSE)
+dir.create(file.path("plots/bus12/highlateness"), showWarnings = FALSE)
+for (freq in frequencies){
+    png(filename = paste("plots/bus12/turnaround/bus12_validation_serviced_", freq, ".png",sep = ""), width = 300, height = 350)
+    print(
+        ggplot(averaged.12[which(averaged.12$freq == freq),], aes(x = q, y = total_avg_waiting_time)) +
+            geom_bar(stat = "identity", position = 'dodge') +
+            xlab("Frequency (seconds)") +
+            ylab("Average Waiting time (seconds)") + 
+            annotate("text", x=Inf, y=Inf, label=paste("Freq = ", freq), vjust=1.1, hjust=1)
+    )
+    dev.off()
+    
+    png(filename = paste("plots/bus12/turnaround/bus12_validation_punctuality_", freq, ".png",sep = ""), width = 300, height = 350)
+    print(
+        ggplot(averaged.12[which(averaged.12$freq == freq),], aes(x = q, y = punctuality)) +
+            geom_bar(stat = "identity", position = 'dodge') +
+            xlab("Frequency (seconds)") +
+            ylab("Punctuality (seconds)") + 
+            annotate("text", x=Inf, y=Inf, label=paste("Freq = ", freq), vjust=1.1, hjust=1)
+    )
+    dev.off()
+    
+    
+    png(filename = paste("plots/bus12/turnaround/bus12_validation_serviced_", freq, ".png",sep = ""), width = 300, height = 350)
+    print(
+        ggplot(averaged.12[which(averaged.12$freq == freq),], aes(x = q, y = serviced)) +
+            geom_bar(stat = "identity", position = 'dodge') +
+            xlab("Frequency (seconds)") +
+            ylab("Serviced Passengers") + 
+            annotate("text", x=Inf, y=Inf, label=paste("Freq = ", freq), vjust=1.1, hjust=1)
+    )
+    dev.off()
+    
+    # png(filename = paste("plots/bus12/highlateness/bus12_validation_tramcnt_", freq, ".png",sep = ""), width = 300, height = 350)
+    # print(
+    #     ggplot(averaged.12[which(averaged.12$freq == freq),]) +
+    #         geom_line(aes(x=tramcnt, y=highLatenessTramsCount, colour=factor(q))) +
+    #         xlab("Tram count") +
+    #         ylab("High Lateness Tram count") + 
+    #         annotate("text", x=Inf, y=Inf, label=paste("Freq = ", freq), vjust=1.1, hjust=1) + 
+    #         labs(color = "Turnaround times")
+    # )
+    # dev.off()
+}
+
+png(filename = paste("plots/bus12/highlateness/bus12_validation_tramcnt_", freq, ".png",sep = ""), width = 300, height = 350)
+print(
+    ggplot(averaged.12[which(averaged.12$q == q),]) +
+        geom_line(aes(x=tramcnt, y=highLatenessTramsCount, colour=factor(freq))) +
+        xlab("Tram count") +
+        ylab("High Lateness Tram count") + 
+        annotate("text", x=Inf, y=Inf, label=paste("q = ", q), vjust=1.1, hjust=1) + 
+        labs(color = "Turnaround times")
+)
+dev.off()
+
+
+
+
+

@@ -2,12 +2,12 @@
   <MonoDevelop.Ide.Workbench ActiveDocument="Uithoflijn/Station.cs">
     <Files>
       <File FileName="Uithoflijn/Utils.cs" Line="19" Column="1" />
-      <File FileName="Uithoflijn/Tram.cs" Line="50" Column="36" />
-      <File FileName="Uithoflijn/ValidationFileReader.cs" Line="51" Column="28" />
-      <File FileName="Uithoflijn/StateManager.cs" Line="128" Column="77" />
-      <File FileName="Uithoflijn/Station.cs" Line="378" Column="1" />
+      <File FileName="Uithoflijn/Tram.cs" Line="50" Column="14" />
+      <File FileName="Uithoflijn/ValidationFileReader.cs" Line="52" Column="1" />
+      <File FileName="Uithoflijn/StateManager.cs" Line="128" Column="60" />
+      <File FileName="Uithoflijn/Station.cs" Line="370" Column="1" />
       <File FileName="Uithoflijn/Terrain.cs" Line="4" Column="16" NotebookId="1" />
-      <File FileName="Uithoflijn/Program.cs" Line="132" Column="27" NotebookId="1" />
+      <File FileName="Uithoflijn/Program.cs" Line="86" Column="1" NotebookId="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.ItemProperties.Uithoflijn PreferredExecutionTarget="MonoDevelop.Default" />
