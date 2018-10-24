@@ -97,7 +97,7 @@ namespace Uithoflijn
 
         public Tram CurrentTram { get; set; }
 
-        private Dictionary<DateTime, int> IndexFinderDict = new Dictionary<DateTime, int>()
+        private Dictionary<DateTime, int> PeriodFinder = new Dictionary<DateTime, int>()
         {
             {new DateTime(01, 1, 1, 6, 0, 0), 0},
             {new DateTime(01, 1, 1, 6, 15, 0), 1},
@@ -321,19 +321,19 @@ namespace Uithoflijn
             // When we have a better input analysis, this will code will be reduced. 
             DateTime nearest = Utils.RoundToNearest(dt, TimeSpan.FromMinutes(15));
 
-            if (IndexFinderDict.ContainsKey(nearest))
-                return IndexFinderDict[nearest];
+            if (PeriodFinder.ContainsKey(nearest))
+                return PeriodFinder[nearest];
             else
             {
                 DateTime rd = Utils.RoundDown(dt, TimeSpan.FromMinutes(15));
                 DateTime ru = Utils.RoundUp(dt, TimeSpan.FromMinutes(15));
-                if (IndexFinderDict.ContainsKey(rd))
+                if (PeriodFinder.ContainsKey(rd))
                 {
-                    return IndexFinderDict[rd];
+                    return PeriodFinder[rd];
                 }
-                else if (IndexFinderDict.ContainsKey(ru))
+                else if (PeriodFinder.ContainsKey(ru))
                 {
-                    return IndexFinderDict[ru];
+                    return PeriodFinder[ru];
                 }
                 else
                 {
@@ -421,6 +421,7 @@ namespace Uithoflijn
                 }
                 else
                 {
+                    // in direction zero take from this collection
                     n = (int)ComingDistrubutions[my_index].PassIn;
                     ComingDistrubutions[my_index].PassIn = 0;
                 }
@@ -435,6 +436,7 @@ namespace Uithoflijn
                 }
                 else
                 {
+                    // in direction 1 take from this collection
                     n = (int)GoingDistrubutions[my_index].PassIn;
                     GoingDistrubutions[my_index].PassIn = 0;
                 }

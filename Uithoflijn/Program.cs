@@ -14,10 +14,12 @@ namespace Uithoflijn
         /// <summary>
         /// Enable this to track the results
         /// </summary>
-        public static bool DEBUG = true;
+        public static bool DEBUG = false;
         public static bool RUN_VALIDATION_TESTING = true;
+        public static bool VISUALIZE = false;
+
         private const int AT_LEAST_COUNT_TRAMS = 1;
-        public const int AVERAGING_RUNS_PER_FILE = 10;
+        public const int AVERAGING_RUNS_PER_FILE = 5;
         public const int TOTAL_TRAMS_TESTED = 20;
 
         public int LatenessThreshold { get; }
@@ -27,7 +29,7 @@ namespace Uithoflijn
         public static void Main(string[] args)
         {
             //The values of the frequencies we're testing, issue at least every 40 seconds(otherwise we issue waaaay too fast)
-            var testFrequencies = new List<int>() { };
+            var testFrequencies = new List<int>() {  };
             var turnAroundTimes = new List<int>() { };
             var tramNumbers = new List<int>();
 
@@ -50,6 +52,7 @@ namespace Uithoflijn
 
             if (RUN_VALIDATION_TESTING)
             {
+                // just change bus => validation to produce for validation datasets if needed ^_^   
                 var validationData = ValidationFileReader.ReadValidationFolder("bus");
 
                 for (int i = 0; i < AVERAGING_RUNS_PER_FILE; i++)
@@ -91,7 +94,6 @@ namespace Uithoflijn
                 var tramFrequency = tuple.frequency;
                 var tramCount = tuple.tramCount;
                 var turnAroundTime = tuple.turnAroundTime;
-
                 var realName = Path.GetFileNameWithoutExtension(fileName);
 
                 var debugFile = $"debug/{realName}_{tramFrequency}_{tramCount}_{turnAroundTime}.txt";
@@ -132,7 +134,7 @@ namespace Uithoflijn
 
                         sm.WriteState += (send, arg) =>
                         {
-                            if (DEBUG)
+                            if (DEBUG && VISUALIZE)
                                 visWriter.WriteLine(arg);
                         };
 
@@ -184,7 +186,6 @@ namespace Uithoflijn
             var finalName = $"answers/output_{Path.GetFileNameWithoutExtension(fileName)}_{runIdentifier}.csv";
 
             File.WriteAllLines(finalName, final);
-
             if (DEBUG) Console.WriteLine(final.Aggregate((a, b) => a + Environment.NewLine + b));
 
             return fileStatistics;

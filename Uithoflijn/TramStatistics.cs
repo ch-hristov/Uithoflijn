@@ -5,6 +5,10 @@
         public int TotalDelay { get; set; }
         public int Punctuality { get; set; }
         public int TotalPassengersServiced { get; set; }
+
+        /// <summary>
+        /// this is not used but can be implemented as a way to measure how many people stack up at the station
+        /// </summary>
         public int StationPassengerCongestion { get; set; }
         public int HighLatenessTrams { get; internal set; }
         public double TotalAverageWaitingTime { get; internal set; }

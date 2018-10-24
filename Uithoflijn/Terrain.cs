@@ -129,6 +129,7 @@ namespace Uithoflijn
             Vertices.FirstOrDefault(x => x.Name == T2).SetTimetable(timetablePR);
             Vertices.FirstOrDefault(x => x.Name == T1).SetTimetable(timeTableUithof);
 
+            //Just for debug :)
             var psr = Vertices.FirstOrDefault(x => x.Name == T2).Timetable.ToString();
             var uff = Vertices.FirstOrDefault(x => x.Name == T1).Timetable.ToString();
 

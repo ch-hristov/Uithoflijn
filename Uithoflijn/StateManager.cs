@@ -209,16 +209,28 @@ namespace Uithoflijn
         {
             e.FromStation.CurrentTram = null;
             e.Tram.CurrentStation = null;
+            e.FromStation.TimeOfLastTram = e.TriggerTime;
+
+            var tramDepartureFromTerminal = e.Tram.DepartureFromPreviousTerminal;
 
             //Remember when the tram departed from the terminal
             //to know in which timetable cycle it should arrive
             if (e.FromStation.IsTerminal)
             {
+                if (tramDepartureFromTerminal != int.MinValue)
+                {
+                    var nextDepartureTime = e.FromStation.Timetable.GetNextDepartureTime(tramDepartureFromTerminal);
+                    if (nextDepartureTime == null)
+                        return;
+                    var dep = nextDepartureTime.Value;
+                    //mark departure time as used
+                    e.FromStation.Timetable[dep] = 0;
+                }
+
                 e.Tram.PreviousTerminal = e.FromStation;
                 e.Tram.DepartureFromPreviousTerminal = e.TriggerTime;
                 e.Tram.IsDirectionToCentraal = Track.GetPR() == e.FromStation;
             }
-            e.FromStation.TimeOfLastTram = e.TriggerTime;
 
             //if there are any trams that need to arrive at the station then do it.
             if (e.FromStation.TramsQueue.Count > 0)
@@ -260,7 +272,8 @@ namespace Uithoflijn
             e.ToStation.TotalPassengersServiced += totalEmbarkingPassengers;
 
             //compute how long we have to wait
-            var stationDwell = GetStationTime(totalDisembarkingPassengers, totalDisembarkingPassengers);
+            var stationDwell = GetStationTime(totalEmbarkingPassengers, totalDisembarkingPassengers);
+
             var departTime = e.TriggerTime + stationDwell;
 
             //we need to make a turnaround now, this takes Turnaround time
@@ -283,18 +296,14 @@ namespace Uithoflijn
                     //we're done
                     if (nextDepartureTime == null) return;
 
-                    var dep = nextDepartureTime.Value;
-
-                    //mark departure time as used
-                    e.ToStation.Timetable[dep] = 0;
-
                     //how long more did we take than expected?
-                    var punctuality = currentTime - dep;
+                    var punctuality = currentTime - nextDepartureTime.Value;
 
                     //Check if this tram was very late :/ 
                     if (punctuality > LatenessThreshold)
                     {
                         e.Tram.WasLate = true;
+
                         if (punctuality > MaxDepartureLateness)
                             MaxDepartureLateness = punctuality;
                     }
