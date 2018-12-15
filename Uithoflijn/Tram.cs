@@ -18,7 +18,11 @@ namespace Uithoflijn
 
         public int Id { get; set; }
 
-        public int CurrentPassengers { get; set; }
+        public int CurrentPassengers
+        {
+            get => _currentPassengers; set =>
+_currentPassengers = value;
+        }
 
         public int ServedPassengers { get; set; }
 
@@ -142,5 +146,6 @@ namespace Uithoflijn
         {
             0,0.00305499,0.000179395,9.48E-06,0.000681801,0.000750849,0.009020428,0.030002259,1
         };
+        private int _currentPassengers;
     }
 }

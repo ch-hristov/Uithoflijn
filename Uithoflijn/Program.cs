@@ -29,13 +29,19 @@ namespace Uithoflijn
         public static void Main(string[] args)
         {
             //The values of the frequencies we're testing, issue at least every 40 seconds(otherwise we issue waaaay too fast)
-            var testFrequencies = new List<int>() {  };
+            var testFrequencies = new List<int>() { };
             var turnAroundTimes = new List<int>() { };
             var tramNumbers = new List<int>();
 
-            const int sec = 30;
-            for (var seconds = 15 * 60; seconds >= 3 * 60; seconds -= sec) { testFrequencies.Add(seconds); }
-            for (var seconds = 5 * 60; seconds >= 2 * 60; seconds -= sec) { turnAroundTimes.Add(seconds); }
+            int max_freq = (int)TimeSpan.FromMinutes(7).TotalSeconds;
+            int min_freq = (int)TimeSpan.FromMinutes(3).TotalSeconds;
+            int max_turn = (int)TimeSpan.FromMinutes(4).TotalSeconds;
+            int min_turn = (int)TimeSpan.FromMinutes(3).TotalSeconds;
+
+            const int test_sec = 30;
+
+            for (var seconds = max_freq; seconds >= min_freq; seconds -= test_sec) { testFrequencies.Add(seconds); }
+            for (var seconds = max_turn; seconds >= min_turn; seconds -= test_sec) { turnAroundTimes.Add(seconds); }
             for (var tramCounts = TOTAL_TRAMS_TESTED; tramCounts >= AT_LEAST_COUNT_TRAMS; tramCounts--) { tramNumbers.Add(tramCounts); }
 
             //check if debugger is attached to guarantee nice debugging 

@@ -131,8 +131,6 @@ namespace Uithoflijn
 
                 TotalDelay = TotalDelay,
 
-                StationPassengerCongestion = 0,
-
                 HighLatenessTrams = Trams.Count(x => x.WasLate),
 
                 TotalAverageWaitingTime = Track.Vertices
@@ -259,6 +257,8 @@ namespace Uithoflijn
 
         private void HandleArrival(object sender, TransportArgs e)
         {
+
+            // if the station is terminal, the train will arrive to the main platform 
             //muy importante not to forget this
             e.ToStation.CurrentTram = e.Tram;
 
@@ -288,7 +288,7 @@ namespace Uithoflijn
                 var currentTime = e.TriggerTime + Math.Max(turnaroundTime, stationDwell);
                 var tramDepartureFromTerminal = e.Tram.DepartureFromPreviousTerminal;
 
-                if (e.FromStation != e.ToStation && tramDepartureFromTerminal != int.MinValue)
+                if (tramDepartureFromTerminal != int.MinValue)
                 {
                     //Get next departure time
                     var nextDepartureTime = e.ToStation.Timetable.GetNextDepartureTime(tramDepartureFromTerminal);
@@ -296,7 +296,7 @@ namespace Uithoflijn
                     //we're done
                     if (nextDepartureTime == null) return;
 
-                    //how long more did we take than expected?
+                    //how long more did we take than expected? (higher is WORSE)
                     var punctuality = currentTime - nextDepartureTime.Value;
 
                     //Check if this tram was very late :/ 
@@ -335,6 +335,9 @@ namespace Uithoflijn
             // handle boarding ? how many people can board?
             totalDisembarkingPassengers = e.Tram.GetDisembarkingPassengers(e.ToStation, e.TriggerTime);
 
+            // people exit train
+            e.Tram.CurrentPassengers -= totalDisembarkingPassengers;
+
             // get the number of people that have been here before
             var leftOverPeople = e.ToStation.LeftBehind;
 
@@ -344,25 +347,15 @@ namespace Uithoflijn
             // get the number of new passengers that arrived at the platform while it had no tram.
             var toEmbark = e.ToStation.GetEmbarkingPassengers(e.Tram, e.TriggerTime);
 
-            // people exit train
-            e.Tram.CurrentPassengers -= totalDisembarkingPassengers;
-
             // This many people can enter
-            var canEnter = Math.Max(0, MAX_PASSENGERS_IN_TRAIN - e.Tram.CurrentPassengers);
-
-            // compute net entering
-            var totalEntering = Math.Min(canEnter, toEmbark);
-
-            // Passengers board
-            e.Tram.CurrentPassengers += totalEntering;
-            e.Tram.ServedPassengers += totalEntering;
+            var canEnter = Math.Max(0, 420 - e.Tram.CurrentPassengers);
 
             // First we have to board the left behind people because they put the waiting times through the roof.
             if (leftOverPeople <= canEnter)
             {
                 e.Tram.CurrentPassengers += leftOverPeople;
                 totalEmbarkingPassengers += leftOverPeople;
-                e.ToStation.LeftBehind -= leftOverPeople;
+                e.ToStation.LeftBehind -= Math.Max(0, leftOverPeople);
             }
             else
             {
@@ -374,8 +367,8 @@ namespace Uithoflijn
                 e.ToStation.LeftBehind = leftOverPeople - canEnter;
             }
 
-            // Re-compute the number of people entering
-            canEnter = Math.Max(0, MAX_PASSENGERS_IN_TRAIN - e.Tram.CurrentPassengers);
+            //update people that can enter
+            canEnter = Math.Max(0, 420 - e.Tram.CurrentPassengers);
 
             // Easy case, the people that have been waiting, can board. All of them
             if (toEmbark <= canEnter)

@@ -1,0 +1,108 @@
+------------NOT BI------------------
+
+--------Dec. Trees------
+             precision    recall  f1-score   support
+
+          0       0.66      0.55      0.60        80
+          1       0.61      0.71      0.66        80
+
+avg / total       0.63      0.63      0.63       160
+
+[[44 36]
+ [23 57]]
+{'clf__max_depth': 1, 'tfidf__use_idf': True, 'vect__ngram_range': (1, 1)}
+
+
+--------Logistic regression-------
+             precision    recall  f1-score   support
+
+          0       0.89      0.81      0.85        80
+          1       0.83      0.90      0.86        80
+
+avg / total       0.86      0.86      0.86       160
+
+[[65 15]
+ [ 8 72]]
+{'clf__C': 1, 'tfidf__use_idf': True, 'vect__ngram_range': (1, 1)}
+
+
+--------Naive bayes-------
+             precision    recall  f1-score   support
+
+          0       0.90      0.88      0.89        80
+          1       0.88      0.90      0.89        80
+
+avg / total       0.89      0.89      0.89       160
+
+[[70 10]
+ [ 8 72]]
+{'clf__alpha': 0.01, 'tfidf__use_idf': False, 'vect__ngram_range': (1, 1)}
+
+
+
+-------Random forests------
+             precision    recall  f1-score   support
+
+          0       0.82      0.82      0.82        80
+          1       0.82      0.82      0.82        80
+
+avg / total       0.82      0.82      0.82       160
+
+[[66 14]
+ [14 66]]
+{'clf__max_depth': 6, 'clf__n_estimators': 300, 'tfidf__use_idf': False, 'vect__ngram_range': (1, 1)}
+
+
+
+
+
+-------------BI(NO HOMO)-----------------
+
+
+--------Dec. Trees------
+             precision    recall  f1-score   support
+
+          0       0.66      0.47      0.55        80
+          1       0.59      0.75      0.66        80
+
+avg / total       0.62      0.61      0.61       160
+
+[[38 42]
+ [20 60]]
+{'clf__max_depth': 6, 'tfidf__use_idf': False, 'vect__ngram_range': (2, 2)}
+
+--------Logistic regression-------
+             precision    recall  f1-score   support
+
+          0       0.81      0.89      0.85        80
+          1       0.88      0.79      0.83        80
+
+avg / total       0.84      0.84      0.84       160
+
+[[71  9]
+ [17 63]]
+{'clf__C': 1, 'tfidf__use_idf': True, 'vect__ngram_range': (2, 2)}
+
+--------Naive bayes-------
+             precision    recall  f1-score   support
+
+          0       0.73      0.89      0.80        80
+          1       0.86      0.68      0.76        80
+
+avg / total       0.79      0.78      0.78       160
+
+[[71  9]
+ [26 54]]
+{'clf__alpha': 0.01, 'tfidf__use_idf': True, 'vect__ngram_range': (2, 2)}
+
+-------Random forests------
+             precision    recall  f1-score   support
+
+          0       0.84      0.78      0.81        80
+          1       0.79      0.85      0.82        80
+
+avg / total       0.81      0.81      0.81       160
+
+[[62 18]
+ [12 68]]
+{'clf__max_depth': 999999, 'clf__n_estimators': 300, 'tfidf__use_idf': False, 'vect__ngram_range': (2, 2)}
