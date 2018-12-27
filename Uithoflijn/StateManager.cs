@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using MathNet.Numerics.Distributions;
 
 namespace Uithoflijn
 {
@@ -109,7 +110,7 @@ namespace Uithoflijn
 
                 if (next.Type == TransportArgsType.ExpectedDeparture)
                     TramExpectedDeparture(this, next);
-
+                    
                 if (next.Type == TransportArgsType.Arrival)
                     TramArrived(this, next);
 
@@ -120,7 +121,7 @@ namespace Uithoflijn
             var totalServedInDay = 0;
 
             // total served is serviced with every tram
-            foreach (var tram in Trams) totalServedInDay += tram.ServedPassengers;
+            foreach (var tram in Track.Vertices) totalServedInDay += tram.TotalPassengersServiced;
 
             // return output statistics for the output analysis
             return new TramStatistics()
@@ -412,9 +413,47 @@ namespace Uithoflijn
             {
                 Debug.Assert(e.Count() == 1);
                 var edge = e.FirstOrDefault();
+
+                var station = fromStation.Name;
+
+                if (fromStation.Id >= 8)
+                {
+                    station = toStation.Name;
+                }
+
+                var time = stToMeanStd.FirstOrDefault(x => x.Item1 == station);
+                //can be null for depot
+                if (time != null)
+                {
+
+                    var weightInMinutes = (double)edge.Weight / 60;
+                    var totalTravelTime = new Normal(weightInMinutes, time.Item2.Item2);
+
+                    //return in seconds;
+                    var final = (int)Math.Ceiling(totalTravelTime.Sample() * 60);
+
+                    if (DEBUG)
+                        Console.WriteLine(final);
+
+                    return final;
+                }
+
                 return int.Parse(Math.Round(TimeSpan.FromSeconds(edge.Weight).TotalSeconds, 1).ToString());
             }
             throw new Exception($"Unable to find connection between {fromStation.Name} and {toStation.Name}");
         }
+
+        //use tuples to keep their order 
+        private static List<Tuple<string, Tuple<double, double>>> stToMeanStd = new List<Tuple<string, Tuple<double, double>>>()
+        {
+            new Tuple<string,Tuple<double,double>>( "Vaartsche Rijn", new Tuple<double,double>(2.447,0.1442) ),
+            new Tuple<string,Tuple<double,double>>( "Galgenwaard", new Tuple<double, double>(2.070,0.1383) ),
+            new Tuple<string,Tuple<double,double>>( "Kromme Rijn", new Tuple<double, double>(0.945,0.0855) ),
+            new Tuple<string,Tuple<double,double>>( "Padualaan", new Tuple<double, double>(1.647, 0.1338) ),
+            new Tuple<string,Tuple<double,double>>( "Heidelberglaan", new Tuple<double, double>(1.060, 0.0714) ),
+            new Tuple<string,Tuple<double,double>>( "UMC", new Tuple<double, double>(1.453, 0.1118) ),
+            new Tuple<string,Tuple<double,double>>( "WKZ", new Tuple<double, double>(1.342, 0.1152)) ,
+            new Tuple<string,Tuple<double,double>>( "P+R Uithof", new Tuple<double, double>(1.883,0.1137) )
+        }.ToList();
     }
 }

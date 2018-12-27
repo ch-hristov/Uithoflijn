@@ -33,10 +33,10 @@ namespace Uithoflijn
             var turnAroundTimes = new List<int>() { };
             var tramNumbers = new List<int>();
 
-            int max_freq = (int)TimeSpan.FromMinutes(7).TotalSeconds;
+            int max_freq = (int)TimeSpan.FromMinutes(12).TotalSeconds;
             int min_freq = (int)TimeSpan.FromMinutes(3).TotalSeconds;
-            int max_turn = (int)TimeSpan.FromMinutes(4).TotalSeconds;
-            int min_turn = (int)TimeSpan.FromMinutes(3).TotalSeconds;
+            int max_turn = (int)TimeSpan.FromMinutes(5).TotalSeconds;
+            int min_turn = (int)TimeSpan.FromMinutes(2).TotalSeconds;
 
             const int test_sec = 30;
 
